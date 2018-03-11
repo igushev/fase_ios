@@ -1,6 +1,6 @@
 platform :ios, '10.0'
 
-target 'TestJsonIOS' do
+target 'Fase_iOS' do
   use_frameworks!
 
     pod 'Alamofire'
