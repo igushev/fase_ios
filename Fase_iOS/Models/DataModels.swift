@@ -7,12 +7,15 @@
 //
 
 import Foundation
+import ObjectMapper
 
-struct Locale {
-    var countryCode: String
+struct Locale: Mappable {
+    var countryCode: String?
     
-    enum CodingKeys: String, CodingKey {
-        case countryCode = "country_code"
+    init?(map: Map) { }
+    
+    mutating func mapping(map: Map) {
+        countryCode <- map["country_code"]
     }
 }
 
@@ -59,3 +62,4 @@ struct User {
         case datetimeAdded = "datetime_added"
     }
 }
+
