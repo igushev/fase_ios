@@ -33,10 +33,14 @@ class ElementMappingService {
         case .button:
             return Button.init(map: map)
             
+        case .navigation:
+            return ElementContainer.init(map: map)
+            
         default:
             return nil
-        }                
+        }
     }
     
     
 }
+

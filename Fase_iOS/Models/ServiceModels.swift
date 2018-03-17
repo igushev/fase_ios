@@ -51,6 +51,10 @@ struct ElementsUpdate: Mappable {
     var arrayArrayIds: Array<Array<String>>?
     
     init?(map: Map) { }
+    init() {
+        valueArray = []
+        arrayArrayIds = []
+    }
     
     mutating func mapping(map: Map) {
         valueArray <- map["value_list"]
@@ -63,6 +67,7 @@ struct ScreenUpdate: Mappable {
     var device: Device?
     
     init?(map: Map) { }
+    init() { }
     
     mutating func mapping(map: Map) {
         elementsUpdate <- map["elements_update"]
@@ -78,6 +83,14 @@ struct ElementCallback: Mappable {
     var device: Device?
     
     init?(map: Map) { }
+    
+    init(elementsUpdate: ElementsUpdate?, elementIds: Array<String>?, method: String?, locale: Locale?, device: Device) {
+        self.elementsUpdate = elementsUpdate
+        self.arrayIds = elementIds
+        self.method = method
+        self.locale = locale
+        self.device = device
+    }
     
     mutating func mapping(map: Map) {
         elementsUpdate <- map["elements_update"]
@@ -106,7 +119,7 @@ struct ScreenProg: Mappable {
 
 struct Response: Mappable {
     var elementsUpdate: ElementsUpdate?
-    //    var resources: Resources?
+    var resources: Resources?
     var screenInfo: ScreenInfo?
     var sessionInfo: SessionInfo?
     var screen: Screen?
@@ -115,7 +128,7 @@ struct Response: Mappable {
     
     mutating func mapping(map: Map) {
         elementsUpdate <- map["elements_update"]
-        //        resources <- map["resources"]
+        resources <- map["resources"]
         screenInfo <- map["screen_info"]
         sessionInfo <- map["session_info"]
         screen <- map["screen"]
@@ -139,11 +152,27 @@ struct BadRequest: StatusProtocol {
     var code: Int
 }
 
-struct Resource {
+struct Resource: Mappable {
     var fileName: String
+    
+    init?(map: Map) {
+        fileName = try! map.value("filename")
+    }
+    
+    mutating func mapping(map: Map) {
+        fileName <- map["filename"]
+    }
 }
 
-struct Resources {
-    var resourceArray: Array<Resource>
+struct Resources: Mappable {
+    var resourceList: Array<Resource>
+    
+    init?(map: Map) {
+        resourceList = try! map.value("resource_list")
+    }
+    
+    mutating func mapping(map: Map) {
+        resourceList <- map["resource_list"]
+    }
 }
 

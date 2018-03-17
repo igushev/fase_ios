@@ -34,3 +34,30 @@ extension Data {
 }
 
 
+private var faseElementIdAssociationKey: UInt8 = 0
+
+extension UIControl {
+    // This var stores fase element id for convenience. Element id is in the same array that element
+    var faseElementId: String! {
+        get {
+            return objc_getAssociatedObject(self, &faseElementIdAssociationKey) as? String
+        }
+        set(newValue) {
+            objc_setAssociatedObject(self, &faseElementIdAssociationKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN)
+        }
+    }
+}
+
+extension Device {
+    static func currentDevice() -> Device {
+        var uuid = ""
+        if let currentUUID = UIDevice.current.identifierForVendor?.uuidString {
+            uuid = currentUUID
+        }
+        let type = UIDevice.current.systemName + " " + UIDevice.current.systemVersion
+        
+        return Device(type: type, token: uuid)
+    }
+}
+
+

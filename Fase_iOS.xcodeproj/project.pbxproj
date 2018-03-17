@@ -8,12 +8,15 @@
 
 /* Begin PBXBuildFile section */
 		0BC39E8A87BD891F4A76C27B /* Pods_Fase_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABB06E271698DA2ABD7EC85D /* Pods_Fase_iOS.framework */; };
+		5B2127FE205D39BB003A0997 /* ResourcesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B2127FD205D39BB003A0997 /* ResourcesService.swift */; };
+		5B212801205D3A2D003A0997 /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B212800205D3A2D003A0997 /* ViewModel.swift */; };
 		5B4A2D582055748F00578E83 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4A2D572055748F00578E83 /* APIClient.swift */; };
 		5B4A2D5B2055749900578E83 /* Router.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4A2D5A2055749900578E83 /* Router.swift */; };
 		5B4A2D63205574A100578E83 /* FaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4A2D5D205574A000578E83 /* FaseViewController.swift */; };
 		5B4A2D64205574A100578E83 /* APIClientService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4A2D5F205574A100578E83 /* APIClientService.swift */; };
 		5B4A2D65205574A100578E83 /* ElementMappingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4A2D60205574A100578E83 /* ElementMappingService.swift */; };
 		5B4A2D66205574A100578E83 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4A2D62205574A100578E83 /* Extensions.swift */; };
+		5BCBD6782055A9AD0008315B /* ScreenDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BCBD6772055A9AD0008315B /* ScreenDrawer.swift */; };
 		5BFCBD56204F379E0063A171 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BFCBD55204F379E0063A171 /* AppDelegate.swift */; };
 		5BFCBD58204F379E0063A171 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BFCBD57204F379E0063A171 /* ViewController.swift */; };
 		5BFCBD5B204F379E0063A171 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5BFCBD59204F379E0063A171 /* Main.storyboard */; };
@@ -45,12 +48,15 @@
 
 /* Begin PBXFileReference section */
 		4379B13BBF2B6C890F238C14 /* Pods-Fase_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fase_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Fase_iOS/Pods-Fase_iOS.debug.xcconfig"; sourceTree = "<group>"; };
+		5B2127FD205D39BB003A0997 /* ResourcesService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResourcesService.swift; sourceTree = "<group>"; };
+		5B212800205D3A2D003A0997 /* ViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
 		5B4A2D572055748F00578E83 /* APIClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		5B4A2D5A2055749900578E83 /* Router.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Router.swift; sourceTree = "<group>"; };
 		5B4A2D5D205574A000578E83 /* FaseViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FaseViewController.swift; sourceTree = "<group>"; };
 		5B4A2D5F205574A100578E83 /* APIClientService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIClientService.swift; sourceTree = "<group>"; };
 		5B4A2D60205574A100578E83 /* ElementMappingService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElementMappingService.swift; sourceTree = "<group>"; };
 		5B4A2D62205574A100578E83 /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		5BCBD6772055A9AD0008315B /* ScreenDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenDrawer.swift; sourceTree = "<group>"; };
 		5BFCBD52204F379E0063A171 /* Fase_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Fase_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5BFCBD55204F379E0063A171 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5BFCBD57204F379E0063A171 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -106,6 +112,14 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
+		5B2127FF205D3A2D003A0997 /* View Model */ = {
+			isa = PBXGroup;
+			children = (
+				5B212800205D3A2D003A0997 /* ViewModel.swift */,
+			);
+			path = "View Model";
+			sourceTree = "<group>";
+		};
 		5B4A2D562055748F00578E83 /* API Client */ = {
 			isa = PBXGroup;
 			children = (
@@ -135,6 +149,7 @@
 			children = (
 				5B4A2D5F205574A100578E83 /* APIClientService.swift */,
 				5B4A2D60205574A100578E83 /* ElementMappingService.swift */,
+				5B2127FD205D39BB003A0997 /* ResourcesService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -145,6 +160,14 @@
 				5B4A2D62205574A100578E83 /* Extensions.swift */,
 			);
 			path = Utils;
+			sourceTree = "<group>";
+		};
+		5BCBD6762055A9750008315B /* Screen drawer */ = {
+			isa = PBXGroup;
+			children = (
+				5BCBD6772055A9AD0008315B /* ScreenDrawer.swift */,
+			);
+			path = "Screen drawer";
 			sourceTree = "<group>";
 		};
 		5BFCBD49204F379E0063A171 = {
@@ -172,10 +195,12 @@
 		5BFCBD54204F379E0063A171 /* Fase_iOS */ = {
 			isa = PBXGroup;
 			children = (
+				5BCBD6762055A9750008315B /* Screen drawer */,
 				5BFCBD83204F37EB0063A171 /* Models */,
 				5B4A2D562055748F00578E83 /* API Client */,
 				5B4A2D5E205574A100578E83 /* Services */,
 				5B4A2D592055749900578E83 /* Router */,
+				5B2127FF205D3A2D003A0997 /* View Model */,
 				5B4A2D5C205574A000578E83 /* View Controller */,
 				5B4A2D61205574A100578E83 /* Utils */,
 				5BFCBD55204F379E0063A171 /* AppDelegate.swift */,
@@ -413,12 +438,15 @@
 				5B4A2D64205574A100578E83 /* APIClientService.swift in Sources */,
 				5B4A2D63205574A100578E83 /* FaseViewController.swift in Sources */,
 				5B4A2D65205574A100578E83 /* ElementMappingService.swift in Sources */,
+				5B2127FE205D39BB003A0997 /* ResourcesService.swift in Sources */,
 				5BFCBD58204F379E0063A171 /* ViewController.swift in Sources */,
+				5B212801205D3A2D003A0997 /* ViewModel.swift in Sources */,
 				5BFCBD89204F37EB0063A171 /* UIElementsModels.swift in Sources */,
 				5B4A2D5B2055749900578E83 /* Router.swift in Sources */,
 				5BFCBD56204F379E0063A171 /* AppDelegate.swift in Sources */,
 				5BFCBD88204F37EB0063A171 /* ServiceModels.swift in Sources */,
 				5B4A2D66205574A100578E83 /* Extensions.swift in Sources */,
+				5BCBD6782055A9AD0008315B /* ScreenDrawer.swift in Sources */,
 				5B4A2D582055748F00578E83 /* APIClient.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

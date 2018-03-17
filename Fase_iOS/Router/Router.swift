@@ -16,9 +16,12 @@ class Router {
         self.window = window
     }
     
-    func displayViewController(with screen: Screen) {
-        let viewController = FaseViewController(with: screen)
-        self.show(viewController: viewController)
+    func displayViewController(with viewModel: FaseViewModel) {
+        let viewController = FaseViewController(with: viewModel)
+        
+        DispatchQueue.main.async {
+            self.show(viewController: viewController)
+        }
     }
     
     // MARK: - Private
@@ -34,12 +37,13 @@ class Router {
     }
     
     func show(viewController: UIViewController) {
-        if let topVC = self.rootViewController() {
-            topVC.show(viewController, sender: topVC)
-        } else {
-            let navigationController = UINavigationController(rootViewController: viewController)
-            self.window.rootViewController = navigationController
-        }
+        //        if let topVC = self.rootViewController() {
+        //            topVC.show(viewController, sender: topVC)
+        //        } else {
+        let navigationController = UINavigationController(rootViewController: viewController)
+        self.window.rootViewController = navigationController
+        //        }
     }
     
 }
+

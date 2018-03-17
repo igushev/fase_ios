@@ -11,6 +11,7 @@ import ObjectMapper
 
 // tuple replacement. Nested array consist of elementId and element
 typealias ElementTuple = Array<ElementTupleValue>
+typealias ElementTupleValue = AnyObject // String or Element
 
 enum ElementType: String {
     typealias RawValue = String
@@ -27,6 +28,10 @@ enum ElementType: String {
     case dateTimePicker = "dateTimePicker"
     case placePicker = "placePicker"
     case alert = "alert"
+    case slider = "slider"
+    case frame = "frame"
+    case separator = "separator"
+    case navigation = "navigation"
     case unknown = "unknown"
     
     init(with string: String?) {
@@ -34,35 +39,12 @@ enum ElementType: String {
     }
 }
 
-enum ElementTupleValue : Mappable {
-    case string(String)
-    case element(Element)
-    
-    init?(map: Map) {
-        let value = map.currentValue
-        
-        self = .string(" ")
-    }
-    
-    mutating func mapping(map: Map) {
-        let value = map.currentValue
-        print(value)
-        //        switch self {
-        //        case .string(value):
-        //            <#code#>
-        //        default:
-        //            <#code#>
-        //        }
-    }
-    
-    
-}
-
-
 class Element: Mappable {
     var `class`: String!
     
-    required init?(map: Map) { }
+    required init?(map: Map) {
+        `class` = try? map.value("__class__")
+    }
     
     func mapping(map: Map) {
         `class` <- map["__class__"]
@@ -87,13 +69,13 @@ class ElementContainer: Element {
                     var elementTuple: ElementTuple = []
                     
                     // Map ui element id
-                    let elementId = String(describing: value[0])
-                    elementTuple.append(ElementTupleValue.string(elementId))
+                    let elementId = value[0]// String(describing: value[0])
+                    elementTuple.append(elementId)
                     
                     // Map ui element
                     let elementMap = Map(mappingType: .fromJSON, JSON: value[1] as! [String : Any])
                     if let element = ElementMappingService.mapElement(with: elementMap) {
-                        elementTuple.append(ElementTupleValue.element(element))
+                        elementTuple.append(element)
                     }
                     
                     elements.append(elementTuple)
@@ -114,19 +96,23 @@ class ElementContainer: Element {
 
 class VisualElement: ElementContainer {
     var isDisplayed: Bool!
-    var locale: Locale?
     var isRequestLocale: Bool!
+    var locale: Locale?
     
     required init?(map: Map) {
         super.init(map: map)
+        
+        isDisplayed = try? map.value("displayed")
+        isRequestLocale = try? map.value("request_locale")
+        locale = try? map.value("locale")
     }
     
     override func mapping(map: Map) {
         super.mapping(map: map)
         
         isDisplayed <- map["displayed"]
-        locale <- map["locale"]
         isRequestLocale <- map["request_locale"]
+        locale <- map["locale"]
     }
 }
 
@@ -142,38 +128,41 @@ enum Size: Int {
 }
 
 class Label: VisualElement {
-    var type: ElementType!
-    var onClick: Bool!
-    var align: Align!
+    var text: String!
     var font: Float!
     var size: Size!
-    var text: String!
+    var align: Align!
+    var onClick: Bool!
     
     required init?(map: Map) {
         super.init(map: map)
         
-        type = try? map.value("__class__")
-        onClick = try? map.value("on_click")
-        align = try? map.value("align")
+        text = try? map.value("text")
         font = try? map.value("font")
         size = try? map.value("size")
-        text = try? map.value("text")
+        align = try? map.value("align")
+        onClick = try? map.value("on_click")
     }
     
     override func mapping(map: Map) {
         super.mapping(map: map)
         
-        type <- map["__class__"]
-        onClick <- map["on_click"]
-        align <- map["align"]
+        text <- map["text"]
         font <- map["font"]
         size <- map["size"]
-        text <- map["text"]
+        align <- map["align"]
+        onClick <- map["on_click"]
     }
 }
 
+enum TextType: Int {
+    case digits = 1
+    case phone
+    case email
+}
+
 class Text: VisualElement {
-    var type: ElementType!
+    var type: TextType!
     var size: Size!
     var hint: String!
     var text: String!
@@ -181,7 +170,7 @@ class Text: VisualElement {
     required init?(map: Map) {
         super.init(map: map)
         
-        type = try? map.value("__class__")
+        type = try? map.value("type")
         size = try? map.value("size")
         hint = try? map.value("hint")
         text = try? map.value("text")
@@ -190,7 +179,7 @@ class Text: VisualElement {
     override func mapping(map: Map) {
         super.mapping(map: map)
         
-        type <- map["__class__"]
+        type <- map["type"]
         size <- map["size"]
         hint <- map["hint"]
         text <- map["text"]
@@ -198,85 +187,116 @@ class Text: VisualElement {
 }
 
 class Switch: VisualElement {
-    var type: ElementType!
-    var align: Align!
-    var text: String!
     var value: Bool!
+    var text: String!
+    var align: Align!
     
     required init?(map: Map) {
         super.init(map: map)
         
-        type = try? map.value("__class__")
-        align = try? map.value("align")
-        text = try? map.value("text")
         value = try? map.value("value")
+        text = try? map.value("text")
+        align = try? map.value("align")
     }
     
     override func mapping(map: Map) {
         super.mapping(map: map)
         
-        type <- map["__class__"]
-        align <- map["align"]
-        text <- map["text"]
         value <- map["value"]
+        text <- map["text"]
+        align <- map["align"]
     }
 }
 
 class Select: VisualElement {
-    var type: ElementType!
-    var items: Array<String>!
-    var align: Align!
     var value: String!
+    var items: Array<String>!
     var hint: String!
+    var align: Align!
     
     required init?(map: Map) {
         super.init(map: map)
         
-        type = try? map.value("__class__")
-        items = try? map.value("items")
-        align = try? map.value("align")
         value = try? map.value("value")
+        items = try? map.value("items")
         hint = try? map.value("hint")
+        align = try? map.value("align")
     }
     
     override func mapping(map: Map) {
         super.mapping(map: map)
         
-        type <- map["__class__"]
-        items <- map["items"]
-        align <- map["align"]
         value <- map["value"]
+        items <- map["items"]
         hint <- map["hint"]
+        align <- map["align"]
+    }
+}
+
+class Slider: VisualElement {
+    var value: Float!
+    var minValue: Float!
+    var maxValue: Float!
+    var step: Float!
+    
+    required init?(map: Map) {
+        super.init(map: map)
+        
+        value = try? map.value("value")
+        minValue = try? map.value("min_value")
+        maxValue = try? map.value("max_value")
+        step = try? map.value("step")
+    }
+    
+    override func mapping(map: Map) {
+        super.mapping(map: map)
+        
+        value <- map["value"]
+        minValue <- map["min_value"]
+        maxValue <- map["max_value"]
+        step <- map["step"]
     }
 }
 
 class Image: VisualElement {
-    var type: ElementType!
-    var url: String!
     var fileName: String!
+    var url: String!
     
     required init?(map: Map) {
         super.init(map: map)
         
-        type = try? map.value("__class__")
-        url = try? map.value("url")
         fileName = try? map.value("filename") // maybe file_name? check response
+        url = try? map.value("url")
     }
     
     override func mapping(map: Map) {
         super.mapping(map: map)
         
-        type <- map["__class__"]
-        url <- map["url"]
         fileName <- map["filename"]
+        url <- map["url"]
     }
 }
 
 class MenuItem: VisualElement {
-    var type: ElementType!
-    var onClick: Bool!
-    var image: String!
     var text: String!
+    var onClick: Bool!
+    var image: Image!
+    
+    required init?(map: Map) {
+        super.init(map: map)
+        
+        text = try? map.value("text")
+        onClick = try? map.value("on_click")
+        image = try? map.value("image")
+    }
+    
+    override func mapping(map: Map) {
+        super.mapping(map: map)
+        
+        text <- map["text"]
+        onClick <- map["on_click"]
+        image <- map["image"]
+    }
 }
 
 class Menu: VisualElement {
@@ -284,44 +304,33 @@ class Menu: VisualElement {
 }
 
 class Button: VisualElement {
-    var type: ElementType!
-    var onClick: Bool!
-    var image: String!
     var text: String!
+    var onClick: Bool!
     
     required init?(map: Map) {
         super.init(map: map)
         
-        type = try? map.value("__class__")
-        onClick = try? map.value("on_click")
-        image = try? map.value("image")
         text = try? map.value("text")
+        onClick = try? map.value("on_click")
     }
     
     override func mapping(map: Map) {
         super.mapping(map: map)
         
-        type <- map["__class__"]
-        onClick <- map["on_click"]
-        image <- map["image"]
         text <- map["text"]
+        onClick <- map["on_click"]
     }
 }
 
 class ButtonBar: VisualElement {
-    var type: ElementType!
     
-    enum CodingKeys: String, CodingKey {
-        case idElementList = "id_element_list"
-    }
 }
 
 class ContactPicker: VisualElement {
-    var type: ElementType!
     var contact: Contact!
-    var onPick: Bool!
     var hint: String!
     var size: Size!
+    var onPick: Bool!
 }
 
 enum DateTimePickerType: Int {
@@ -331,12 +340,10 @@ enum DateTimePickerType: Int {
 }
 
 class DateTimePicker: VisualElement {
-    var type: ElementType!
     var datetime: Date!
-    var size: Size!
-    var pickerType: DateTimePickerType!
+    var type: DateTimePickerType!
     var hint: String!
-    
+    var size: Size!
 }
 
 enum PlacePickerType: Int {
@@ -344,11 +351,14 @@ enum PlacePickerType: Int {
 }
 
 class PlacePicker: VisualElement {
-    var type: ElementType!
     var place: Place!
-    var size: Size!
-    var pickerType: PlacePickerType!
+    var type: PlacePickerType!
     var hint: String!
+    var size: Size!
+}
+
+class Separator: VisualElement {
+    
 }
 
 enum FrameType: Int {
@@ -357,48 +367,44 @@ enum FrameType: Int {
 }
 
 class Frame: BaseElementsContainer {
-    var type: ElementType!
-    var onClick: Bool!
     var orientation: FrameType!
-    var border: Bool!
     var size: Size!
+    var onClick: Bool!
+    var border: Bool!
 }
 
 class Alert: VisualElement {
-    var type: ElementType!
     var text: String!
     
-    enum CodingKeys: String, CodingKey {
-        case test = "text"
-        case idElementList = "id_element_list"
-    }
-}
-
-class Slider: VisualElement {
-    var type: ElementType!
 }
 
 class BaseElementsContainer: VisualElement { }
 
 class Screen: BaseElementsContainer {
-    var onRefresh: Bool!
-    var onMore: Bool!
-    var title: String?
     var screenId: String?
     var scrollable: Bool?
+    var title: String?
+    var onRefresh: Bool!
+    var onMore: Bool!
     
     required init?(map: Map) {
         super.init(map: map)
+        
+        screenId = try? map.value("_screen_id")
+        scrollable = try? map.value("scrollable")
+        title = try? map.value("title")
+        onRefresh = try? map.value("on_refresh")
+        onMore = try? map.value("on_more")
     }
     
     override func mapping(map: Map) {
         super.mapping(map: map)
         
-        onRefresh <- map["on_refresh"]
-        onMore <- map["on_more"]
-        title <- map["title"]
         screenId <- map["_screen_id"]
         scrollable <- map["scrollable"]
+        title <- map["title"]
+        onRefresh <- map["on_refresh"]
+        onMore <- map["on_more"]
     }
 }
 

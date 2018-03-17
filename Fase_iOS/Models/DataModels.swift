@@ -31,34 +31,36 @@ struct Contact {
 
 struct Place {
     var googlePlaceId: String
-    var country: String
-    var state: String
     var city: String
+    var state: String
+    var country: String
     
     enum CodingKeys: String, CodingKey {
         case googlePlaceId = "google_place_id"
-        case country = "country"
-        case state = "state"
         case city = "city"
+        case state = "state"
+        case country = "country"
     }
 }
 
 struct User {
     var userId: String
-    var dateOfBirth: Date
+    var phoneNumber: String
     var firstName: String
     var lastName: String
+    var dateOfBirth: Date
     var homeCity: Place
-    var phoneNumber: String
+    var locale: Locale
     var datetimeAdded: Date
     
     enum CodingKeys: String, CodingKey {
         case userId = "user_id"
-        case dateOfBirth = "date_of_birth"
+        case phoneNumber = "phone_number"
         case firstName = "first_name"
         case lastName = "last_name"
+        case dateOfBirth = "date_of_birth"
         case homeCity = "home_city"
-        case phoneNumber = "phone_number"
+        case locale = "locale"
         case datetimeAdded = "datetime_added"
     }
 }
