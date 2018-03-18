@@ -56,6 +56,37 @@ class ElementContainer: Element {
     
     required init?(map: Map) {
         super.init(map: map)
+//        idElementList = try? map.value("id_element_list")
+        let transform = TransformOf<Array<ElementTuple>, Array<Array<AnyObject>>>(fromJSON: { (values: Array<Array<AnyObject>>?) -> Array<ElementTuple>? in
+            var elements: Array<ElementTuple> = []
+            
+            if let values = values {
+                for value in values {
+                    var elementTuple: ElementTuple = []
+                    
+                    // Map ui element id
+                    let elementId = value[0]// String(describing: value[0])
+                    elementTuple.append(elementId)
+                    
+                    // Map ui element
+                    let elementMap = Map(mappingType: .fromJSON, JSON: value[1] as! [String : Any])
+                    if let element = ElementMappingService.mapElement(with: elementMap) {
+                        elementTuple.append(element)
+                    }
+                    
+                    elements.append(elementTuple)
+                }
+                
+                return elements
+            }
+            
+            return nil
+        }, toJSON: { (value: Array<ElementTuple>?) -> Array<Array<AnyObject>>? in
+            print(value)
+            return nil
+        })
+        
+        idElementList = try? map.value("id_element_list", using: transform)
     }
     
     override func mapping(map: Map) {
@@ -371,6 +402,24 @@ class Frame: BaseElementsContainer {
     var size: Size!
     var onClick: Bool!
     var border: Bool!
+    
+    required init?(map: Map) {
+        super.init(map: map)
+        
+        orientation = try? map.value("orientation")
+        size = try? map.value("size")
+        onClick = try? map.value("on_click")
+        border = try? map.value("border")
+    }
+    
+    override func mapping(map: Map) {
+        super.mapping(map: map)
+        
+        orientation <- map["orientation"]
+        size <- map["size"]
+        onClick <- map["on_click"]
+        border <- map["border"]
+    }
 }
 
 class Alert: VisualElement {

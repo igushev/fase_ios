@@ -36,6 +36,9 @@ class ElementMappingService {
         case .navigation:
             return ElementContainer.init(map: map)
             
+        case .frame:
+            return Frame.init(map: map)
+            
         default:
             return nil
         }

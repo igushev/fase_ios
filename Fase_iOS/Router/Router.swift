@@ -17,10 +17,19 @@ class Router {
     }
     
     func displayViewController(with viewModel: FaseViewModel) {
-        let viewController = FaseViewController(with: viewModel)
-        
-        DispatchQueue.main.async {
-            self.show(viewController: viewController)
+        if viewModel.isNeedTabBar == true {
+            let tabBarController = FaseTabBarController(with: viewModel)
+            
+            
+            DispatchQueue.main.async {
+                self.show(tabBarController: tabBarController)
+            }
+        } else {
+            let viewController = FaseViewController(with: viewModel)
+            
+            DispatchQueue.main.async {
+                self.show(viewController: viewController)
+            }
         }
     }
     
@@ -43,6 +52,10 @@ class Router {
         let navigationController = UINavigationController(rootViewController: viewController)
         self.window.rootViewController = navigationController
         //        }
+    }
+    
+    func show(tabBarController: UITabBarController) {
+        self.window.rootViewController = tabBarController
     }
     
 }

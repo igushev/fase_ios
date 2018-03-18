@@ -17,10 +17,12 @@ class FaseViewModel: Fase {
     var screen: Screen!
     var router: Router!
     var screenDrawer: ScreenDrawer!
+    var isNeedTabBar: Bool!    
     
     
     init(with screen: Screen) {
         self.screen = screen
+        self.isNeedTabBar = self.screen.hasNavigationElement()
     }
     
     func drawElements() {

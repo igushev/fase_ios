@@ -60,4 +60,42 @@ extension Device {
     }
 }
 
+extension Screen {
+    func hasNavigationElement() -> Bool {
+        var hasNavigation = false
+        for tuple in self.idElementList {
+            if tuple.count == 1 {
+                break
+            }
+            let element = tuple[1] as! Element
+            
+            if element is ElementContainer {
+                let elementTypeString = element.`class`
+                let elementType = ElementType(with: elementTypeString)
+                
+                if elementType == ElementType.navigation {
+                    hasNavigation = true
+                }
+            }
+        }
+        return hasNavigation
+    }
+//    func hasNavigationElement() -> Bool {
+//        self.idElementList.forEach { (tuple) in
+//            let element = tuple[1] as! Element
+//
+//            if element is ElementContainer {
+//                let elementTypeString = element.`class`
+//                let elementType = ElementType(with: elementTypeString)
+//
+//                if elementType == ElementType.navigation {
+//                    return true
+//                }
+//            }
+//
+//        }
+//        return false
+//    }
+}
+
 
