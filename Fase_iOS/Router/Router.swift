@@ -17,19 +17,10 @@ class Router {
     }
     
     func displayViewController(with viewModel: FaseViewModel) {
-        if viewModel.isNeedTabBar == true {
-            let tabBarController = FaseTabBarController(with: viewModel)
-            
-            
-            DispatchQueue.main.async {
-                self.show(tabBarController: tabBarController)
-            }
-        } else {
-            let viewController = FaseViewController(with: viewModel)
-            
-            DispatchQueue.main.async {
-                self.show(viewController: viewController)
-            }
+        let viewController = FaseViewController(with: viewModel)
+        
+        DispatchQueue.main.async {
+            self.show(viewController: viewController)
         }
     }
     

@@ -80,22 +80,99 @@ extension Screen {
         }
         return hasNavigation
     }
-//    func hasNavigationElement() -> Bool {
-//        self.idElementList.forEach { (tuple) in
-//            let element = tuple[1] as! Element
-//
-//            if element is ElementContainer {
-//                let elementTypeString = element.`class`
-//                let elementType = ElementType(with: elementTypeString)
-//
-//                if elementType == ElementType.navigation {
-//                    return true
-//                }
-//            }
-//
-//        }
-//        return false
-//    }
+    
+    func mainButton() -> Button? {
+        for tuple in self.idElementList {
+            if tuple.count == 1 {
+                break
+            }
+            let element = tuple[1] as! Element
+            
+            let elementTypeString = element.`class`
+            let elementType = ElementType(with: elementTypeString)
+            
+            if elementType == ElementType.button {
+                return element as? Button
+            }
+        }
+        return nil
+    }
+    
+    func navigationElement() -> ElementContainer? {
+        for tuple in self.idElementList {
+            if tuple.count == 1 {
+                break
+            }
+            let element = tuple[1] as! Element
+            
+            let elementTypeString = element.`class`
+            let elementType = ElementType(with: elementTypeString)
+            
+            if elementType == ElementType.navigation {
+                return element as? ElementContainer
+            }
+        }
+        return nil
+    }
+    
+    func navigationElementButtonsCount() -> Int {
+        for tuple in self.idElementList {
+            if tuple.count == 1{
+                break
+            }
+            let element = tuple[1] as! Element
+            
+            let elementTypeString = element.`class`
+            let elementType = ElementType(with: elementTypeString)
+            
+            if elementType == ElementType.navigation {
+                return (element as! ElementContainer).idElementList.count
+            }
+        }
+        return 0
+    }
+    
+    func navigationElementButtons() -> Array<Button>? {
+        var navButtons: Array<Button> = []
+        
+        for tuple in self.idElementList {
+            if tuple.count == 1{
+                break
+            }
+            let element = tuple[1] as! Element
+            let elementTypeString = element.`class`
+            let elementType = ElementType(with: elementTypeString)
+            
+            if elementType == ElementType.navigation {
+                for buttonElement in (element as! ElementContainer).idElementList {
+                    let button = buttonElement[1] as! Element
+                    let elementTypeString = button.`class`
+                    let elementType = ElementType(with: elementTypeString)
+                    
+                    if elementType == ElementType.button {
+                        navButtons.append(button as! Button)
+                    }
+                }
+            }
+        }
+        return navButtons
+    }
+    
+}
+
+extension UIButton {
+    func alignVertical(spacing: CGFloat = 6.0) {
+        guard let imageSize = self.imageView?.image?.size,
+            let text = self.titleLabel?.text,
+            let font = self.titleLabel?.font
+            else { return }
+        self.titleEdgeInsets = UIEdgeInsets(top: 0.0, left: -imageSize.width, bottom: -(imageSize.height + spacing), right: 0.0)
+        let labelString = NSString(string: text)
+        let titleSize = labelString.size(withAttributes: [NSAttributedStringKey.font: font])
+        self.imageEdgeInsets = UIEdgeInsets(top: -(titleSize.height + spacing), left: 0.0, bottom: 0.0, right: -titleSize.width)
+        let edgeOffset = abs(titleSize.height - imageSize.height) / 2.0;
+        self.contentEdgeInsets = UIEdgeInsets(top: edgeOffset, left: 0.0, bottom: edgeOffset, right: 0.0)
+    }
 }
 
 

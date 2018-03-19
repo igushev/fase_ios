@@ -10,7 +10,6 @@
 		0BC39E8A87BD891F4A76C27B /* Pods_Fase_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABB06E271698DA2ABD7EC85D /* Pods_Fase_iOS.framework */; };
 		5B2127FE205D39BB003A0997 /* ResourcesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B2127FD205D39BB003A0997 /* ResourcesService.swift */; };
 		5B212801205D3A2D003A0997 /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B212800205D3A2D003A0997 /* ViewModel.swift */; };
-		5B212804205DBE78003A0997 /* FaseTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B212803205DBE78003A0997 /* FaseTabBarController.swift */; };
 		5B4A2D582055748F00578E83 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4A2D572055748F00578E83 /* APIClient.swift */; };
 		5B4A2D5B2055749900578E83 /* Router.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4A2D5A2055749900578E83 /* Router.swift */; };
 		5B4A2D63205574A100578E83 /* FaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4A2D5D205574A000578E83 /* FaseViewController.swift */; };
@@ -51,7 +50,6 @@
 		4379B13BBF2B6C890F238C14 /* Pods-Fase_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fase_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Fase_iOS/Pods-Fase_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		5B2127FD205D39BB003A0997 /* ResourcesService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResourcesService.swift; sourceTree = "<group>"; };
 		5B212800205D3A2D003A0997 /* ViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
-		5B212803205DBE78003A0997 /* FaseTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaseTabBarController.swift; sourceTree = "<group>"; };
 		5B4A2D572055748F00578E83 /* APIClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		5B4A2D5A2055749900578E83 /* Router.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Router.swift; sourceTree = "<group>"; };
 		5B4A2D5D205574A000578E83 /* FaseViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FaseViewController.swift; sourceTree = "<group>"; };
@@ -120,14 +118,6 @@
 				5B212800205D3A2D003A0997 /* ViewModel.swift */,
 			);
 			path = "View Model";
-			sourceTree = "<group>";
-		};
-		5B212802205DAB58003A0997 /* Tab Bar Controller */ = {
-			isa = PBXGroup;
-			children = (
-				5B212803205DBE78003A0997 /* FaseTabBarController.swift */,
-			);
-			path = "Tab Bar Controller";
 			sourceTree = "<group>";
 		};
 		5B4A2D562055748F00578E83 /* API Client */ = {
@@ -211,7 +201,6 @@
 				5B4A2D5E205574A100578E83 /* Services */,
 				5B4A2D592055749900578E83 /* Router */,
 				5B2127FF205D3A2D003A0997 /* View Model */,
-				5B212802205DAB58003A0997 /* Tab Bar Controller */,
 				5B4A2D5C205574A000578E83 /* View Controller */,
 				5B4A2D61205574A100578E83 /* Utils */,
 				5BFCBD55204F379E0063A171 /* AppDelegate.swift */,
@@ -448,7 +437,6 @@
 				5BFCBD87204F37EB0063A171 /* DataModels.swift in Sources */,
 				5B4A2D64205574A100578E83 /* APIClientService.swift in Sources */,
 				5B4A2D63205574A100578E83 /* FaseViewController.swift in Sources */,
-				5B212804205DBE78003A0997 /* FaseTabBarController.swift in Sources */,
 				5B4A2D65205574A100578E83 /* ElementMappingService.swift in Sources */,
 				5B2127FE205D39BB003A0997 /* ResourcesService.swift in Sources */,
 				5BFCBD58204F379E0063A171 /* ViewController.swift in Sources */,
