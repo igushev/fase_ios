@@ -84,7 +84,7 @@ struct ElementCallback: Mappable {
     
     init?(map: Map) { }
     
-    init(elementsUpdate: ElementsUpdate?, elementIds: Array<String>?, method: String?, locale: Locale?, device: Device) {
+    init?(elementsUpdate: ElementsUpdate?, elementIds: Array<String>?, method: String?, locale: Locale?, device: Device) {
         self.elementsUpdate = elementsUpdate
         self.arrayIds = elementIds
         self.method = method

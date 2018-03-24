@@ -8,13 +8,12 @@
 
 import UIKit
 
-let tabBarHeight: CGFloat = 49.0
-
 class FaseViewController: UIViewController {
     
     // MARK: - Fase
     
     var viewModel: FaseViewModel!
+    var alertController: UIAlertController?
     
     
     init(with viewModel: FaseViewModel) {
@@ -31,63 +30,145 @@ class FaseViewController: UIViewController {
         super.viewDidLoad()
         
         self.setupNavBar()
-        self.setupCustomTabBar()
         
         self.viewModel.screenDrawer = ScreenDrawer(with: self.view)
         self.viewModel.drawElements()
         self.decorateView()
     }
     
-    // MARK: - setup view
-    
-    func setupNavBar() {
-        self.navigationController?.isNavigationBarHidden = (self.viewModel.screen.title == nil)
-        self.navigationController?.title = self.viewModel.screen.title
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         
-        if let mainButton = self.viewModel.screen.mainButton() {
-            let mainButtonBar = UIBarButtonItem(title: mainButton.text, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClick(_:)))
+        if let alert = self.viewModel.screen.alertElement() {
+            let alertController = UIAlertController(title: "", message: alert.text, preferredStyle: UIAlertControllerStyle.alert)
+            for elementTuple in alert.idElementList {
+                let buttonId = elementTuple[0] as! String
+                let button = elementTuple[1] as! Button
+                
+                let action = UIAlertAction(title: button.text, style: UIAlertActionStyle.default, handler: { [weak self] (action) in
+                    self?.viewModel.sendCallbackRequest(for: [alert.faseElementId!, buttonId])
+                    alertController.dismiss(animated: true, completion: nil)
+                })
+                
+                alertController.addAction(action)
+            }
             
-            self.navigationItem.rightBarButtonItems = [mainButtonBar]
+            self.present(alertController, animated: true, completion: nil)
         }
     }
     
-    func setupCustomTabBar() {
-        if self.viewModel.isNeedTabBar == true {
-            var x: CGFloat = 0
-            var y = self.view.frame.height - tabBarHeight
-            let width = self.view.frame.width
-            
-            var tabBarView = UIView(frame: CGRect(x: x, y: y, width: width, height: tabBarHeight))
-            tabBarView.backgroundColor = UIColor(red: 198/256, green: 198/256, blue: 198/256, alpha: 1.0)
-            
-            let tabBarItemsCount = self.viewModel.screen.navigationElementButtonsCount()
-            
-            if let navButtons = self.viewModel.screen.navigationElementButtons(), tabBarItemsCount > 0 {
-                x = 0
-                y = 0
-                let width: CGFloat = self.view.bounds.width / CGFloat(tabBarItemsCount)
-                
-                for button in navButtons {
-                    let uiButton = UIButton(frame: CGRect(x: x, y: y, width: width, height: tabBarHeight))
-                    uiButton.setTitle(button.text, for: .normal)
-                    uiButton.setImage(UIImage(named: "menu"), for: .normal)
-                    uiButton.backgroundColor = UIColor.clear
-                    uiButton.titleLabel?.font = uiButton.titleLabel?.font.withSize(10)
-                    uiButton.setTitleColor(UIColor(red: 0, green: 122/255, blue: 255/255, alpha: 1.0), for: .normal)
-                    uiButton.alignVertical(spacing: -40)
-                    
-                    tabBarView.addSubview(uiButton)
-                    
-                    x += width
-                }
-            }
-            self.view.addSubview(tabBarView)
-        }
-    }
+    // MARK: - decorate view
     
     func decorateView() {
         self.view.backgroundColor = UIColor.lightGray;
     }
+    
+    // MARK: - setup view
+    
+    func setupNavBar() {
+        var nestedElemetnsIds: Array<String> = []
+        
+        self.navigationController?.isNavigationBarHidden = (self.viewModel.screen.title == nil)
+        self.title = self.viewModel.screen.title
+        
+        if let mainButton = self.viewModel.screen.mainButton() {
+            var mainButtonBar = UIBarButtonItem(title: mainButton.text, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClick(_:)))
+            
+            if mainButton.idElementList.count > 0 {
+                if let imageElement = mainButton.imageElement() {
+                    if let image = ResourcesService.getImage(by: imageElement.fileName) {
+                        mainButtonBar = UIBarButtonItem(image: image, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClick(_:)))
+                    }
+                }
+            }
+            mainButtonBar.faseElementId = mainButton.faseElementId
+            
+            self.addBarButtonItem(button: mainButtonBar, leftItem: false)
+            self.navigationController?.isNavigationBarHidden = false
+        }
+        
+        if let cancelButton = self.viewModel.screen.previousButton() {
+            nestedElemetnsIds.append(cancelButton.faseElementId!)
+            
+            var cancelButtonBar = UIBarButtonItem(title: cancelButton.text, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClick(_:)))
+            
+            if cancelButton.idElementList.count > 0 {
+                if let imageElement = cancelButton.imageElement() {
+                    if let image = ResourcesService.getImage(by: imageElement.fileName) {
+                        cancelButtonBar = UIBarButtonItem(image: image, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClick(_:)))
+                    }
+                }
+                if let menu = cancelButton.contextMenu() {
+                    nestedElemetnsIds.append(menu.faseElementId!)
+                    
+                    let title = cancelButton.text?.isEmpty == false ? cancelButton.text : "Menu"
+                    cancelButtonBar = UIBarButtonItem(title: title, style: .plain, target: self, action: #selector(FaseViewController.onContextMenu(_:)))
+                    
+                    if let menuItems = cancelButton.menuItems() {
+                        self.alertController = UIAlertController(title: "", message: menu.text, preferredStyle: .actionSheet)
+                        
+                        for menuItem in menuItems {
+                            menuItem.nestedElemetsIds = nestedElemetnsIds
+                            menuItem.nestedElemetsIds.append(menuItem.faseElementId!)
+                            
+                            let action = UIAlertAction(title: menuItem.text, style: .default, handler: { [weak self] action in
+                                self?.viewModel.sendCallbackRequest(for: menuItem.nestedElemetsIds)
+                            })
+                            self.alertController?.addAction(action)
+                        }
+                    }
+                    
+                }
+            }
+            cancelButtonBar.faseElementId = cancelButton.faseElementId
+            
+            self.addBarButtonItem(button: cancelButtonBar, leftItem: true)
+            self.navigationController?.isNavigationBarHidden = false
+        }
+        
+        if let nextButton = self.viewModel.screen.nextButton() {
+            var nextButtonBar = UIBarButtonItem(title: nextButton.text, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClick(_:)))
+            
+            if nextButton.idElementList.count > 0 {
+                if let imageElement = nextButton.imageElement() {
+                    if let image = ResourcesService.getImage(by: imageElement.fileName) {
+                        nextButtonBar = UIBarButtonItem(image: image, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClick(_:)))
+                    }
+                }
+            }
+            nextButtonBar.faseElementId = nextButton.faseElementId
+            
+            self.addBarButtonItem(button: nextButtonBar, leftItem: false)
+            self.navigationController?.isNavigationBarHidden = false
+        }
+    }
+    
+    func addBarButtonItem(button: UIBarButtonItem, leftItem: Bool) {
+        if self.navigationItem.leftBarButtonItems == nil {
+            self.navigationItem.leftBarButtonItems = []
+        }
+        if self.navigationItem.rightBarButtonItems == nil {
+            self.navigationItem.rightBarButtonItems = []
+        }
+        
+        if leftItem == true {
+            self.navigationItem.leftBarButtonItems?.append(button)
+        } else {
+            self.navigationItem.rightBarButtonItems?.append(button)
+        }
+        
+    }
+    
+    // MARK: - Actions
+    
+    @objc func onContextMenu(_ sender: UIButton) {
+        print("Catch sender \(sender.faseElementId)")
+        
+        if let alert = self.alertController {
+            self.present(alert, animated: true, completion: nil)
+        }
+    }
+    
     
 }
 

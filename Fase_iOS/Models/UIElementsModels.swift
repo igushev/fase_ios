@@ -22,11 +22,12 @@ enum ElementType: String {
     case select = "select"
     case image = "image"
     case button = "button"
-    case buttonBar = "buttonBar"
-    case menuItem = "menuItem"
-    case contactPicker = "contactPicker"
-    case dateTimePicker = "dateTimePicker"
-    case placePicker = "placePicker"
+    case buttonBar = "buttonbar"
+    case menu = "menu"
+    case menuItem = "menuitem"
+    case contactPicker = "contactpicker"
+    case dateTimePicker = "datetimepicker"
+    case placePicker = "placepicker"
     case alert = "alert"
     case slider = "slider"
     case frame = "frame"
@@ -56,7 +57,7 @@ class ElementContainer: Element {
     
     required init?(map: Map) {
         super.init(map: map)
-//        idElementList = try? map.value("id_element_list")
+        //        idElementList = try? map.value("id_element_list")
         let transform = TransformOf<Array<ElementTuple>, Array<Array<AnyObject>>>(fromJSON: { (values: Array<Array<AnyObject>>?) -> Array<ElementTuple>? in
             var elements: Array<ElementTuple> = []
             
@@ -197,6 +198,7 @@ class Text: VisualElement {
     var size: Size!
     var hint: String!
     var text: String!
+    var multiline: Bool!
     
     required init?(map: Map) {
         super.init(map: map)
@@ -205,6 +207,7 @@ class Text: VisualElement {
         size = try? map.value("size")
         hint = try? map.value("hint")
         text = try? map.value("text")
+        multiline = try? map.value("multiline")
     }
     
     override func mapping(map: Map) {
@@ -214,6 +217,7 @@ class Text: VisualElement {
         size <- map["size"]
         hint <- map["hint"]
         text <- map["text"]
+        multiline <- map["multiline"]
     }
 }
 
@@ -332,6 +336,18 @@ class MenuItem: VisualElement {
 
 class Menu: VisualElement {
     var text: String!
+    
+    required init?(map: Map) {
+        super.init(map: map)
+        
+        text = try? map.value("text")
+    }
+    
+    override func mapping(map: Map) {
+        super.mapping(map: map)
+        
+        text <- map["text"]
+    }
 }
 
 class Button: VisualElement {
@@ -425,6 +441,17 @@ class Frame: BaseElementsContainer {
 class Alert: VisualElement {
     var text: String!
     
+    required init?(map: Map) {
+        super.init(map: map)
+        
+        text = try? map.value("text")
+    }
+    
+    override func mapping(map: Map) {
+        super.mapping(map: map)
+        
+        text <- map["text"]
+    }
 }
 
 class BaseElementsContainer: VisualElement { }

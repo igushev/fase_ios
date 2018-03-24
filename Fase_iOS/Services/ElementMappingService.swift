@@ -39,6 +39,15 @@ class ElementMappingService {
         case .frame:
             return Frame.init(map: map)
             
+        case .menu:
+            return Menu.init(map: map)
+            
+        case .menuItem:
+            return MenuItem.init(map: map)
+            
+        case .alert:
+            return Alert.init(map: map)
+            
         default:
             return nil
         }

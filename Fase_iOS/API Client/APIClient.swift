@@ -78,6 +78,8 @@ class APIClient {
     }
     
     private func get(path: String, parameters: Dictionary<String, Any>?, completion: @escaping ResponseHandler) {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        
         let url = URL(string: self.baseURL.absoluteString + path)!
         let headers: HTTPHeaders = [
             "Content-Type": "application/json"
@@ -85,6 +87,8 @@ class APIClient {
         
         Alamofire.request(url, method: .get, parameters: parameters, headers: headers)
             .responseJSON { response in
+                UIApplication.shared.isNetworkActivityIndicatorVisible = false
+                
                 if let error = response.error {
                     completion(nil, error)
                 }
@@ -100,6 +104,8 @@ class APIClient {
     }
     
     private func post(headers: Dictionary<String, String> = ["Content-Type": "application/json"], path: URLPath, parametersData: Data?, handler: @escaping ResponseHandler) {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        
         var request = URLRequest(url: URL(string: self.baseURL.absoluteString + path.rawValue)!)
         request.httpMethod = HTTPMethod.post.rawValue
         headers.forEach { (key, value) in
@@ -109,6 +115,8 @@ class APIClient {
         request.httpBody = parametersData
         
         Alamofire.request(request).responseJSON { (response) in
+            UIApplication.shared.isNetworkActivityIndicatorVisible = false
+            
             if let error = response.error {
                 handler(nil, error)
                 return

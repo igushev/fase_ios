@@ -9,6 +9,8 @@
 import Foundation
 import ObjectMapper
 
+// MARK: - Foundation extensions
+
 extension Data {
     static func dataToJSON(data: Data) -> AnyObject? {
         do {
@@ -33,11 +35,34 @@ extension Data {
     }
 }
 
+// MARK: - UIKit extensions
 
 private var faseElementIdAssociationKey: UInt8 = 0
+private var faseNavigationElementIdAssociationKey: UInt8 = 0
 
-extension UIControl {
+extension UIView {
     // This var stores fase element id for convenience. Element id is in the same array that element
+    var faseElementId: String! {
+        get {
+            return objc_getAssociatedObject(self, &faseElementIdAssociationKey) as? String
+        }
+        set(newValue) {
+            objc_setAssociatedObject(self, &faseElementIdAssociationKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN)
+        }
+    }
+    
+    // This var stores navigation element id for convenience.
+    var navigationElementId: String? {
+        get {
+            return objc_getAssociatedObject(self, &faseNavigationElementIdAssociationKey) as? String
+        }
+        set(newValue) {
+            objc_setAssociatedObject(self, &faseNavigationElementIdAssociationKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN)
+        }
+    }
+}
+
+extension UIBarButtonItem {
     var faseElementId: String! {
         get {
             return objc_getAssociatedObject(self, &faseElementIdAssociationKey) as? String
@@ -48,13 +73,142 @@ extension UIControl {
     }
 }
 
+extension UIButton {
+    func centerVertically(padding: CGFloat = 6.0) {
+        guard
+            let imageViewSize = self.imageView?.frame.size,
+            let titleLabelSize = self.titleLabel?.frame.size else {
+                return
+        }
+        
+        let totalHeight = imageViewSize.height + titleLabelSize.height + padding
+        
+        self.imageEdgeInsets = UIEdgeInsets(
+            top: -(totalHeight - imageViewSize.height - padding / 2),
+            left: 0.0,
+            bottom: 0.0,
+            right: -titleLabelSize.width
+        )
+        
+        self.titleEdgeInsets = UIEdgeInsets(
+            top: 0.0,
+            left: -imageViewSize.width,
+            bottom: -(totalHeight - titleLabelSize.height),
+            right: 0.0
+        )
+        
+        self.contentEdgeInsets = UIEdgeInsets(
+            top: 0.0,
+            left: 0.0,
+            bottom: 0.0,//titleLabelSize.height,
+            right: 0.0
+        )
+    }
+}
+
+// MARK: - Fase extensions
+
+extension VisualElement {
+    // This extension allow to store element_id for custom tab bar button
+    var faseElementId: String? {
+        get {
+            return objc_getAssociatedObject(self, &faseElementIdAssociationKey) as? String
+        }
+        set(newValue) {
+            objc_setAssociatedObject(self, &faseElementIdAssociationKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN)
+        }
+    }
+}
+
+extension Button {
+    func imageElement() -> Image? {
+        var image: Image? = nil
+        
+        for tuple in self.idElementList {
+            if tuple.count == 1 {
+                break
+            }
+            let element = tuple[1] as! Element
+            let elementTypeString = element.`class`
+            let elementType = ElementType(with: elementTypeString)
+            
+            if elementType == ElementType.image {
+                image = element as? Image
+            }
+        }
+        
+        return image
+    }
+    
+    func contextMenu() -> Menu? {
+        var menu: Menu? = nil
+        
+        for tuple in self.idElementList {
+            if tuple.count == 1 {
+                break
+            }
+            let id = tuple[0] as! String
+            let element = tuple[1] as! Element
+            let elementTypeString = element.`class`
+            let elementType = ElementType(with: elementTypeString)
+            
+            if elementType == ElementType.menu {
+                menu = element as? Menu
+                menu?.faseElementId = id
+            }
+        }
+        
+        return menu
+    }
+    
+    func menuItems() -> Array<MenuItem>? {
+        var navButtons: Array<MenuItem> = []
+        
+        for tuple in self.idElementList {
+            if tuple.count == 1{
+                break
+            }
+            let element = tuple[1] as! Element
+            let elementTypeString = element.`class`
+            let elementType = ElementType(with: elementTypeString)
+            
+            if elementType == ElementType.menu {
+                for menuItemElement in (element as! ElementContainer).idElementList {
+                    let itemId = menuItemElement[0] as! String
+                    let menuItem = menuItemElement[1] as! MenuItem
+                    let elementTypeString = menuItem.`class`
+                    let elementType = ElementType(with: elementTypeString)
+                    
+                    if elementType == ElementType.menuItem {
+                        menuItem.faseElementId = itemId
+                        navButtons.append(menuItem)
+                    }
+                }
+            }
+        }
+        return navButtons
+    }
+}
+
+extension ElementContainer {
+    // This var stores navigation element id for convenience.
+    var navigationElementId: String? {
+        get {
+            return objc_getAssociatedObject(self, &faseNavigationElementIdAssociationKey) as? String
+        }
+        set(newValue) {
+            objc_setAssociatedObject(self, &faseNavigationElementIdAssociationKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN)
+        }
+    }
+}
+
 extension Device {
     static func currentDevice() -> Device {
         var uuid = ""
         if let currentUUID = UIDevice.current.identifierForVendor?.uuidString {
             uuid = currentUUID
         }
-        let type = UIDevice.current.systemName + " " + UIDevice.current.systemVersion
+        let type = UIDevice.current.systemName// + " " + UIDevice.current.systemVersion
         
         return Device(type: type, token: uuid)
     }
@@ -81,17 +235,80 @@ extension Screen {
         return hasNavigation
     }
     
+    func hasFrameElements() -> Bool {
+        var hasElements = false
+        for tuple in self.idElementList {
+            if tuple.count == 1 {
+                break
+            }
+            let element = tuple[1] as! ElementContainer
+            
+            if element is BaseElementsContainer {
+                let elementTypeString = element.`class`
+                let elementType = ElementType(with: elementTypeString)
+                
+                if elementType == ElementType.frame {
+                    if element.idElementList.count > 0 {
+                        hasElements = true
+                        break
+                    }
+                }
+            }
+        }
+        return hasElements
+    }
+    
     func mainButton() -> Button? {
         for tuple in self.idElementList {
             if tuple.count == 1 {
                 break
             }
+            let elementId = tuple[0] as! String
             let element = tuple[1] as! Element
             
             let elementTypeString = element.`class`
             let elementType = ElementType(with: elementTypeString)
             
-            if elementType == ElementType.button {
+            if elementType == ElementType.button && elementId == FaseElementsId.mainButton.rawValue {
+                (element as! Button).faseElementId = elementId
+                return element as? Button
+            }
+        }
+        return nil
+    }
+    
+    func previousButton() -> Button? {
+        for tuple in self.idElementList {
+            if tuple.count == 1 {
+                break
+            }
+            let elementId = tuple[0] as! String
+            let element = tuple[1] as! Element
+            
+            let elementTypeString = element.`class`
+            let elementType = ElementType(with: elementTypeString)
+            
+            if elementType == ElementType.button && elementId == FaseElementsId.previousButton.rawValue {
+                (element as! Button).faseElementId = elementId
+                return element as? Button
+            }
+        }
+        return nil
+    }
+    
+    func nextButton() -> Button? {
+        for tuple in self.idElementList {
+            if tuple.count == 1 {
+                break
+            }
+            let elementId = tuple[0] as! String
+            let element = tuple[1] as! Element
+            
+            let elementTypeString = element.`class`
+            let elementType = ElementType(with: elementTypeString)
+            
+            if elementType == ElementType.button && elementId == FaseElementsId.nextButton.rawValue {
+                (element as! Button).faseElementId = elementId
                 return element as? Button
             }
         }
@@ -103,12 +320,14 @@ extension Screen {
             if tuple.count == 1 {
                 break
             }
+            let elementId = tuple[0] as! String
             let element = tuple[1] as! Element
             
             let elementTypeString = element.`class`
             let elementType = ElementType(with: elementTypeString)
             
             if elementType == ElementType.navigation {
+                (element as! ElementContainer).navigationElementId = elementId
                 return element as? ElementContainer
             }
         }
@@ -145,11 +364,13 @@ extension Screen {
             
             if elementType == ElementType.navigation {
                 for buttonElement in (element as! ElementContainer).idElementList {
+                    let buttonId = buttonElement[0] as! String
                     let button = buttonElement[1] as! Element
                     let elementTypeString = button.`class`
                     let elementType = ElementType(with: elementTypeString)
                     
                     if elementType == ElementType.button {
+                        (button as! Button).faseElementId = buttonId
                         navButtons.append(button as! Button)
                     }
                 }
@@ -158,21 +379,41 @@ extension Screen {
         return navButtons
     }
     
+    func alertElement() -> Alert? {
+        for tuple in self.idElementList {
+            if tuple.count == 1 {
+                break
+            }
+            let elementId = tuple[0] as! String
+            let element = tuple[1] as! Element
+            
+            let elementTypeString = element.`class`
+            let elementType = ElementType(with: elementTypeString)
+            
+            if elementType == ElementType.alert {
+                (element as! Alert).faseElementId = elementId
+                return (element as! Alert)
+            }
+        }
+        
+        return nil
+    }
+    
 }
 
-extension UIButton {
-    func alignVertical(spacing: CGFloat = 6.0) {
-        guard let imageSize = self.imageView?.image?.size,
-            let text = self.titleLabel?.text,
-            let font = self.titleLabel?.font
-            else { return }
-        self.titleEdgeInsets = UIEdgeInsets(top: 0.0, left: -imageSize.width, bottom: -(imageSize.height + spacing), right: 0.0)
-        let labelString = NSString(string: text)
-        let titleSize = labelString.size(withAttributes: [NSAttributedStringKey.font: font])
-        self.imageEdgeInsets = UIEdgeInsets(top: -(titleSize.height + spacing), left: 0.0, bottom: 0.0, right: -titleSize.width)
-        let edgeOffset = abs(titleSize.height - imageSize.height) / 2.0;
-        self.contentEdgeInsets = UIEdgeInsets(top: edgeOffset, left: 0.0, bottom: edgeOffset, right: 0.0)
+private var nestedElemetsIdsAssociationKey: UInt8 = 0
+
+extension MenuItem {
+    // This extension allow to store element ids for nested elements
+    var nestedElemetsIds: [String] {
+        get {
+            return objc_getAssociatedObject(self, &nestedElemetsIdsAssociationKey) as! [String]
+        }
+        set(newValue) {
+            objc_setAssociatedObject(self, &nestedElemetsIdsAssociationKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN)
+        }
     }
 }
+
 
 

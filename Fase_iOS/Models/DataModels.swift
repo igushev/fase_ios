@@ -12,6 +12,10 @@ import ObjectMapper
 struct Locale: Mappable {
     var countryCode: String?
     
+    init(countryCode: String) {
+        self.countryCode = countryCode
+    }
+    
     init?(map: Map) { }
     
     mutating func mapping(map: Map) {

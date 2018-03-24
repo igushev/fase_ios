@@ -75,5 +75,8 @@ class APIClientService {
     //        let apiClient = APIClient.shared
     //        apiClient.getResource(with: resource.fileName, handler: handler)
     //    }
+    static func saveNewSessionInfo(sessionInfo: SessionInfo) {
+        APIClient.shared.sessionInfo = sessionInfo
+    }
 }
 
