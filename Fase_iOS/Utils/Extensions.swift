@@ -39,6 +39,7 @@ extension Data {
 
 private var faseElementIdAssociationKey: UInt8 = 0
 private var faseNavigationElementIdAssociationKey: UInt8 = 0
+private var scrollViewAssociationKey: UInt8 = 0
 
 extension UIView {
     // This var stores fase element id for convenience. Element id is in the same array that element
@@ -60,6 +61,16 @@ extension UIView {
             objc_setAssociatedObject(self, &faseNavigationElementIdAssociationKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN)
         }
     }
+    
+    var scrollView: UIScrollView? {
+        get {
+            return objc_getAssociatedObject(self, &scrollViewAssociationKey) as? UIScrollView
+        }
+        set(newValue) {
+            objc_setAssociatedObject(self, &scrollViewAssociationKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN)
+        }
+    }
+    
 }
 
 extension UIBarButtonItem {
@@ -106,7 +117,49 @@ extension UIButton {
     }
 }
 
+extension UIImage {
+    func resizedImageForNavBarItem() -> UIImage? {
+        var image: UIImage? = nil
+        let targetSize = CGSize(width: 24, height: 24)
+        
+        UIGraphicsBeginImageContext(targetSize)
+        let rect = CGRect(x: 0, y: 0, width: targetSize.width, height: targetSize.height)
+        self.draw(in: rect)
+        image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return image
+    }
+}
+
 // MARK: - Fase extensions
+
+extension Frame {
+    func frameTotalHeight() -> CGFloat {
+        var height: CGFloat = 0
+        
+        for tuple in self.idElementList {
+            if tuple.count == 1 {
+                break
+            }
+            let element = tuple[1] as! Element
+            let elementTypeString = element.`class`
+            let elementType = ElementType(with: elementTypeString)
+            
+            if elementType == ElementType.frame {
+                height += (element as! Frame).frameTotalHeight()
+            } else if elementType == ElementType.label {
+                height += 30
+            } else if elementType == ElementType.button {
+                height += 30
+            } else if elementType == ElementType.text {
+                height += 30
+            }
+        }
+        
+        return height
+    }
+}
 
 extension VisualElement {
     // This extension allow to store element_id for custom tab bar button

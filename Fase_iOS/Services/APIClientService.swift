@@ -54,27 +54,24 @@ class APIClientService {
     
     static func screenUpdate(for screenUpdate: ScreenUpdate, screenId: String, completion: @escaping CompletionBlock) {
         let apiClient = APIClient.shared
-        var callbackData = Data()
+        var updateData = Data()
         
         let jsonData = Data.jsonToData(json: screenUpdate.toJSON() as JSON)
         if let data = jsonData {
-            callbackData = data
+            updateData = data
         }
         
-        apiClient.elementCallback(screenId: screenId, paramsData: callbackData, handler: { (json, error) in
+        apiClient.screenUpdate(screenId: screenId, paramsData: updateData) { (json, error) in
             if let json = json?.toString() {
                 let response = Response(JSONString: json)
                 completion(response, nil)
             } else {
                 completion(nil, error)
             }
-        })
+        }
+        
     }
     
-    //    static func getResource(_ resource: Resource, handler: @escaping ResponseHandler) {
-    //        let apiClient = APIClient.shared
-    //        apiClient.getResource(with: resource.fileName, handler: handler)
-    //    }
     static func saveNewSessionInfo(sessionInfo: SessionInfo) {
         APIClient.shared.sessionInfo = sessionInfo
     }

@@ -67,7 +67,11 @@ struct ScreenUpdate: Mappable {
     var device: Device?
     
     init?(map: Map) { }
-    init() { }
+    
+    init?(elementsUpdate: ElementsUpdate?, device: Device) {
+        self.elementsUpdate = elementsUpdate
+        self.device = device
+    }
     
     mutating func mapping(map: Map) {
         elementsUpdate <- map["elements_update"]

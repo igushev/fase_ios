@@ -159,11 +159,31 @@ enum Size: Int {
     case max = 2
 }
 
+enum FaseFontSize: CGFloat {
+    case extraLarge = 1.5
+    case large = 1.25
+    case medium = 1
+    case small = 0.75
+    case extraSmall = 0.5
+    case unknown = 0
+    
+    var appFontSize: CGFloat {
+        switch self {
+        case .extraLarge: return 20
+        case .large: return 17
+        case .medium: return 14
+        case .small: return 12
+        case .extraSmall: return 9
+        case .unknown: return 14
+        }
+    }
+}
+
 class Label: VisualElement {
     var text: String!
-    var font: Float!
+    var font: FaseFontSize!
     var size: Size!
-    var align: Align!
+    var alight: Align!
     var onClick: Bool!
     
     required init?(map: Map) {
@@ -172,7 +192,7 @@ class Label: VisualElement {
         text = try? map.value("text")
         font = try? map.value("font")
         size = try? map.value("size")
-        align = try? map.value("align")
+        alight = try? map.value("alight")
         onClick = try? map.value("on_click")
     }
     
@@ -182,7 +202,7 @@ class Label: VisualElement {
         text <- map["text"]
         font <- map["font"]
         size <- map["size"]
-        align <- map["align"]
+        alight <- map["alight"]
         onClick <- map["on_click"]
     }
 }
@@ -224,14 +244,14 @@ class Text: VisualElement {
 class Switch: VisualElement {
     var value: Bool!
     var text: String!
-    var align: Align!
+    var alight: Align!
     
     required init?(map: Map) {
         super.init(map: map)
         
         value = try? map.value("value")
         text = try? map.value("text")
-        align = try? map.value("align")
+        alight = try? map.value("alight")
     }
     
     override func mapping(map: Map) {
@@ -239,7 +259,7 @@ class Switch: VisualElement {
         
         value <- map["value"]
         text <- map["text"]
-        align <- map["align"]
+        alight <- map["alight"]
     }
 }
 
@@ -247,7 +267,7 @@ class Select: VisualElement {
     var value: String!
     var items: Array<String>!
     var hint: String!
-    var align: Align!
+    var alight: Align!
     
     required init?(map: Map) {
         super.init(map: map)
@@ -255,7 +275,7 @@ class Select: VisualElement {
         value = try? map.value("value")
         items = try? map.value("items")
         hint = try? map.value("hint")
-        align = try? map.value("align")
+        alight = try? map.value("alight")
     }
     
     override func mapping(map: Map) {
@@ -264,7 +284,7 @@ class Select: VisualElement {
         value <- map["value"]
         items <- map["items"]
         hint <- map["hint"]
-        align <- map["align"]
+        alight <- map["alight"]
     }
 }
 

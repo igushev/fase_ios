@@ -28,6 +28,7 @@ class FaseViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.view.tag = 100
         
         self.setupNavBar()
         
@@ -76,8 +77,8 @@ class FaseViewController: UIViewController {
             
             if mainButton.idElementList.count > 0 {
                 if let imageElement = mainButton.imageElement() {
-                    if let image = ResourcesService.getImage(by: imageElement.fileName) {
-                        mainButtonBar = UIBarButtonItem(image: image, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClick(_:)))
+                    if let image = ResourcesService.getImage(by: imageElement.fileName), let resizedImage = image.resizedImageForNavBarItem() {
+                        mainButtonBar = UIBarButtonItem(image: resizedImage, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClick(_:)))
                     }
                 }
             }
@@ -94,8 +95,8 @@ class FaseViewController: UIViewController {
             
             if cancelButton.idElementList.count > 0 {
                 if let imageElement = cancelButton.imageElement() {
-                    if let image = ResourcesService.getImage(by: imageElement.fileName) {
-                        cancelButtonBar = UIBarButtonItem(image: image, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClick(_:)))
+                    if let image = ResourcesService.getImage(by: imageElement.fileName), let resizedImage = image.resizedImageForNavBarItem() {
+                        cancelButtonBar = UIBarButtonItem(image: resizedImage, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClick(_:)))
                     }
                 }
                 if let menu = cancelButton.contextMenu() {
@@ -169,6 +170,10 @@ class FaseViewController: UIViewController {
         }
     }
     
+    // MARK: - deinit
     
+    deinit {
+        self.viewModel.screenUpdateTimer.invalidate()
+    }
 }
 

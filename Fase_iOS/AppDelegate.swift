@@ -36,13 +36,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let device = Device(type: type, token: uuid)
         
         APIClientService.getServices(for: device) { [weak self] (response, error) in
+            guard let strongSelf = self else {
+                return
+            }
+            
             if let error = error {
                 print(error.localizedDescription)
             } else {
                 if let screen = response?.screen {
                     let viewModel = FaseViewModel(with: screen)
-                    viewModel.router = self?.router
-                    self?.router?.displayViewController(with: viewModel)
+                    viewModel.router = strongSelf.router
+                    strongSelf.router?.displayViewController(with: viewModel)
                 }
                 if let resources = response?.resources {
                     ResourcesService.saveResources(resources)

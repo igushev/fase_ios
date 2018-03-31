@@ -15,17 +15,27 @@ protocol Fase {
 class FaseViewModel: NSObject, Fase {
     
     var screen: Screen!
-    var router: Router!
+    weak var router: Router?
     var screenDrawer: ScreenDrawer!
+    
     var isNeedTabBar: Bool!
     var isNeedTableView: Bool!
+    private(set) var screenUpdateTimer: Timer!
     
     
     init(with screen: Screen) {
+        super.init()
+        
         self.screen = screen
         self.isNeedTabBar = (self.screen.navigationElement() != nil)
         self.isNeedTableView = self.screen.hasFrameElements()
+        self.screenUpdateTimer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(sendScreenUpdateRequest), userInfo: nil, repeats: true)
     }
+    
+    //    func redrawElements() {
+    //        self.screenDrawer.resetScreen()
+    //        self.drawElements()
+    //    }
     
     func drawElements() {
         self.screenDrawer.viewModel = self
@@ -40,21 +50,30 @@ class FaseViewModel: NSObject, Fase {
         self.sendCallbackRequest(for: sender.faseElementId, navigationId: sender.navigationElementId)
     }
     
-    // TODO: - Create updating server response
+    // MARK: - Screen update request
     
-    // MARK: - Elements update request
-    
-    func sendElementsUpdateRequest() {
-        //        APIClientService.screenUpdate(for: screenUpdate) { [weak self] (response, error) in
-        //            if let error = error {
-        //                print(error.localizedDescription)
-        //            } else {
-        //                if let screen = response?.screen {
-        //                    //                    let viewModel = FaseViewModel(with: screen)
-        //                    //                    self?.router?.displayViewController(with: viewModel)
-        //                }
-        //            }
-        //        }
+    @objc func sendScreenUpdateRequest() {
+        let screenUpdate = ScreenUpdate(elementsUpdate: self.elementsUpdate(), device: Device.currentDevice())
+        APIClientService.screenUpdate(for: screenUpdate!, screenId: self.screen.screenId!) { [weak self] (response, error) in
+            guard let strongSelf = self else {
+                return
+            }
+            
+            if let error = error {
+                print(error.localizedDescription)
+            } else {
+                if let elementsUpdate = response?.elementsUpdate {
+                    strongSelf.updateScreen(with: elementsUpdate)
+                }
+                if let screen = response?.screen, let sessionInfo = response?.sessionInfo {
+                    APIClientService.saveNewSessionInfo(sessionInfo: sessionInfo)
+                    
+                    let viewModel = FaseViewModel(with: screen)
+                    viewModel.router = strongSelf.router
+                    strongSelf.router?.displayViewController(with: viewModel)
+                }
+            }
+        }
     }
     
     // MARK: - Send callback request
@@ -76,6 +95,10 @@ class FaseViewModel: NSObject, Fase {
         let elementCallback = ElementCallback(elementsUpdate: self.elementsUpdate(), elementIds: elementIds, method: method, locale: locale, device: Device.currentDevice())
         
         APIClientService.elementCallback(for: elementCallback!, screenId: self.screen.screenId!) { [weak self] (response, error) in
+            guard let strongSelf = self else {
+                return
+            }
+            
             if let error = error {
                 print(error.localizedDescription)
             } else {
@@ -83,8 +106,8 @@ class FaseViewModel: NSObject, Fase {
                     APIClientService.saveNewSessionInfo(sessionInfo: sessionInfo)
                     
                     let viewModel = FaseViewModel(with: screen)
-                    viewModel.router = self?.router
-                    self?.router?.displayViewController(with: viewModel)
+                    viewModel.router = strongSelf.router
+                    strongSelf.router?.displayViewController(with: viewModel)
                 }
                 if let resources = response?.resources {
                     ResourcesService.saveResources(resources)
@@ -98,14 +121,18 @@ class FaseViewModel: NSObject, Fase {
         let elementCallback = ElementCallback(elementsUpdate: self.elementsUpdate(), elementIds: elementIds, method: method, locale: nil, device: Device.currentDevice())
         
         APIClientService.elementCallback(for: elementCallback!, screenId: self.screen.screenId!) { [weak self] (response, error) in
+            guard let strongSelf = self else {
+                return
+            }
+            
             if let error = error {
                 print(error.localizedDescription)
             } else {
                 if let screen = response?.screen {
                     
                     let viewModel = FaseViewModel(with: screen)
-                    viewModel.router = self?.router
-                    self?.router?.displayViewController(with: viewModel)
+                    viewModel.router = strongSelf.router
+                    strongSelf.router?.displayViewController(with: viewModel)
                 }
             }
         }
@@ -118,32 +145,28 @@ class FaseViewModel: NSObject, Fase {
             if control is UITextField {
                 let textField = control as! UITextField
                 
-                guard let text = textField.text, text.isEmpty == false else {
-                    break
-                }
-                
-                elementsUpdate.valueArray?.append(text)
-                
-                if let parentElementId = textField.navigationElementId {
-                    elementsUpdate.arrayArrayIds?.append([parentElementId, textField.faseElementId])
-                } else {
-                    elementsUpdate.arrayArrayIds?.append([textField.faseElementId])
+                if let text = textField.text, text.isEmpty == false {
+                    elementsUpdate.valueArray?.append(text)
+                    
+                    if let parentElementId = textField.navigationElementId {
+                        elementsUpdate.arrayArrayIds?.append([parentElementId, textField.faseElementId])
+                    } else {
+                        elementsUpdate.arrayArrayIds?.append([textField.faseElementId])
+                    }
                 }
             }
             
             if control is UITextView {
                 let textView = control as! UITextView
                 
-                guard let text = textView.text, text.isEmpty == false else {
-                    break
-                }
-                
-                elementsUpdate.valueArray?.append(text)
-                
-                if let parentElementId = textView.navigationElementId {
-                    elementsUpdate.arrayArrayIds?.append([parentElementId, textView.faseElementId])
-                } else {
-                    elementsUpdate.arrayArrayIds?.append([textView.faseElementId])
+                if let text = textView.text, text.isEmpty == false {
+                    elementsUpdate.valueArray?.append(text)
+                    
+                    if let parentElementId = textView.navigationElementId {
+                        elementsUpdate.arrayArrayIds?.append([parentElementId, textView.faseElementId])
+                    } else {
+                        elementsUpdate.arrayArrayIds?.append([textView.faseElementId])
+                    }
                 }
             }
         }
@@ -155,11 +178,43 @@ class FaseViewModel: NSObject, Fase {
         return elementsUpdate
     }
     
-    func screenUpdate() -> ScreenUpdate {
-        var screenUpdate = ScreenUpdate()
-        
-        return screenUpdate
+    // MARK: - Elements update handling
+    
+    func updateScreen(with elementsUpdate: ElementsUpdate) {
+        if let elementsToUpdateCount = elementsUpdate.valueArray?.count {
+            for i in 0...elementsToUpdateCount - 1 {
+                if let values = elementsUpdate.valueArray, let elementsIds = elementsUpdate.arrayArrayIds {
+                    let elementId = elementsIds[i].last
+                    let value = values[i]
+                    self.updateElement(with: elementId, newValue: value)
+                }
+            }
+        }
     }
+    
+    func updateElement(with id: String?, newValue: String?) {
+        if let elementId = id, let element = self.element(with: elementId), let uiElement = self.uiElement(with: elementId) {
+            let elementTypeString = element.`class`
+            let elementType = ElementType(with: elementTypeString)
+            
+            switch elementType {
+            case .label:
+                (uiElement as! UILabel).text = newValue
+                break
+                
+            case .text:
+                if (element as! Text).multiline == true {
+                    (uiElement as! UITextView).text = newValue
+                } else {
+                    (uiElement as! UITextField).text = newValue
+                }
+                
+            default:
+                break
+            }
+        }
+    }
+    
     
     // MARK: - Elements help methods
     
@@ -171,6 +226,15 @@ class FaseViewModel: NSObject, Fase {
                         return element as? VisualElement
                     }
                 }
+            }
+        }
+        return nil
+    }
+    
+    func uiElement(with id: String) -> UIView? {
+        for view in self.screenDrawer.uiControls {
+            if id == view.faseElementId {
+                return view
             }
         }
         return nil

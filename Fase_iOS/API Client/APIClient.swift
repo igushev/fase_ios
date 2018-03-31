@@ -52,10 +52,20 @@ class APIClient {
     //    func getScreen(paramsData: Data, handler: @escaping ResponseHandler) {
     //        self.post(path: .getScreen, parametersData: paramsData, handler: handler)
     //    }
-    //
-    //    func screenUpdate(paramsData: Data, handler: @escaping ResponseHandler) {
-    //        self.post(path: .screenUpdate, parametersData: paramsData, handler: handler)
-    //    }
+    
+    func getResource(with name: String, handler: @escaping ResponseHandler) {
+        let urlString = URLPath.getResource.rawValue.appending(name)
+        self.download(from: urlString, handler: handler)
+    }
+    
+    func screenUpdate(screenId: String, paramsData: Data, handler: @escaping ResponseHandler) {
+        let headers: HTTPHeaders = [
+            "Content-Type": "application/json",
+            "session-id": self.sessionInfo.sessionId!,
+            "screen-id": screenId
+        ]
+        self.post(headers: headers, path: .screenUpdate, parametersData: paramsData, handler: handler)
+    }
     
     func elementCallback(screenId: String, paramsData: Data, handler: @escaping ResponseHandler) {
         let headers: HTTPHeaders = [
@@ -66,10 +76,6 @@ class APIClient {
         self.post(headers: headers, path: .elementCallback, parametersData: paramsData, handler: handler)
     }
     
-    func getResource(with name: String, handler: @escaping ResponseHandler) {
-        let urlString = URLPath.getResource.rawValue.appending(name)
-        self.download(from: urlString, handler: handler)
-    }
     
     // MARK: - Private
     
@@ -93,12 +99,17 @@ class APIClient {
                     completion(nil, error)
                 }
                 if let json = response.result.value {
-                    print("JSON: \(json)") // serialized json response
+                    #if DEBUG
+                        print("JSON: \(json)") // serialized json response
+                    #endif
+                    
                     completion(json as? Data, nil)
                 }
                 
                 if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
-                    print("Data: \(utf8Text)") // original server data as UTF8 string
+                    #if DEBUG
+                        print("Data: \(utf8Text)") // original server data as UTF8 string
+                    #endif
                 }
         }
     }
@@ -123,7 +134,10 @@ class APIClient {
             }
             
             if let json = response.result.value as JSON? {
-                print("JSON: \(json)") // serialized json response
+                #if DEBUG
+                    print("JSON: \(json)") // serialized json response
+                #endif
+                
                 let jsonData = Data.jsonToData(json: json)
                 handler(jsonData, nil)
             }
