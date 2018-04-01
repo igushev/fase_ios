@@ -184,7 +184,7 @@ class Label: VisualElement {
     var font: FaseFontSize!
     var size: Size!
     var alight: Align!
-    var onClick: Bool!
+    var onClick: Method!
     
     required init?(map: Map) {
         super.init(map: map)
@@ -334,7 +334,7 @@ class Image: VisualElement {
 
 class MenuItem: VisualElement {
     var text: String!
-    var onClick: Bool!
+    var onClick: Method!
     var image: Image!
     
     required init?(map: Map) {
@@ -372,7 +372,7 @@ class Menu: VisualElement {
 
 class Button: VisualElement {
     var text: String!
-    var onClick: Bool!
+    var onClick: Method!
     
     required init?(map: Map) {
         super.init(map: map)
@@ -436,7 +436,7 @@ enum FrameType: Int {
 class Frame: BaseElementsContainer {
     var orientation: FrameType!
     var size: Size!
-    var onClick: Bool!
+    var onClick: Method!
     var border: Bool!
     
     required init?(map: Map) {

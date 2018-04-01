@@ -85,11 +85,35 @@ class FaseViewModel: NSObject, Fase {
         if let navigationId = navigationId {
             elementIds.insert(navigationId, at: 0)
         }
-        let method = "on_click"
+        var method = "on_click"
         var locale: Locale? = nil
         
         if let element = self.element(with: elementId), let countryCode = NSLocale.current.regionCode {
             locale = element.isRequestLocale == true ? Locale(countryCode: countryCode) : nil
+            
+            let elementTypeString = element.`class`
+            let elementType = ElementType(with: elementTypeString)
+            
+            switch elementType {
+            case .button:
+                method = (element as! Button).onClick.method
+                break
+                
+            case .label:
+                method = (element as! Label).onClick.method
+                break
+                
+            case .frame:
+                method = (element as! Frame).onClick.method
+                break
+                
+            case .menuItem:
+                method = (element as! MenuItem).onClick.method
+                break
+                
+            default:
+                break
+            }
         }
         
         let elementCallback = ElementCallback(elementsUpdate: self.elementsUpdate(), elementIds: elementIds, method: method, locale: locale, device: Device.currentDevice())

@@ -206,7 +206,7 @@ class ScreenDrawer {
         }
         
         
-        let frame = UIView(frame: CGRect(x: x, y: y, width: width, height: Int(height)))        
+        let frame = UIView(frame: CGRect(x: x, y: y, width: width, height: Int(height)))
         frame.faseElementId = id
         
         if element.border == true {

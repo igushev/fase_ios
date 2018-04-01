@@ -139,6 +139,18 @@ struct Response: Mappable {
     }
 }
 
+struct Method: Mappable {
+    var method: String!
+    
+    init?(map: Map) {
+        method = try! map.value("method")
+    }
+    
+    mutating func mapping(map: Map) {
+        method <- map["method"]
+    }
+}
+
 struct Command {
     var command: String
 }
