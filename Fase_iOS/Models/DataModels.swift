@@ -33,39 +33,65 @@ struct Contact {
     }
 }
 
-struct Place {
-    var googlePlaceId: String
-    var city: String
-    var state: String
-    var country: String
+struct Place: Mappable {
+    var googlePlaceId: String?
+    var city: String?
+    var state: String?
+    var country: String?
     
-    enum CodingKeys: String, CodingKey {
-        case googlePlaceId = "google_place_id"
-        case city = "city"
-        case state = "state"
-        case country = "country"
+    init(placeId: String, city: String, state: String, country: String) {
+        self.googlePlaceId = placeId
+        self.city = city
+        self.state = state
+        self.country = country
+    }
+    
+    init?(map: Map) {
+        googlePlaceId = try! map.value("google_place_id")
+        city = try! map.value("city")
+        state = try! map.value("state")
+        country = try! map.value("country")
+    }
+    
+    mutating func mapping(map: Map) {
+        googlePlaceId <- map["google_place_id"]
+        city <- map["city"]
+        state <- map["state"]
+        country <- map["country"]
     }
 }
 
 struct User {
-    var userId: String
-    var phoneNumber: String
-    var firstName: String
-    var lastName: String
-    var dateOfBirth: Date
-    var homeCity: Place
-    var locale: Locale
-    var datetimeAdded: Date
+    var userId: String?
+    var phoneNumber: String?
+    var firstName: String?
+    var lastName: String?
+    var dateOfBirth: Date?
+    var homeCity: Place?
+    var locale: Locale?
+    var datetimeAdded: Date?
     
-    enum CodingKeys: String, CodingKey {
-        case userId = "user_id"
-        case phoneNumber = "phone_number"
-        case firstName = "first_name"
-        case lastName = "last_name"
-        case dateOfBirth = "date_of_birth"
-        case homeCity = "home_city"
-        case locale = "locale"
-        case datetimeAdded = "datetime_added"
+    init?(map: Map) {
+        userId = try! map.value("user_id")
+        phoneNumber = try! map.value("phone_number")
+        firstName = try! map.value("first_name")
+        lastName = try! map.value("last_name")
+        dateOfBirth = try! map.value("date_of_birth")
+        homeCity = try! map.value("home_city")
+        locale = try! map.value("locale")
+        datetimeAdded = try! map.value("datetime_added")
     }
+    
+    mutating func mapping(map: Map) {
+        userId <- map["user_id"]
+        phoneNumber <- map["phone_number"]
+        firstName <- map["first_name"]
+        lastName <- map["last_name"]
+        dateOfBirth <- map["date_of_birth"]
+        homeCity <- map["home_city"]
+        locale <- map["locale"]
+        datetimeAdded <- map["datetime_added"]
+    }
+    
 }
 

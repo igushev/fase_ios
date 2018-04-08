@@ -8,6 +8,7 @@
 
 import Foundation
 import ObjectMapper
+import GooglePlaces
 
 // MARK: - Foundation extensions
 
@@ -71,6 +72,24 @@ extension UIView {
         }
     }
     
+    // Needs to enable user interaction in superviews to enable on_click in frames
+    func enableUserInteractionForSuperviews() {
+        var view = self
+        while let superview = view.superview {
+            view = superview
+            view.isUserInteractionEnabled = true
+        }
+    }
+    
+    func nestedElementsIds() -> [String] {
+        var iDs: [String] = [self.faseElementId]
+        var view = self
+        while let superview = view.superview, let id = superview.faseElementId, id != "scrollview" {
+            view = superview
+            iDs.insert(id, at: 0)
+        }
+        return iDs
+    }
 }
 
 extension UIBarButtonItem {
@@ -117,13 +136,17 @@ extension UIButton {
     }
 }
 
+enum FaseImageWidth: Int {
+    case navigationItem = 24
+    case tabBarItem = 32
+}
+
 extension UIImage {
-    func resizedImageForNavBarItem() -> UIImage? {
+    func resizedImage(with size: CGSize) -> UIImage? {
         var image: UIImage? = nil
-        let targetSize = CGSize(width: 24, height: 24)
         
-        UIGraphicsBeginImageContext(targetSize)
-        let rect = CGRect(x: 0, y: 0, width: targetSize.width, height: targetSize.height)
+        UIGraphicsBeginImageContext(size)
+        let rect = CGRect(x: 0, y: 0, width: size.width, height: size.height)
         self.draw(in: rect)
         image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
@@ -132,16 +155,36 @@ extension UIImage {
     }
 }
 
+extension UIColor {
+    struct FaseColors {
+        static var navBarColor = UIColor(red: 66/255, green: 143/255, blue: 245/255, alpha: 1.0)
+        static var navBarItemsColor = UIColor.white
+        static var backgroundColor = UIColor.white //UIColor(red: 48/255, green: 48/255, blue: 48/255, alpha: 1.0)
+        static var textFieldBackgroundColor = UIColor(red: 250/255, green: 250/255, blue: 250/255, alpha: 1.0)
+        static var textColor = UIColor.black
+        static var buttonTextColor = UIColor.black
+        static var borderColor = UIColor(red: 226/255, green: 226/255, blue: 226/255, alpha: 1.0)
+        static var placeholderColor = UIColor(red: 199/255, green: 199/255, blue: 204/255, alpha: 1.0)
+        static var tabBarBackgroundColor = UIColor(red: 198/256, green: 198/256, blue: 198/256, alpha: 1.0)
+    }
+}
+
 // MARK: - Fase extensions
 
 extension Frame {
     func frameTotalHeight() -> CGFloat {
         var height: CGFloat = 0
+        var count: CGFloat = 0
         
         for tuple in self.idElementList {
             if tuple.count == 1 {
                 break
             }
+            
+            if count >= 1 {
+                height += UIElementsHeight.verticalSpace.rawValue
+            }
+            
             let element = tuple[1] as! Element
             let elementTypeString = element.`class`
             let elementType = ElementType(with: elementTypeString)
@@ -149,15 +192,84 @@ extension Frame {
             if elementType == ElementType.frame {
                 height += (element as! Frame).frameTotalHeight()
             } else if elementType == ElementType.label {
-                height += 30
+                height += UIElementsHeight.label.rawValue
             } else if elementType == ElementType.button {
-                height += 30
+                height += UIElementsHeight.button.rawValue
             } else if elementType == ElementType.text {
-                height += 30
+                height += (element as! Text).multiline == true ? UIElementsHeight.textView.rawValue : UIElementsHeight.textField.rawValue
+            } else if elementType == ElementType.dateTimePicker {
+                height += UIElementsHeight.textField.rawValue
+            } else if elementType == ElementType.placePicker {
+                height += UIElementsHeight.textField.rawValue
             }
+            
+            count += 1
         }
         
         return height
+    }
+    
+    func datePickerElement() -> DateTimePicker? {
+        for tuple in self.idElementList {
+            if tuple.count == 1 {
+                break
+            }
+            let elementId = tuple[0] as! String
+            let element = tuple[1] as! ElementContainer
+            
+            if element is VisualElement {
+                let elementTypeString = element.`class`
+                let elementType = ElementType(with: elementTypeString)
+                
+                if elementType == ElementType.dateTimePicker {
+                    (element as? DateTimePicker)?.faseElementId = elementId
+                    return element as? DateTimePicker
+                }
+            }
+        }
+        return nil
+    }
+    
+    func selectElement() -> Select? {
+        for tuple in self.idElementList {
+            if tuple.count == 1 {
+                break
+            }
+            let elementId = tuple[0] as! String
+            let element = tuple[1] as! ElementContainer
+            
+            if element is VisualElement {
+                let elementTypeString = element.`class`
+                let elementType = ElementType(with: elementTypeString)
+                
+                if elementType == ElementType.select {
+                    (element as? Select)?.faseElementId = elementId
+                    return element as? Select
+                }
+            }
+        }
+        return nil
+    }
+    
+    func placePickerElement() -> PlacePicker? {
+        for tuple in self.idElementList {
+            if tuple.count == 1 {
+                break
+            }
+            let elementId = tuple[0] as! String
+            let element = tuple[1] as! ElementContainer
+            
+            if element is VisualElement {
+                let elementTypeString = element.`class`
+                let elementType = ElementType(with: elementTypeString)
+                
+                if elementType == ElementType.placePicker {
+                    (element as? PlacePicker)?.faseElementId = elementId
+                    return element as? PlacePicker
+                }
+            }
+        }
+        return nil
     }
 }
 
@@ -309,6 +421,97 @@ extension Screen {
             }
         }
         return hasElements
+    }
+    
+    func datePickerElement() -> DateTimePicker? {
+        for tuple in self.idElementList {
+            if tuple.count == 1 {
+                break
+            }
+            let elementId = tuple[0] as! String
+            let element = tuple[1] as! ElementContainer
+            
+            if element is VisualElement {
+                let elementTypeString = element.`class`
+                let elementType = ElementType(with: elementTypeString)
+                
+                if elementType == ElementType.dateTimePicker {
+                    (element as? DateTimePicker)?.faseElementId = elementId
+                    return element as? DateTimePicker
+                }
+                if elementType == ElementType.frame {
+                    return (element as! Frame).datePickerElement()
+                }
+            }
+        }
+        return nil
+    }
+    
+    func placePickerElement() -> PlacePicker? {
+        for tuple in self.idElementList {
+            if tuple.count == 1 {
+                break
+            }
+            let elementId = tuple[0] as! String
+            let element = tuple[1] as! ElementContainer
+            
+            if element is VisualElement {
+                let elementTypeString = element.`class`
+                let elementType = ElementType(with: elementTypeString)
+                
+                if elementType == ElementType.placePicker {
+                    (element as? PlacePicker)?.faseElementId = elementId
+                    return element as? PlacePicker
+                }
+                if elementType == ElementType.frame {
+                    return (element as! Frame).placePickerElement()
+                }
+            }
+        }
+        return nil
+    }
+    
+    func selectElement() -> Select? {
+        for tuple in self.idElementList {
+            if tuple.count == 1 {
+                break
+            }
+            let elementId = tuple[0] as! String
+            let element = tuple[1] as! ElementContainer
+            
+            if element is VisualElement {
+                let elementTypeString = element.`class`
+                let elementType = ElementType(with: elementTypeString)
+                
+                if elementType == ElementType.select {
+                    (element as? Select)?.faseElementId = elementId
+                    return element as? Select
+                }
+                if elementType == ElementType.frame {
+                    return (element as! Frame).selectElement()
+                }
+            }
+        }
+        return nil
+    }
+    
+    func contactPickerElement() -> ContactPicker? {
+        for tuple in self.idElementList {
+            if tuple.count == 1 {
+                break
+            }
+            let element = tuple[1] as! ElementContainer
+            
+            if element is VisualElement {
+                let elementTypeString = element.`class`
+                let elementType = ElementType(with: elementTypeString)
+                
+                if elementType == ElementType.contactPicker {
+                    return element as? ContactPicker
+                }
+            }
+        }
+        return nil
     }
     
     func mainButton() -> Button? {
@@ -468,5 +671,68 @@ extension MenuItem {
     }
 }
 
+extension Place {
+    func placeString() -> String? {
+        if let placeId = self.googlePlaceId, let city = self.city, let state = self.state, let country = self.country {
+            return placeId + "|" + city + "|" + state + "|" + country
+        }
+        return nil
+    }
+    
+    static func place(with googlePlace: GMSPlace) -> Place {
+        var place = Place(placeId: googlePlace.placeID, city: "-", state: "-", country: "-")
+        
+        if let addressComponents = googlePlace.addressComponents {
+            for component in addressComponents {
+                if component.type == "locality"  {
+                    place.city = component.name
+                }
+                if component.type == "administrative_area_level_1" {
+                    place.state = component.name
+                }
+                if component.type == "country" {
+                    place.country = component.name
+                }
+            }
+        }
+        
+        return place
+    }
+}
 
+extension ElementsUpdate: Equatable {
+    static func ==(lhs: ElementsUpdate, rhs: ElementsUpdate) -> Bool {
+        if (lhs.valueArray?.count != rhs.valueArray?.count) || (lhs.arrayArrayIds?.count != rhs.arrayArrayIds?.count) {
+            return false
+        }
+        
+        if let lhsValueArray = lhs.valueArray, let rhsValueArray = rhs.valueArray {
+            for i in 0...lhsValueArray.count - 1 {
+                if lhsValueArray[i] != rhsValueArray[i] {
+                    return false
+                }
+            }
+        }
+        
+        return true
+    }
+    
+    func differenceFrom(oldElementsUpdate: ElementsUpdate) -> ElementsUpdate? {
+        var newElementsUpdate = ElementsUpdate()
+        
+        // FIXME: - Hack. Sometimes count of values are different. Should empty value be sent?
+        if self.valueArray?.count != oldElementsUpdate.valueArray?.count {
+            return self
+        }
+        
+        for i in 0...(self.valueArray?.count)! - 1 {
+            if self.valueArray![i] != oldElementsUpdate.valueArray![i] {
+                newElementsUpdate.valueArray?.append(self.valueArray![i])
+                newElementsUpdate.arrayArrayIds?.append(self.arrayArrayIds![i])
+            }
+        }
+        
+        return (newElementsUpdate.valueArray!.count > 0) ? newElementsUpdate : nil
+    }
+}
 

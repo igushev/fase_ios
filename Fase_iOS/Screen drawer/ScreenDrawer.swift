@@ -13,9 +13,19 @@ enum UIElementsWidth: CGFloat {
     case textField = 110
     case button = 100
     case label = 120
-    case navigation = 49
     case frame = 1000
     case image = 32
+    case `switch` = 49.0
+}
+
+enum UIElementsHeight: CGFloat {
+    case textField = 30.0
+    case textView = 100.0
+    case button = 34.0
+    case label = 30.01
+    case navigation = 49.0
+    case verticalSpace = 5.0
+    case `switch` = 31.0
 }
 
 enum FaseElementsId: String {
@@ -27,16 +37,15 @@ enum FaseElementsId: String {
 }
 
 class ScreenDrawer {
-    
     var view: UIView!
     private(set) var elements: Array<Element>!
     private(set) var uiControls: Array<UIView>!
     private var y: CGFloat
     private var maxWidth: CGFloat
     
-    // TODO: - mind how do better
     weak var viewModel: FaseViewModel?
-    
+    var datePickerSetupBlock: ((UITextField) -> Void)?
+    var pickerSetupBlock: ((UITextField) -> Void)?
     
     init(with view: UIView) {
         print("Screen drawer init")
@@ -126,6 +135,26 @@ class ScreenDrawer {
             
         case .image:
             self.drawImageView(for: element as! Image, with: id, parentElementId: parentElementId)
+            break
+            
+        case .dateTimePicker:
+            self.drawDatePicker(for: element as! DateTimePicker, with: id, parentElementId: parentElementId)
+            break
+            
+        case .placePicker:
+            self.drawPlacePicker(for: element as! PlacePicker, with: id, parentElementId: parentElementId)
+            break
+            
+        case .select:
+            self.drawSelect(for: element as! Select, with: id, parentElementId: parentElementId)
+            break
+            
+        case .contactPicker:
+            self.drawContactPicker(for: element as! ContactPicker, with: id, parentElementId: parentElementId)
+            break
+            
+        case .switchElement:
+            self.drawSwitch(for: element as! Switch, with: id, parentElementId: parentElementId)
             
         default:
             break
@@ -135,13 +164,14 @@ class ScreenDrawer {
     }
     
     func drawTabBar(for element: ElementContainer, with id: String) {
-        if let viewModel = self.viewModel, viewModel.screen.scrollable == true {
+        if let viewModel = self.viewModel /*viewModel.screen.scrollable == true*/ {
             var x: CGFloat = 0
-            var y = self.view.frame.height - UIElementsWidth.navigation.rawValue
+            var y = self.view.frame.height - UIElementsHeight.navigation.rawValue
             let width = self.view.frame.width
+            let height = UIElementsHeight.navigation.rawValue
             
-            let tabBarView = UIView(frame: CGRect(x: x, y: y, width: width, height: UIElementsWidth.navigation.rawValue))
-            tabBarView.backgroundColor = UIColor(red: 198/256, green: 198/256, blue: 198/256, alpha: 1.0)
+            let tabBarView = UIView(frame: CGRect(x: x, y: y, width: width, height: height))
+            tabBarView.backgroundColor = UIColor.FaseColors.tabBarBackgroundColor
             tabBarView.tag = -1
             
             let navigationElemenrId: String? = element.navigationElementId
@@ -154,11 +184,11 @@ class ScreenDrawer {
                 
                 for button in navButtons {
                     var image: UIImage? = UIImage()
-                    if let imageElement = button.imageElement(), let savedImage = ResourcesService.getImage(by: imageElement.fileName) {
-                        image = savedImage
+                    if let imageElement = button.imageElement(), let savedImage = ResourcesService.getImage(by: imageElement.fileName), let resizedImage = savedImage.resizedImage(with: CGSize(width: FaseImageWidth.tabBarItem.rawValue, height: FaseImageWidth.tabBarItem.rawValue)) {
+                        image = resizedImage
                     }
                     
-                    let uiButton = UIButton(frame: CGRect(x: x, y: y, width: width, height: UIElementsWidth.navigation.rawValue))
+                    let uiButton = UIButton(frame: CGRect(x: x, y: y, width: width, height: UIElementsHeight.navigation.rawValue))
                     uiButton.faseElementId = button.faseElementId
                     uiButton.navigationElementId = navigationElemenrId
                     uiButton.setTitle(button.text, for: .normal)
@@ -192,6 +222,8 @@ class ScreenDrawer {
         
         var superview: UIView! = self.view
         
+        width = Int(superview.frame.width)
+        
         if parentElementId == FaseElementsId.scrollView.rawValue {
             superview = self.view.scrollView
         }
@@ -205,18 +237,24 @@ class ScreenDrawer {
             y = Int((superview.subviews.last?.frame.maxY)!) + 1
         }
         
-        
         let frame = UIView(frame: CGRect(x: x, y: y, width: width, height: Int(height)))
         frame.faseElementId = id
+        element.faseElementId = id
         
         if element.border == true {
             frame.layer.borderWidth = 1
-            frame.layer.borderColor = UIColor.white.cgColor
+            frame.layer.borderColor = UIColor.FaseColors.borderColor.cgColor
         }
         
         superview.addSubview(frame)
         self.uiControls.append(frame)
         
+        if element.onClick != nil {
+            frame.isUserInteractionEnabled = true
+            frame.enableUserInteractionForSuperviews()
+        } else {
+            frame.isUserInteractionEnabled = false
+        }
         
         // Constraints
         frame.translatesAutoresizingMaskIntoConstraints = false
@@ -256,7 +294,7 @@ class ScreenDrawer {
                         make.top.equalToSuperview()
                     }
                     
-                    if superview is UIScrollView {
+                    if superview is UIScrollView { // remove
                         make.centerY.equalToSuperview()
                         make.bottom.equalToSuperview()
                     }
@@ -300,10 +338,13 @@ class ScreenDrawer {
         
         let x = self.getXForElement(with: self.maxWidth)
         let y = self.y
+        let width = self.maxWidth
+        let height = UIElementsHeight.textField.rawValue
         
-        let frame = CGRect(x: x, y: y, width: self.maxWidth, height: 30)
+        let frame = CGRect(x: x, y: y, width: width, height: height)
         let textField = UITextField(frame: frame)
-        textField.backgroundColor = UIColor.white
+        textField.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
+        textField.textColor = UIColor.FaseColors.textColor
         textField.borderStyle = .roundedRect
         textField.faseElementId = id
         if let parentId = parentElementId {
@@ -320,6 +361,8 @@ class ScreenDrawer {
         if let text = element.text {
             textField.text = text
         }
+        
+        textField.enableUserInteractionForSuperviews()
         
         self.uiControls.append(textField)
         
@@ -350,15 +393,21 @@ class ScreenDrawer {
         
         let x = self.getXForElement(with: self.maxWidth)
         let y = self.y
+        let width = self.maxWidth
+        let height = UIElementsHeight.textView.rawValue
         
-        let frame = CGRect(x: x, y: y, width: self.maxWidth, height: 100)
+        let frame = CGRect(x: x, y: y, width: width, height: height)
         let textView = UITextView(frame: frame)
-        textView.backgroundColor = UIColor.white
+        textView.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
+        textView.textColor = UIColor.FaseColors.textColor
         textView.layer.cornerRadius = 5.0
         textView.isSelectable = true
         textView.font = UIFont.systemFont(ofSize: 17.0)
         textView.delegate = self.viewModel
         textView.faseElementId = id
+        textView.layer.borderWidth = 1.0
+        textView.layer.borderColor = UIColor.FaseColors.borderColor.cgColor
+        
         if let parentId = parentElementId {
             textView.navigationElementId = parentId
         }
@@ -366,14 +415,16 @@ class ScreenDrawer {
         superview.addSubview(textView)
         self.y += textView.frame.size.height
         
-        if let placeholder = element.hint {
+        if let placeholder = element.hint, element.text == nil {
             textView.text = placeholder
-            textView.textColor = UIColor.lightGray
+            textView.textColor = UIColor.FaseColors.placeholderColor
         }
         
         if let text = element.text {
             textView.text = text
         }
+        
+        textView.enableUserInteractionForSuperviews()
         
         self.uiControls.append(textView)
         
@@ -408,10 +459,13 @@ class ScreenDrawer {
             return
         }
         let x = self.getXForElement(with: UIElementsWidth.button.rawValue)
-        let y = self.y
+        let y: CGFloat = 0
+        let width = UIElementsWidth.button.rawValue
+        let height = UIElementsHeight.button.rawValue
         
-        let frame = CGRect(x: x, y: 0, width: UIElementsWidth.button.rawValue, height: 30)
+        let frame = CGRect(x: x, y: y, width: width, height: height)
         let button = UIButton(frame: frame)
+        button.setTitleColor(UIColor.FaseColors.buttonTextColor, for: .normal)
         button.faseElementId = id
         
         if let parentId = parentElementId {
@@ -427,6 +481,8 @@ class ScreenDrawer {
         if let text = element.text {
             button.setTitle(text, for: .normal)
         }
+        
+        button.enableUserInteractionForSuperviews()
         
         self.uiControls.append(button)
         
@@ -455,9 +511,9 @@ class ScreenDrawer {
         }
         
         let x: CGFloat = 0 //self.getXForElement(with: UIElementsWidth.button.rawValue)
-        var y: CGFloat = self.y
+        var y: CGFloat = 0
         var width: CGFloat = self.viewSize().width
-        let height: CGFloat = 30.0
+        let height: CGFloat = UIElementsHeight.label.rawValue
         
         width = superview.bounds.width
         
@@ -465,12 +521,13 @@ class ScreenDrawer {
             y = (superview.subviews.last?.frame.maxY)! + 1
         }
         
-        let frame = CGRect(x: x, y: 0, width: width, height: height)
+        let frame = CGRect(x: x, y: y, width: width, height: height)
         let label = UILabel(frame: frame)
         label.font = UIFont.systemFont(ofSize: element.font.appFontSize)
+        label.textColor = UIColor.FaseColors.textColor
         label.faseElementId = id
         
-        switch element.alight {
+        switch element.align {
         case .left:
             label.textAlignment = .left
             break
@@ -526,7 +583,7 @@ class ScreenDrawer {
         }
         
         let x: CGFloat = superview.frame.maxX - UIElementsWidth.image.rawValue //self.getXForElement(with: UIElementsWidth.button.rawValue)
-        var y: CGFloat = self.y
+        var y: CGFloat = 0
         var width: CGFloat = UIElementsWidth.image.rawValue
         let height: CGFloat = UIElementsWidth.image.rawValue
         
@@ -536,7 +593,7 @@ class ScreenDrawer {
             y = (superview.subviews.last?.frame.maxY)! + 1
         }
         
-        let frame = CGRect(x: x, y: 0, width: width, height: height)
+        let frame = CGRect(x: x, y: y, width: width, height: height)
         let imageView = UIImageView(frame: frame)
         imageView.faseElementId = id  // is it needed in label?
         imageView.contentMode = .scaleAspectFit
@@ -546,6 +603,8 @@ class ScreenDrawer {
             image = savedImage
         }
         imageView.image = image
+        imageView.image = imageView.image?.withRenderingMode(.alwaysTemplate)
+        imageView.tintColor = UIColor.FaseColors.textColor
         
         superview.addSubview(imageView)
         self.y += imageView.frame.size.height
@@ -563,6 +622,287 @@ class ScreenDrawer {
         }
     }
     
+    func drawDatePicker(for element: DateTimePicker, with id: String, parentElementId: String?) {
+        element.faseElementId = id
+        
+        var superview: UIView! = self.view
+        if let parentId = parentElementId, let parentView = self.view(with: parentId) {
+            superview = parentView
+        }
+        
+        let x = self.getXForElement(with: self.maxWidth)
+        let y = self.y
+        let width = self.maxWidth
+        let height = UIElementsHeight.textField.rawValue
+        
+        let frame = CGRect(x: x, y: y, width: width, height: height)
+        let textField = UITextField(frame: frame)
+        textField.faseElementId = id
+        
+        if let setupBlock = self.datePickerSetupBlock {
+            setupBlock(textField)
+        }
+        
+        textField.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
+        textField.textColor = UIColor.FaseColors.textColor
+        textField.borderStyle = .roundedRect
+        if let parentId = parentElementId {
+            textField.navigationElementId = parentId
+        }
+        
+        superview.addSubview(textField)
+        self.y += textField.frame.size.height
+        
+        if let placeholder = element.hint {
+            textField.placeholder = placeholder
+        }
+        
+        if let value = element.datetime {
+            textField.text = String(describing: value)
+        }
+        
+        self.uiControls.append(textField)
+        
+        // Constraints
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        
+        textField.snp.makeConstraints { (make) in
+            make.centerX.equalToSuperview()
+            make.width.equalTo(textField.frame.width)
+            
+            if superview.subviews.count > 1 {
+                let prevSubview = superview.subviews[superview.subviews.count - 2]
+                
+                make.top.equalTo(prevSubview.snp.bottom).offset(5)
+            } else {
+                make.top.equalToSuperview().offset(5)
+            }
+        }
+    }
+    
+    func drawPlacePicker(for element: PlacePicker, with id: String, parentElementId: String?) {
+        element.faseElementId = id
+        
+        var superview: UIView! = self.view
+        if let parentId = parentElementId, let parentView = self.view(with: parentId) {
+            superview = parentView
+        }
+        
+        let x = self.getXForElement(with: self.maxWidth)
+        let y = self.y
+        let width = self.maxWidth
+        let height = UIElementsHeight.textField.rawValue
+        
+        let frame = CGRect(x: x, y: y, width: width, height: height)
+        let textField = UITextField(frame: frame)
+        textField.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
+        textField.textColor = UIColor.FaseColors.textColor
+        textField.borderStyle = .roundedRect
+        textField.delegate = self.viewModel
+        textField.faseElementId = id
+        if let parentId = parentElementId {
+            textField.navigationElementId = parentId
+        }
+        
+        superview.addSubview(textField)
+        self.y += textField.frame.size.height
+        
+        if let placeholder = element.hint {
+            textField.placeholder = placeholder
+        }
+        
+        if let place = element.place, let text = place.placeString() {
+            textField.text = text
+        }
+        
+        self.uiControls.append(textField)
+        
+        // Constraints
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        
+        textField.snp.makeConstraints { (make) in
+            make.centerX.equalToSuperview()
+            make.width.equalTo(textField.frame.width)
+            
+            if superview.subviews.count > 1 {
+                let prevSubview = superview.subviews[superview.subviews.count - 2]
+                
+                make.top.equalTo(prevSubview.snp.bottom).offset(5)
+            } else {
+                make.top.equalToSuperview().offset(5)
+            }
+        }
+    }
+    
+    func drawSelect(for element: Select, with id: String, parentElementId: String?) {
+        element.faseElementId = id
+        
+        var superview: UIView! = self.view
+        if let parentId = parentElementId, let parentView = self.view(with: parentId) {
+            superview = parentView
+        }
+        
+        let x = self.getXForElement(with: self.maxWidth)
+        let y = self.y
+        let width = self.maxWidth
+        let height = UIElementsHeight.textField.rawValue
+        
+        let frame = CGRect(x: x, y: y, width: width, height: height)
+        let textField = UITextField(frame: frame)
+        textField.faseElementId = id
+        
+        if let setupBlock = self.pickerSetupBlock {
+            setupBlock(textField)
+        }
+        
+        textField.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
+        textField.textColor = UIColor.FaseColors.textColor
+        textField.borderStyle = .roundedRect
+        textField.delegate = self.viewModel
+        
+        if let parentId = parentElementId {
+            textField.navigationElementId = parentId
+        }
+        
+        superview.addSubview(textField)
+        self.y += textField.frame.size.height
+        
+        if let placeholder = element.hint {
+            textField.placeholder = placeholder
+        }
+        
+        if let text = element.value {
+            textField.text = text
+        }
+        
+        self.uiControls.append(textField)
+        
+        // Constraints
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        
+        textField.snp.makeConstraints { (make) in
+            make.centerX.equalToSuperview()
+            make.width.equalTo(textField.frame.width)
+            
+            if superview.subviews.count > 1 {
+                let prevSubview = superview.subviews[superview.subviews.count - 2]
+                
+                make.top.equalTo(prevSubview.snp.bottom).offset(5)
+            } else {
+                make.top.equalToSuperview().offset(5)
+            }
+        }
+    }
+    
+    func drawContactPicker(for element: ContactPicker, with id: String, parentElementId: String?) {
+        element.faseElementId = id
+        
+        var superview: UIView! = self.view
+        if let parentId = parentElementId, let parentView = self.view(with: parentId) {
+            superview = parentView
+        }
+        
+        let x = self.getXForElement(with: self.maxWidth)
+        let y = self.y
+        let width = self.maxWidth
+        let height = UIElementsHeight.textField.rawValue
+        
+        let frame = CGRect(x: x, y: y, width: width, height: height)
+        let textField = UITextField(frame: frame)
+        textField.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
+        textField.textColor = UIColor.FaseColors.textColor
+        textField.borderStyle = .roundedRect
+        textField.delegate = self.viewModel
+        textField.faseElementId = id
+        if let parentId = parentElementId {
+            textField.navigationElementId = parentId
+        }
+        
+        superview.addSubview(textField)
+        self.y += textField.frame.size.height
+        
+        if let placeholder = element.hint {
+            textField.placeholder = placeholder
+        }
+        
+        if let contact = element.contact {
+            textField.text = contact.displayName
+        }
+        
+        self.uiControls.append(textField)
+        
+        // Constraints
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        
+        textField.snp.makeConstraints { (make) in
+            make.centerX.equalToSuperview()
+            make.width.equalTo(textField.frame.width)
+            
+            if superview.subviews.count > 1 {
+                let prevSubview = superview.subviews[superview.subviews.count - 2]
+                
+                make.top.equalTo(prevSubview.snp.bottom).offset(5)
+            } else {
+                make.top.equalToSuperview().offset(5)
+            }
+        }
+    }
+    
+    func drawSwitch(for element: Switch, with id: String, parentElementId: String?) {
+        element.faseElementId = id
+        
+        var superview: UIView! = self.view
+        if let parentId = parentElementId, let parentView = self.view(with: parentId) {
+            superview = parentView
+        }
+        
+        let x = self.getXForElement(with: self.maxWidth)
+        let y = self.y
+        let width = UIElementsWidth.switch.rawValue
+        let height = UIElementsHeight.switch.rawValue
+        let frame = CGRect(x: x, y: y, width: width, height: height)
+        
+        let `switch` = UISwitch(frame: frame)
+        `switch`.faseElementId = id
+        
+        superview.addSubview(`switch`)
+        self.y += `switch`.frame.size.height
+        
+        self.uiControls.append(`switch`)
+        
+        // Constraints
+        `switch`.translatesAutoresizingMaskIntoConstraints = false
+        
+        `switch`.snp.makeConstraints { (make) in
+            make.width.equalTo(`switch`.frame.width)
+            
+            if let align = element.align {
+                switch align {
+                case .left:
+                    make.leading.equalToSuperview().offset(5)
+                    break
+                    
+                case .right:
+                    make.trailing.equalToSuperview().offset(-5)
+                    break
+                    
+                case .center:
+                    make.centerX.equalToSuperview()
+                    break
+                }
+            }
+            
+            if superview.subviews.count > 1 {
+                let prevSubview = superview.subviews[superview.subviews.count - 2]
+                
+                make.top.equalTo(prevSubview.snp.bottom).offset(5)
+            } else {
+                make.top.equalToSuperview().offset(5)
+            }
+        }
+    }
+    
+    // MARK: - Help methods
     
     func getXForElement(with width: CGFloat) -> CGFloat {
         return self.viewSize().width / 2 - CGFloat(width / 2)
@@ -570,6 +910,13 @@ class ScreenDrawer {
     
     func viewSize() -> CGSize {
         return self.view.bounds.size
+    }
+    
+    func datePickerInputView() -> UITextField? {
+        if let textField = self.viewThatIdContains(id: "date_picker") as? UITextField {
+            return textField
+        }
+        return nil
     }
     
     // MARK: - Private
@@ -583,6 +930,18 @@ class ScreenDrawer {
         
         return nil
     }
+    
+    func viewThatIdContains(id: String) -> UIView? {
+        for control in self.uiControls {
+            if control.faseElementId.contains(id) == true {
+                return control
+            }
+        }
+        
+        return nil
+    }
+    
+    // MARK: - Used for drawing duplicated frames with same id
     
     func viewThatCanHasClonesWithSameId(with faseElementId: String) -> UIView? {
         var elements: Array<UIView> = []

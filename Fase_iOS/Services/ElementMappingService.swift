@@ -48,11 +48,19 @@ class ElementMappingService {
         case .alert:
             return Alert.init(map: map)
             
+        case .dateTimePicker:
+            return DateTimePicker.init(map: map)
+            
+        case .placePicker:
+            return PlacePicker.init(map: map)
+            
+        case .contactPicker:
+            return ContactPicker.init(map: map)
+            
         default:
             return nil
         }
     }
-    
     
 }
 

@@ -24,6 +24,10 @@ class Router {
         }
     }
     
+    func presentViewController(viewController: UIViewController) {
+        self.rootViewController()?.present(viewController, animated: true, completion: nil)
+    }
+    
     // MARK: - Private
     
     func rootViewController() -> FaseViewController? {

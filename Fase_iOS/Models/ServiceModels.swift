@@ -12,10 +12,12 @@ import ObjectMapper
 struct Device: Mappable {
     var deviceType: String?
     var deviceToken: String?
+    var pixelDensity: CGFloat?
     
     init(type: String, token: String) {
         self.deviceType = type
         self.deviceToken = token
+        self.pixelDensity = UIScreen.main.scale
     }
     
     init?(map: Map) { }
@@ -23,16 +25,25 @@ struct Device: Mappable {
     mutating func mapping(map: Map) {
         deviceType <- map["device_type"]
         deviceToken <- map["device_token"]
+        pixelDensity <- map["pixel_density"]
     }
 }
 
-struct SessionInfo: Mappable {
+class SessionInfo: NSObject, Mappable, NSCoding {
     var sessionId: String?
     
-    init?(map: Map) { }
+    required init?(map: Map) { }
     
-    mutating func mapping(map: Map) {
+    func mapping(map: Map) {
         sessionId <- map["session_id"]
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        self.sessionId = aDecoder.decodeObject(forKey: "sessionId") as? String
+    }
+    
+    func encode(with aCoder: NSCoder) {
+        aCoder.encode(sessionId, forKey: "sessionId")
     }
 }
 

@@ -10,8 +10,9 @@ import Foundation
 import Alamofire
 
 enum BaseURL: String {
-    case helloworld = "http://hello-world-fase-env-test1.us-west-2.elasticbeanstalk.com/"
+    case helloWorld = "http://hello-world-fase-env-test1.us-west-2.elasticbeanstalk.com/"
     case notes = "http://notes-fase-env-test1.us-west-2.elasticbeanstalk.com/"
+    case karmaCounter = "http://karmacounter-fase-env-test1.us-west-2.elasticbeanstalk.com/"
 }
 
 enum URLPath: String {
@@ -29,11 +30,21 @@ typealias ResourceHandler = (Data?, Error?) -> Void
 typealias JSON = AnyObject
 
 class APIClient {
-    static let shared = APIClient(with: URL(string: BaseURL.notes.rawValue)!)
+    static let shared = APIClient(with: URL(string: BaseURL.karmaCounter.rawValue)!)
     
     var baseURL: URL!
-    var sessionInfo: SessionInfo!
-    
+    var sessionInfo: SessionInfo? {
+        get {
+            if let data = UserDefaults.standard.value(forKey: "sessionInfo") as? Data {
+                return NSKeyedUnarchiver.unarchiveObject(with: data) as? SessionInfo
+            }
+            return nil
+        }
+        set {
+            let data = NSKeyedArchiver.archivedData(withRootObject: newValue as Any)
+            UserDefaults.standard.setValue(data, forKey: "sessionInfo")
+        }
+    }
     
     // MARK: - API methods
     
@@ -49,9 +60,15 @@ class APIClient {
         self.post(path: .getService, parametersData: paramsData, handler: handler)
     }
     
-    //    func getScreen(paramsData: Data, handler: @escaping ResponseHandler) {
-    //        self.post(path: .getScreen, parametersData: paramsData, handler: handler)
-    //    }
+    func getScreen(paramsData: Data, handler: @escaping ResponseHandler) {
+        if let sessionId = self.sessionInfo?.sessionId {
+            let headers: HTTPHeaders = [
+                "Content-Type": "application/json",
+                "session-id": sessionId
+            ]
+            self.post(headers: headers, path: .getScreen, parametersData: paramsData, handler: handler)
+        }
+    }
     
     func getResource(with name: String, handler: @escaping ResponseHandler) {
         let urlString = URLPath.getResource.rawValue.appending(name)
@@ -59,21 +76,25 @@ class APIClient {
     }
     
     func screenUpdate(screenId: String, paramsData: Data, handler: @escaping ResponseHandler) {
-        let headers: HTTPHeaders = [
-            "Content-Type": "application/json",
-            "session-id": self.sessionInfo.sessionId!,
-            "screen-id": screenId
-        ]
-        self.post(headers: headers, path: .screenUpdate, parametersData: paramsData, handler: handler)
+        if let sessionId = self.sessionInfo?.sessionId {
+            let headers: HTTPHeaders = [
+                "Content-Type": "application/json",
+                "session-id": sessionId,
+                "screen-id": screenId
+            ]
+            self.post(headers: headers, path: .screenUpdate, parametersData: paramsData, handler: handler)
+        }
     }
     
     func elementCallback(screenId: String, paramsData: Data, handler: @escaping ResponseHandler) {
-        let headers: HTTPHeaders = [
-            "Content-Type": "application/json",
-            "session-id": self.sessionInfo.sessionId!,
-            "screen-id": screenId
-        ]
-        self.post(headers: headers, path: .elementCallback, parametersData: paramsData, handler: handler)
+        if let sessionId = self.sessionInfo?.sessionId {
+            let headers: HTTPHeaders = [
+                "Content-Type": "application/json",
+                "session-id": sessionId,
+                "screen-id": screenId
+            ]
+            self.post(headers: headers, path: .elementCallback, parametersData: paramsData, handler: handler)
+        }
     }
     
     

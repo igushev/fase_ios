@@ -183,7 +183,7 @@ class Label: VisualElement {
     var text: String!
     var font: FaseFontSize!
     var size: Size!
-    var alight: Align!
+    var align: Align!
     var onClick: Method!
     
     required init?(map: Map) {
@@ -192,7 +192,7 @@ class Label: VisualElement {
         text = try? map.value("text")
         font = try? map.value("font")
         size = try? map.value("size")
-        alight = try? map.value("alight")
+        align = try? map.value("align")
         onClick = try? map.value("on_click")
     }
     
@@ -202,7 +202,7 @@ class Label: VisualElement {
         text <- map["text"]
         font <- map["font"]
         size <- map["size"]
-        alight <- map["alight"]
+        align <- map["align"]
         onClick <- map["on_click"]
     }
 }
@@ -244,14 +244,14 @@ class Text: VisualElement {
 class Switch: VisualElement {
     var value: Bool!
     var text: String!
-    var alight: Align!
+    var align: Align?
     
     required init?(map: Map) {
         super.init(map: map)
         
         value = try? map.value("value")
         text = try? map.value("text")
-        alight = try? map.value("alight")
+        align = try? map.value("align")
     }
     
     override func mapping(map: Map) {
@@ -259,15 +259,15 @@ class Switch: VisualElement {
         
         value <- map["value"]
         text <- map["text"]
-        alight <- map["alight"]
+        align <- map["align"]
     }
 }
 
 class Select: VisualElement {
-    var value: String!
-    var items: Array<String>!
+    var value: String?
+    var items: Array<String>?
     var hint: String!
-    var alight: Align!
+    var align: Align!
     
     required init?(map: Map) {
         super.init(map: map)
@@ -275,7 +275,7 @@ class Select: VisualElement {
         value = try? map.value("value")
         items = try? map.value("items")
         hint = try? map.value("hint")
-        alight = try? map.value("alight")
+        align = try? map.value("align")
     }
     
     override func mapping(map: Map) {
@@ -284,7 +284,7 @@ class Select: VisualElement {
         value <- map["value"]
         items <- map["items"]
         hint <- map["hint"]
-        alight <- map["alight"]
+        align <- map["align"]
     }
 }
 
@@ -394,10 +394,28 @@ class ButtonBar: VisualElement {
 }
 
 class ContactPicker: VisualElement {
-    var contact: Contact!
+    var contact: Contact?
     var hint: String!
     var size: Size!
-    var onPick: Bool!
+    var onPick: Method!
+    
+    required init?(map: Map) {
+        super.init(map: map)
+        
+        contact = try? map.value("contact")
+        hint = try? map.value("hint")
+        size = try? map.value("size")
+        onPick = try? map.value("onPick")
+    }
+    
+    override func mapping(map: Map) {
+        super.mapping(map: map)
+        
+        contact <- map["contact"]
+        hint <- map["hint"]
+        size <- map["size"]
+        onPick <- map["onPick"]
+    }
 }
 
 enum DateTimePickerType: Int {
@@ -407,10 +425,28 @@ enum DateTimePickerType: Int {
 }
 
 class DateTimePicker: VisualElement {
-    var datetime: Date!
+    var datetime: Date?
     var type: DateTimePickerType!
     var hint: String!
     var size: Size!
+    
+    required init?(map: Map) {
+        super.init(map: map)
+        
+        datetime = try? map.value("datetime")
+        type = try? map.value("type")
+        hint = try? map.value("hint")
+        size = try? map.value("size")
+    }
+    
+    override func mapping(map: Map) {
+        super.mapping(map: map)
+        
+        datetime <- map["datetime"]
+        type <- map["type"]
+        hint <- map["hint"]
+        size <- map["size"]
+    }
 }
 
 enum PlacePickerType: Int {
@@ -418,10 +454,28 @@ enum PlacePickerType: Int {
 }
 
 class PlacePicker: VisualElement {
-    var place: Place!
+    var place: Place?
     var type: PlacePickerType!
     var hint: String!
     var size: Size!
+    
+    required init?(map: Map) {
+        super.init(map: map)
+        
+        place = try? map.value("place")
+        type = try? map.value("type")
+        hint = try? map.value("hint")
+        size = try? map.value("size")
+    }
+    
+    override func mapping(map: Map) {
+        super.mapping(map: map)
+        
+        place <- map["place"]
+        type <- map["type"]
+        hint <- map["hint"]
+        size <- map["size"]
+    }
 }
 
 class Separator: VisualElement {

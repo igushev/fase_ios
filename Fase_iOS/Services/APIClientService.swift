@@ -11,6 +11,13 @@ import Foundation
 typealias CompletionBlock = (Response?, Error?) -> Void
 
 class APIClientService {
+    
+    static var isSessionInfoExist: Bool {
+        get {
+            return (APIClient.shared.sessionInfo != nil) ? true : false
+        }
+    }
+    
     static func getServices(for device: Device, completion: @escaping CompletionBlock) {
         let apiClient = APIClient.shared
         var deviceData = Data()
@@ -22,6 +29,28 @@ class APIClientService {
         
         apiClient.getService(paramsData: deviceData,
                              handler: { (json, error) in
+                                if let json = json?.toString() {
+                                    let response = Response(JSONString: json)
+                                    apiClient.sessionInfo = response?.sessionInfo
+                                    
+                                    completion(response, nil)
+                                } else {
+                                    completion(nil, error)
+                                }
+        })
+    }
+    
+    static func getScreen(for device: Device, completion: @escaping CompletionBlock) {
+        let apiClient = APIClient.shared
+        var deviceData = Data()
+        
+        let jsonData = Data.jsonToData(json: device.toJSON() as JSON)
+        if let data = jsonData {
+            deviceData = data
+        }
+        
+        apiClient.getScreen(paramsData: deviceData,
+                            handler: { (json, error) in
                                 if let json = json?.toString() {
                                     let response = Response(JSONString: json)
                                     apiClient.sessionInfo = response?.sessionInfo
