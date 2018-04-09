@@ -83,7 +83,21 @@ class ScreenDrawer {
             self.view.scrollView = scrollView
         }
         
-        let parentElementId = viewModel?.screen.scrollable == true ? FaseElementsId.scrollView.rawValue : nil
+        var parentElementId = viewModel?.screen.scrollable == true ? FaseElementsId.scrollView.rawValue : nil
+        
+        // Draw substrate if needed
+        if let tuple = elements.first {
+            let element = tuple[1] as! Element
+            let elementTypeString = element.`class`
+            let elementType = ElementType(with: elementTypeString)
+            
+            if elementType == ElementType.frame, self.viewModel?.screen.scrollable == true {
+                self.drawSubstrateView(id: "substrate_view", superview: self.view.scrollView)
+            }
+            
+            parentElementId = "substrate_view"
+        }
+        
         
         for tuple in elements {
             if tuple.count == 1 {
@@ -283,6 +297,8 @@ class ScreenDrawer {
                     if prevSubview.tag == -1 {
                         make.top.equalToSuperview().offset(64)
                         make.bottom.equalTo(prevSubview.snp.top)
+                    } else if prevSubview.tag == -2 {
+                        
                     } else {
                         make.top.equalTo(prevSubview.snp.bottom).offset(1)
                         make.height.equalTo(frame.frame.height)
@@ -962,6 +978,40 @@ class ScreenDrawer {
         }
         
         return nil
+    }
+    
+    func drawSubstrateView(id: String, superview: UIScrollView?) {
+        if let scrollView = superview {
+            let x = 0
+            let y = 0
+            let width = Int(scrollView.frame.width)
+            // TODO: Calculate height
+            let height = 1000 //Int(scrollView.frame.height)
+            
+            let frame = UIView(frame: CGRect(x: x, y: y, width: width, height: Int(height)))
+            frame.faseElementId = id
+            frame.isUserInteractionEnabled = true
+            frame.tag = -2
+            
+            superview?.addSubview(frame)
+            self.uiControls.append(frame)
+            
+            // Constraints
+            frame.translatesAutoresizingMaskIntoConstraints = false
+            
+            frame.snp.makeConstraints { (make) in
+                frame.snp.remakeConstraints({ newMake in
+                    make.top.equalToSuperview()
+                    make.bottom.equalToSuperview()
+                    make.leading.equalToSuperview()
+                    make.trailing.equalToSuperview()
+                    
+                    make.width.equalToSuperview()
+                    make.height.equalTo(frame.frame.height)
+                })
+            }
+            
+        }
     }
     
     // MARK: - Used for drawing duplicated frames with same id
