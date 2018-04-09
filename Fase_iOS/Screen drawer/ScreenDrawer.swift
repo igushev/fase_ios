@@ -184,7 +184,7 @@ class ScreenDrawer {
                 
                 for button in navButtons {
                     var image: UIImage? = UIImage()
-                    if let imageElement = button.imageElement(), let savedImage = ResourcesService.getImage(by: imageElement.fileName), let resizedImage = savedImage.resizedImage(with: CGSize(width: FaseImageWidth.tabBarItem.rawValue, height: FaseImageWidth.tabBarItem.rawValue)) {
+                    if let imageElement = button.imageElement(), let data = ResourcesService.getResource(by: imageElement.fileName), let savedImage = UIImage(data: data), let resizedImage = savedImage.resizedImage(with: CGSize(width: FaseImageWidth.tabBarItem.rawValue, height: FaseImageWidth.tabBarItem.rawValue)) {
                         image = resizedImage
                     }
                     
@@ -196,6 +196,7 @@ class ScreenDrawer {
                     uiButton.backgroundColor = UIColor.clear
                     uiButton.titleLabel?.font = uiButton.titleLabel?.font.withSize(10)
                     uiButton.setTitleColor(UIColor(red: 0, green: 122/255, blue: 255/255, alpha: 1.0), for: .normal)
+                    uiButton.titleLabel?.contentMode = .left
                     uiButton.centerVertically(padding: 6.0)
                     uiButton.addTarget(self.viewModel, action: #selector(FaseViewModel.onClick(_:)), for: .touchUpInside)
                     
@@ -599,7 +600,7 @@ class ScreenDrawer {
         imageView.contentMode = .scaleAspectFit
         
         var image: UIImage? = UIImage()
-        if let savedImage = ResourcesService.getImage(by: element.fileName) {
+        if let data = ResourcesService.getResource(by: element.fileName), let savedImage = UIImage(data: data) {
             image = savedImage
         }
         imageView.image = image
@@ -789,7 +790,8 @@ class ScreenDrawer {
                 
                 make.top.equalTo(prevSubview.snp.bottom).offset(5)
             } else {
-                make.top.equalToSuperview().offset(5)
+                // TODO: - offset(5)
+                make.top.equalToSuperview().offset(75)
             }
         }
     }
@@ -875,6 +877,7 @@ class ScreenDrawer {
         
         `switch`.snp.makeConstraints { (make) in
             make.width.equalTo(`switch`.frame.width)
+            make.height.equalTo(`switch`.frame.height)
             
             if let align = element.align {
                 switch align {
@@ -899,6 +902,26 @@ class ScreenDrawer {
             } else {
                 make.top.equalToSuperview().offset(5)
             }
+        }
+        
+        if let text = element.text {
+            let x = `switch`.frame.maxX
+            let y = `switch`.frame.minY
+            let width = UIElementsWidth.textField.rawValue
+            let height = UIElementsHeight.textField.rawValue
+            let textField = UITextField(frame: CGRect(x: x, y: y, width: width, height: height))
+            
+            textField.text = text
+            superview.addSubview(textField)
+            
+            // Constraints
+            textField.translatesAutoresizingMaskIntoConstraints = false
+            
+            textField.snp.makeConstraints({ (make) in
+                make.leading.equalTo(`switch`.snp.trailing).offset(10)
+                make.height.equalTo(`switch`.snp.height)
+                make.centerY.equalTo(`switch`.snp.centerY)
+            })
         }
     }
     

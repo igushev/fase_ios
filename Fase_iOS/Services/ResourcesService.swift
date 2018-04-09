@@ -11,32 +11,37 @@ import UIKit
 class ResourcesService {
     static func saveResources(_ resources: Resources) {
         resources.resourceList.forEach { (resource) in
-            let imageName = resource.fileName.components(separatedBy: "/").last!
+            let resourceName = resource.fileName.components(separatedBy: "/").last!
+            
+            if let _ = getResource(by: resourceName) {
+                return
+            }
+            
             let stringUrl = APIClient.shared.baseURL.absoluteString.appending(URLPath.getResource.rawValue).appending(resource.fileName)
             let url = URL(string: stringUrl)!
             
-            if let data = try? Data(contentsOf: url), let image = UIImage(data: data) {
-                self.saveImage(image, name: imageName)
+            if let data = try? Data(contentsOf: url) {
+                self.saveResource(data, name: resourceName)
             }
         }
     }
     
-    static func getImage(by name: String) -> UIImage? {
-        let imageName = name.components(separatedBy: "/").last!
+    static func getResource(by name: String) -> Data? {
+        let resourceName = name.components(separatedBy: "/").last!
         let fileManager = FileManager.default
-        let fileName = self.getDocumentsDirectory().appendingPathComponent(imageName)
+        let fileName = self.getDocumentsDirectory().appendingPathComponent(resourceName)
         if fileManager.fileExists(atPath: fileName.path) {
-            return UIImage(contentsOfFile: fileName.path)
+            return try? Data(contentsOf: URL(fileURLWithPath: fileName.path))
         }
         return nil
     }
     
     // MARK: - Private
     
-    static private func saveImage(_ image: UIImage, name: String) {
-        if let data = UIImagePNGRepresentation(image) {
+    static private func saveResource(_ data: Data?, name: String) {
+        if let resourceData = data {
             let fileName = self.getDocumentsDirectory().appendingPathComponent(name)
-            try? data.write(to: fileName)
+            try? resourceData.write(to: fileName)
         }
     }
     

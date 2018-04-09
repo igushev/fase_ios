@@ -94,7 +94,7 @@ class FaseViewController: UIViewController {
             
             if mainButton.idElementList.count > 0 {
                 if let imageElement = mainButton.imageElement() {
-                    if let image = ResourcesService.getImage(by: imageElement.fileName), let resizedImage = image.resizedImage(with: CGSize(width: FaseImageWidth.navigationItem.rawValue, height: FaseImageWidth.navigationItem.rawValue)) {
+                    if let data = ResourcesService.getResource(by: imageElement.fileName), let image = UIImage(data: data), let resizedImage = image.resizedImage(with: CGSize(width: FaseImageWidth.navigationItem.rawValue, height: FaseImageWidth.navigationItem.rawValue)) {
                         mainButtonBar = UIBarButtonItem(image: resizedImage, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClick(_:)))
                     }
                 }
@@ -114,7 +114,7 @@ class FaseViewController: UIViewController {
             
             if cancelButton.idElementList.count > 0 {
                 if let imageElement = cancelButton.imageElement() {
-                    if let image = ResourcesService.getImage(by: imageElement.fileName), let resizedImage = image.resizedImage(with: CGSize(width: FaseImageWidth.navigationItem.rawValue, height: FaseImageWidth.navigationItem.rawValue)) {
+                    if let data = ResourcesService.getResource(by: imageElement.fileName), let image = UIImage(data: data), let resizedImage = image.resizedImage(with: CGSize(width: FaseImageWidth.navigationItem.rawValue, height: FaseImageWidth.navigationItem.rawValue)) {
                         cancelButtonBar = UIBarButtonItem(image: resizedImage, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClick(_:)))
                     }
                 }
@@ -130,7 +130,7 @@ class FaseViewController: UIViewController {
             
             if nextButton.idElementList.count > 0 {
                 if let imageElement = nextButton.imageElement() {
-                    if let image = ResourcesService.getImage(by: imageElement.fileName) {
+                    if let data = ResourcesService.getResource(by: imageElement.fileName), let image = UIImage(data: data) {
                         nextButtonBar = UIBarButtonItem(image: image, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClick(_:)))
                     }
                 }
@@ -189,9 +189,6 @@ class FaseViewController: UIViewController {
             
             self.viewModel.pickersToolbars![selectElement.faseElementId!] = pickerToolBar
             self.viewModel.pickers![selectElement.faseElementId!] = picker
-        }
-        if let contactPickerElement = self.viewModel.screen.contactPickerElement() {
-            // ?
         }
     }
     
