@@ -243,7 +243,7 @@ class Text: VisualElement {
 
 class Switch: VisualElement {
     var value: Bool!
-    var text: String!
+    var text: String?
     var align: Align?
     
     required init?(map: Map) {
@@ -405,7 +405,7 @@ class ContactPicker: VisualElement {
         contact = try? map.value("contact")
         hint = try? map.value("hint")
         size = try? map.value("size")
-        onPick = try? map.value("onPick")
+        onPick = try? map.value("on_pick")
     }
     
     override func mapping(map: Map) {
@@ -414,7 +414,7 @@ class ContactPicker: VisualElement {
         contact <- map["contact"]
         hint <- map["hint"]
         size <- map["size"]
-        onPick <- map["onPick"]
+        onPick <- map["on_pick"]
     }
 }
 

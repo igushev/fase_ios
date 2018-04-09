@@ -23,13 +23,23 @@ struct Locale: Mappable {
     }
 }
 
-struct Contact {
+struct Contact: Mappable {
     var displayName: String
     var phoneNumber: String
     
-    enum CodingKeys: String, CodingKey {
-        case displayName = "display_name"
-        case phoneNumber = "phone_number"
+    init(name: String, phone: String) {
+        self.displayName = name
+        self.phoneNumber = phone
+    }
+    
+    init?(map: Map) {
+        displayName = try! map.value("display_name")
+        phoneNumber = try! map.value("phone_number")
+    }
+    
+    mutating func mapping(map: Map) {
+        displayName <- map["display_name"]
+        phoneNumber <- map["phone_number"]
     }
 }
 

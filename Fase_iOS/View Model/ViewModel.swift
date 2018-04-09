@@ -8,6 +8,7 @@
 
 import UIKit
 import GooglePlaces
+import ContactsUI
 
 protocol Fase {
     var screen: Screen! { get set }
@@ -230,6 +231,10 @@ class FaseViewModel: NSObject, Fase {
                 method = (element as! MenuItem).onClick.method
                 break
                 
+            case .contactPicker:
+                method = (element as! ContactPicker).onPick.method
+                break
+                
             default:
                 break
             }
@@ -302,8 +307,8 @@ class FaseViewModel: NSObject, Fase {
                         
                     case .contactPicker:
                         var name = ""
-                        if let contactPickerElement = self.screen.contactPickerElement(), let contact = contactPickerElement.contact {
-                            name = contact.displayName
+                        if let contactPickerElement = self.screen.contactPickerElement(), let contact = contactPickerElement.contact, let contactJsonString = contact.toJSONString() {
+                            name = contactJsonString
                         }
                         elementsUpdate.valueArray?.append(name)
                         elementsUpdate.arrayArrayIds?.append(idsArray)
@@ -471,6 +476,14 @@ extension FaseViewModel: UITextFieldDelegate {
                 return false
             }
         }
+        if let contactPickerTextField = self.screenDrawer.viewThatIdContains(id: "contact_picker") {
+            if contactPickerTextField == textField {
+                let picker = CNContactPickerViewController()
+                picker.delegate = self
+                self.router?.presentViewController(viewController: picker)
+                return false
+            }
+        }
         return true
     }
 }
@@ -532,3 +545,33 @@ extension FaseViewModel: UIPickerViewDataSource, UIPickerViewDelegate {
         }
     }
 }
+
+extension FaseViewModel: CNContactPickerDelegate {
+    
+    // MARK: - CNContactPickerDelegate
+    
+    func contactPicker(_ picker: CNContactPickerViewController, didSelect contact: CNContact) {
+        if let textField = self.screenDrawer.viewThatIdContains(id: "contact_picker") as? UITextField {
+            if let phone = contact.phoneNumbers.first?.value.stringValue {
+                let faseContact = Contact(name: contact.givenName + " " + contact.familyName, phone: phone)
+                
+                if let contactPickerElement = self.screen.contactPickerElement() {
+                    contactPickerElement.contact = faseContact
+                }
+                
+                textField.text = faseContact.displayName
+            }
+            
+            picker.dismiss(animated: true, completion: nil)
+            
+            self.sendCallbackRequest(for: textField.faseElementId, navigationId: nil)
+        }
+    }
+    
+    func contactPickerDidCancel(_ picker: CNContactPickerViewController) {
+        picker.dismiss(animated: true, completion: nil)
+    }
+}
+
+
+
