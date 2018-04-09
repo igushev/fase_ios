@@ -115,9 +115,9 @@ extension UIButton {
         
         self.imageEdgeInsets = UIEdgeInsets(
             top: -(totalHeight - imageViewSize.height - padding / 2),
-            left: 0.0,
+            left: (self.frame.width - imageViewSize.width) / 2,
             bottom: 0.0,
-            right: -titleLabelSize.width
+            right: -(self.frame.width - imageViewSize.width) / 2
         )
         
         self.titleEdgeInsets = UIEdgeInsets(
@@ -720,7 +720,6 @@ extension ElementsUpdate: Equatable {
     func differenceFrom(oldElementsUpdate: ElementsUpdate) -> ElementsUpdate? {
         var newElementsUpdate = ElementsUpdate()
         
-        // FIXME: - Hack. Sometimes count of values are different. Should empty value be sent?
         if self.valueArray?.count != oldElementsUpdate.valueArray?.count {
             return self
         }
