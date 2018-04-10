@@ -34,6 +34,7 @@ enum FaseElementsId: String {
     case nextButton = "next_step_button"
     case contextMenu = "context_menu"
     case scrollView = "scrollview"
+    case substrateView = "substrate_view"
 }
 
 class ScreenDrawer {
@@ -91,11 +92,13 @@ class ScreenDrawer {
             let elementTypeString = element.`class`
             let elementType = ElementType(with: elementTypeString)
             
+            let height = self.scrollableContentHeight(elements: elements)
+            
             if elementType == ElementType.frame, self.viewModel?.screen.scrollable == true {
-                self.drawSubstrateView(id: "substrate_view", superview: self.view.scrollView)
+                self.drawSubstrateView(id: FaseElementsId.substrateView.rawValue, superview: self.view.scrollView, height: height)
             }
             
-            parentElementId = "substrate_view"
+            parentElementId = FaseElementsId.substrateView.rawValue
         }
         
         
@@ -980,15 +983,13 @@ class ScreenDrawer {
         return nil
     }
     
-    func drawSubstrateView(id: String, superview: UIScrollView?) {
+    func drawSubstrateView(id: String, superview: UIScrollView?, height: Int) {
         if let scrollView = superview {
             let x = 0
             let y = 0
             let width = Int(scrollView.frame.width)
-            // TODO: Calculate height
-            let height = 1000 //Int(scrollView.frame.height)
             
-            let frame = UIView(frame: CGRect(x: x, y: y, width: width, height: Int(height)))
+            let frame = UIView(frame: CGRect(x: x, y: y, width: width, height: height))
             frame.faseElementId = id
             frame.isUserInteractionEnabled = true
             frame.tag = -2
@@ -1014,6 +1015,25 @@ class ScreenDrawer {
         }
     }
     
+    func scrollableContentHeight(elements: [ElementTuple]) -> Int {
+        var height: CGFloat = 0
+        
+        for tuple in elements {
+            if tuple.count == 1 {
+                break
+            }
+            
+            let element = tuple[1] as! Element
+            let elementTypeString = element.`class`
+            let elementType = ElementType(with: elementTypeString)
+            
+            if elementType == ElementType.frame {
+                height += (element as! Frame).frameTotalHeight()
+            }
+        }
+        return Int(height)
+    }
+    
     // MARK: - Used for drawing duplicated frames with same id
     
     func viewThatCanHasClonesWithSameId(with faseElementId: String) -> UIView? {
@@ -1029,5 +1049,4 @@ class ScreenDrawer {
     }
     
 }
-
 
