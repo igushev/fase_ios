@@ -84,7 +84,7 @@ extension UIView {
     func nestedElementsIds() -> [String] {
         var iDs: [String] = [self.faseElementId]
         var view = self
-        while let superview = view.superview, let id = superview.faseElementId, id != "scrollview" {
+        while let superview = view.superview, let id = superview.faseElementId, id != FaseElementsId.scrollView.rawValue, id != FaseElementsId.substrateView.rawValue {
             view = superview
             iDs.insert(id, at: 0)
         }
@@ -117,7 +117,7 @@ extension UIButton {
             top: -(totalHeight - imageViewSize.height - padding / 2),
             left: (self.frame.width - imageViewSize.width) / 2,
             bottom: 0.0,
-            right: -(self.frame.width - imageViewSize.width) / 2
+            right: (self.frame.width - imageViewSize.width) / 2
         )
         
         self.titleEdgeInsets = UIEdgeInsets(

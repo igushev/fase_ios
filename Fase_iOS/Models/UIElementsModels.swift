@@ -490,7 +490,7 @@ enum FrameType: Int {
 class Frame: BaseElementsContainer {
     var orientation: FrameType!
     var size: Size!
-    var onClick: Method!
+    var onClick: Method?
     var border: Bool!
     
     required init?(map: Map) {

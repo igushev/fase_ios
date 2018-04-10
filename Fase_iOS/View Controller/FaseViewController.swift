@@ -24,7 +24,7 @@ class FaseViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
         
         self.viewModel = viewModel
-        self.viewModel.contextMenuCallback = self.openContextMenu(_:)
+        self.viewModel.contextMenuCallback = self.openContextMenu(sender:for:)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -195,9 +195,14 @@ class FaseViewController: UIViewController {
     // MARK: - Actions
     // This func will be passed to the view model. It will be called if button has context menu
     
-    func openContextMenu(_ button: Button) {
+    func openContextMenu(sender: UIView, for button: Button) {
         var nestedElemetnsIds: Array<String> = []
-        nestedElemetnsIds.append(button.faseElementId!)
+        
+        if sender.isMember(of: UIBarButtonItem.self) == false {
+            nestedElemetnsIds = sender.nestedElementsIds()
+        } else {
+            nestedElemetnsIds.append(sender.faseElementId)
+        }
         
         if let menu = button.contextMenu() {
             nestedElemetnsIds.append(menu.faseElementId!)

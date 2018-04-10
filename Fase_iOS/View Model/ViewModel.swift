@@ -13,7 +13,7 @@ import ContactsUI
 protocol Fase {
     var screen: Screen! { get set }
 }
-typealias ContextMenuCallback = (_ button: Button) -> Void
+typealias ContextMenuCallback = (_ sender: UIView, _ button: Button) -> Void
 
 enum FaseDateFormat: String {
     case server = "yyyy-MM-dd'T'HH:mm:ss"
@@ -45,6 +45,8 @@ class FaseViewModel: NSObject, Fase {
     // Array that stores different pickers
     var pickers: [String: UIView]?
     var pickersToolbars: [String: UIToolbar]?
+    
+    var isElementCallbackProcessing = false
     
     init(with screen: Screen) {
         super.init()
@@ -91,19 +93,19 @@ class FaseViewModel: NSObject, Fase {
         
         if let elementId = sender.faseElementId {
             if let button = self.element(with: elementId) as? Button, let _ = button.contextMenu(), let contextMenuCallback = self.contextMenuCallback {
-                contextMenuCallback(button)
+                contextMenuCallback(sender, button)
                 return
             }
             
             self.sendCallbackRequest(for: elementId, navigationId: sender.navigationElementId)
         }
-        
     }
     
+    // On frame tap
     @objc func onClickGestureRecognizer(_ sender: UITapGestureRecognizer) {
         if let view = sender.view {
             let point = sender.location(in: view)
-            if let tappedView = view.hitTest(point, with: nil), let elementId = tappedView.faseElementId {
+            if let tappedView = view.hitTest(point, with: nil), let elementId = tappedView.faseElementId, let frame = self.element(with: elementId) as? Frame, let onClick = frame.onClick {
                 let nestedElementsIds = tappedView.nestedElementsIds()
                 self.sendCallbackRequest(for: nestedElementsIds)
             }
@@ -137,9 +139,6 @@ class FaseViewModel: NSObject, Fase {
                     }
                     break
                     
-                case .contactPicker:
-                    break
-                    
                 default:
                     break
                 }
@@ -164,7 +163,7 @@ class FaseViewModel: NSObject, Fase {
         let elementsUpdate = self.elementsUpdate()
         if let oldElementsUpdate = self.oldElementsUpdate {
             // if no changes, dont send screen update
-            if oldElementsUpdate == elementsUpdate {
+            if oldElementsUpdate == elementsUpdate || self.isElementCallbackProcessing == true {
                 return
             }
             
@@ -196,11 +195,12 @@ class FaseViewModel: NSObject, Fase {
         
     }
     
-    // MARK: - Send callback request
+    // MARK: - Element callback request
     
-    // TODO: - Refactor callback request. Add array with nested ids
-    
+    // Element callback for buttons
     func sendCallbackRequest(for elementId: String, navigationId: String?) {
+        self.isElementCallbackProcessing = true
+        
         var elementIds = [elementId]
         if let navigationId = navigationId {
             elementIds.insert(navigationId, at: 0)
@@ -224,7 +224,9 @@ class FaseViewModel: NSObject, Fase {
                 break
                 
             case .frame:
-                method = (element as! Frame).onClick.method
+                if let methodObj = (element as! Frame).onClick {
+                    method = methodObj.method
+                }
                 break
                 
             case .menuItem:
@@ -246,6 +248,7 @@ class FaseViewModel: NSObject, Fase {
             guard let strongSelf = self else {
                 return
             }
+            strongSelf.isElementCallbackProcessing = false
             
             if let error = error {
                 print(error.localizedDescription)
@@ -264,7 +267,9 @@ class FaseViewModel: NSObject, Fase {
         }
     }
     
+    // Element callback for frames
     func sendCallbackRequest(for elementIds: [String]) {
+        self.isElementCallbackProcessing = true
         let method = "on_click"
         let elementCallback = ElementCallback(elementsUpdate: self.elementsUpdate(), elementIds: elementIds, method: method, locale: nil, device: Device.currentDevice())
         
@@ -272,6 +277,7 @@ class FaseViewModel: NSObject, Fase {
             guard let strongSelf = self else {
                 return
             }
+            strongSelf.isElementCallbackProcessing = false
             
             if let error = error {
                 print(error.localizedDescription)
@@ -299,7 +305,7 @@ class FaseViewModel: NSObject, Fase {
                 let text = textField.text
                 let idsArray = textField.nestedElementsIds()
                 
-                if let element = self.element(with: textField.faseElementId) {
+                if let element = self.elementButNotFrame(with: textField.faseElementId) {
                     let elementTypeString = element.`class`
                     let elementType = ElementType(with: elementTypeString)
                     
@@ -391,7 +397,7 @@ class FaseViewModel: NSObject, Fase {
     }
     
     func updateElement(with id: String?, newValue: String?) {
-        if let elementId = id, let element = self.element(with: elementId), let uiElement = self.uiElement(with: elementId) {
+        if let elementId = id, let element = self.elementButNotFrame(with: elementId), let uiElement = self.uiElement(with: elementId) {
             let elementTypeString = element.`class`
             let elementType = ElementType(with: elementTypeString)
             
@@ -422,6 +428,17 @@ class FaseViewModel: NSObject, Fase {
     // MARK: - Elements help methods
     
     func element(with id: String) -> VisualElement? {
+        for element in self.screenDrawer.elements {
+            if element is VisualElement {
+                if let elementId = (element as! VisualElement).faseElementId, id == elementId {
+                    return element as? VisualElement
+                }
+            }
+        }
+        return nil
+    }
+    
+    func elementButNotFrame(with id: String) -> VisualElement? {
         for element in self.screenDrawer.elements {
             if type(of: element) != Frame.self {
                 if element is VisualElement {
