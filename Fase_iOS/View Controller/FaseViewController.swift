@@ -208,7 +208,8 @@ class FaseViewController: UIViewController {
             nestedElemetnsIds.append(menu.faseElementId!)
             
             if let menuItems = button.menuItems() {
-                self.alertController = UIAlertController(title: "", message: menu.text, preferredStyle: .actionSheet)
+                let title = button.text.isEmpty == false ? button.text : "Menu"
+                self.alertController = UIAlertController(title: title, message: menu.text, preferredStyle: .actionSheet)
                 
                 for menuItem in menuItems {
                     menuItem.nestedElemetsIds = nestedElemetnsIds
