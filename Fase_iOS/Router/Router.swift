@@ -28,6 +28,49 @@ class Router {
         self.rootViewController()?.present(viewController, animated: true, completion: nil)
     }
     
+    func showServerErrorAlert() {
+        let alertController = UIAlertController(title: "Server error", message: "Sorry, server error occured", preferredStyle: .alert)
+        let skipAction = UIAlertAction(title: "Skip", style: .default) { (action) in
+            alertController.dismiss(animated: true, completion: nil)
+        }
+        let restartAction = UIAlertAction(title: "Restart", style: .default) { (action) in
+            alertController.dismiss(animated: true, completion: nil)
+            
+            var uuid = ""
+            if let currentUUID = UIDevice.current.identifierForVendor?.uuidString {
+                uuid = currentUUID
+            }
+            let type = UIDevice.current.systemName + " " + UIDevice.current.systemVersion
+            let device = Device(type: type, token: uuid)
+            
+            APIClientService.getServices(for: device, completion: { [weak self] (response, error) in
+                guard let strongSelf = self else {
+                    return
+                }
+                
+                if let error = error {
+                    print(error.localizedDescription)
+                } else {
+                    if let screen = response?.screen {
+                        let viewModel = FaseViewModel(with: screen)
+                        viewModel.router = strongSelf
+                        strongSelf.displayViewController(with: viewModel)
+                    }
+                    if let resources = response?.resources {
+                        ResourcesService.saveResources(resources)
+                    }
+                }
+            })
+            
+        }
+        alertController.addAction(skipAction)
+        alertController.addAction(restartAction)
+        
+        self.presentViewController(viewController: alertController)
+        
+        //
+    }
+    
     // MARK: - Private
     
     func rootViewController() -> FaseViewController? {

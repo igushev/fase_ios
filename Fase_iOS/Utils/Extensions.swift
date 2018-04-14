@@ -36,6 +36,11 @@ extension Data {
     }
 }
 
+extension Error {
+    var code: Int { return (self as NSError).code }
+    var domain: String { return (self as NSError).domain }
+}
+
 // MARK: - UIKit extensions
 
 private var faseElementIdAssociationKey: UInt8 = 0

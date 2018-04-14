@@ -178,6 +178,9 @@ class FaseViewModel: NSObject, Fase {
                 
                 if let error = error {
                     print(error.localizedDescription)
+                    if error.code == 500 {
+                        strongSelf.router?.showServerErrorAlert()
+                    }
                 } else {
                     if let elementsUpdate = response?.elementsUpdate {
                         strongSelf.updateScreen(with: elementsUpdate)
@@ -252,6 +255,9 @@ class FaseViewModel: NSObject, Fase {
             
             if let error = error {
                 print(error.localizedDescription)
+                if error.code == 500 {
+                    strongSelf.router?.showServerErrorAlert()
+                }
             } else {
                 if let screen = response?.screen, let sessionInfo = response?.sessionInfo {
                     APIClientService.saveNewSessionInfo(sessionInfo: sessionInfo)
@@ -281,6 +287,9 @@ class FaseViewModel: NSObject, Fase {
             
             if let error = error {
                 print(error.localizedDescription)
+                if error.code == 500 {
+                    strongSelf.router?.showServerErrorAlert()
+                }
             } else {
                 if let screen = response?.screen {
                     

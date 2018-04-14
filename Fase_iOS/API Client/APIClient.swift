@@ -30,7 +30,7 @@ typealias ResourceHandler = (Data?, Error?) -> Void
 typealias JSON = AnyObject
 
 class APIClient {
-    static let shared = APIClient(with: URL(string: BaseURL.notes.rawValue)!)
+    static let shared = APIClient(with: URL(string: BaseURL.karmaCounter.rawValue)!)
     
     var baseURL: URL!
     var sessionInfo: SessionInfo? {
@@ -149,7 +149,11 @@ class APIClient {
         Alamofire.request(request).responseJSON { (response) in
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
             
-            if let error = response.error {
+            if (response.error != nil) || response.response?.statusCode != 200 {
+                var error = response.error
+                if let code = response.response?.statusCode {
+                    error = NSError(domain: "Server.error.domain", code: code, userInfo: ["localizedDescription": "Error"])
+                }
                 handler(nil, error)
                 return
             }
