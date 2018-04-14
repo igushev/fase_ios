@@ -365,11 +365,10 @@ class FaseViewModel: NSObject, Fase {
                 var text = ""
                 let idsArray = textView.nestedElementsIds()
                 
-                if text.isEmpty == false {
-                    if textView.textColor != UIColor.FaseColors.placeholderColor {
-                        text = textView.text
-                    }
+                if textView.textColor != UIColor.FaseColors.placeholderColor {
+                    text = textView.text
                 }
+                
                 elementsUpdate.valueArray?.append(text)
                 elementsUpdate.arrayArrayIds?.append(idsArray)
             }
@@ -506,6 +505,9 @@ extension FaseViewModel: UITextFieldDelegate {
             if contactPickerTextField == textField {
                 let picker = CNContactPickerViewController()
                 picker.delegate = self
+                picker.predicateForEnablingContact = NSPredicate(format: "phoneNumbers.@count > 0")
+                picker.predicateForSelectionOfContact = NSPredicate(format: "phoneNumbers.@count == 1")
+                picker.predicateForSelectionOfProperty = NSPredicate(format: "key == 'phoneNumbers'")
                 self.router?.presentViewController(viewController: picker)
                 return false
             }
@@ -581,11 +583,7 @@ extension FaseViewModel: CNContactPickerDelegate {
             if let phone = contact.phoneNumbers.first?.value.stringValue {
                 let faseContact = Contact(name: contact.givenName + " " + contact.familyName, phone: phone)
                 
-                if let contactPickerElement = self.screen.contactPickerElement() {
-                    contactPickerElement.contact = faseContact
-                }
-                
-                textField.text = faseContact.displayName
+                self.fill(textField: textField, with: faseContact)
             }
             
             picker.dismiss(animated: true, completion: nil)
@@ -594,8 +592,28 @@ extension FaseViewModel: CNContactPickerDelegate {
         }
     }
     
+    func contactPicker(_ picker: CNContactPickerViewController, didSelect contactProperty: CNContactProperty) {
+        if let textField = self.screenDrawer.viewThatIdContains(id: "contact_picker") as? UITextField {
+            if let phoneNumber = contactProperty.value as? CNPhoneNumber {
+                let faseContact = Contact(name: contactProperty.contact.givenName + " " + contactProperty.contact.familyName, phone: phoneNumber.stringValue)
+                
+                self.fill(textField: textField, with: faseContact)
+            }
+            picker.dismiss(animated: true, completion: nil)
+            
+            self.sendCallbackRequest(for: textField.faseElementId, navigationId: nil)
+        }
+    }
+    
     func contactPickerDidCancel(_ picker: CNContactPickerViewController) {
         picker.dismiss(animated: true, completion: nil)
+    }
+    
+    private func fill(textField: UITextField, with contact: Contact) {
+        if let contactPickerElement = self.screen.contactPickerElement() {
+            contactPickerElement.contact = contact
+        }
+        textField.text = contact.displayName
     }
 }
 
