@@ -90,12 +90,12 @@ class FaseViewController: UIViewController {
         self.title = self.viewModel.screen.title
         
         if let mainButton = self.viewModel.screen.mainButton() {
-            var mainButtonBar = UIBarButtonItem(title: mainButton.text, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClick(_:)))
+            var mainButtonBar = UIBarButtonItem(title: mainButton.text, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClickBarButtonItem(_:)))
             
             if mainButton.idElementList.count > 0 {
                 if let imageElement = mainButton.imageElement() {
                     if let data = ResourcesService.getResource(by: imageElement.fileName), let image = UIImage(data: data), let resizedImage = image.resizedImage(with: CGSize(width: FaseImageWidth.navigationItem.rawValue, height: FaseImageWidth.navigationItem.rawValue)) {
-                        mainButtonBar = UIBarButtonItem(image: resizedImage, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClick(_:)))
+                        mainButtonBar = UIBarButtonItem(image: resizedImage, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClickBarButtonItem(_:)))
                     }
                 }
             }
@@ -110,12 +110,12 @@ class FaseViewController: UIViewController {
             
             let title = cancelButton.text?.isEmpty == false ? cancelButton.text : "Menu"
             
-            var cancelButtonBar = UIBarButtonItem(title: title, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClick(_:)))
+            var cancelButtonBar = UIBarButtonItem(title: title, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClickBarButtonItem(_:)))
             
             if cancelButton.idElementList.count > 0 {
                 if let imageElement = cancelButton.imageElement() {
                     if let data = ResourcesService.getResource(by: imageElement.fileName), let image = UIImage(data: data), let resizedImage = image.resizedImage(with: CGSize(width: FaseImageWidth.navigationItem.rawValue, height: FaseImageWidth.navigationItem.rawValue)) {
-                        cancelButtonBar = UIBarButtonItem(image: resizedImage, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClick(_:)))
+                        cancelButtonBar = UIBarButtonItem(image: resizedImage, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClickBarButtonItem(_:)))
                     }
                 }
             }
@@ -126,12 +126,12 @@ class FaseViewController: UIViewController {
         }
         
         if let nextButton = self.viewModel.screen.nextButton() {
-            var nextButtonBar = UIBarButtonItem(title: nextButton.text, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClick(_:)))
+            var nextButtonBar = UIBarButtonItem(title: nextButton.text, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClickBarButtonItem(_:)))
             
             if nextButton.idElementList.count > 0 {
                 if let imageElement = nextButton.imageElement() {
                     if let data = ResourcesService.getResource(by: imageElement.fileName), let image = UIImage(data: data) {
-                        nextButtonBar = UIBarButtonItem(image: image, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClick(_:)))
+                        nextButtonBar = UIBarButtonItem(image: image, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClickBarButtonItem(_:)))
                     }
                 }
             }

@@ -192,6 +192,7 @@ class ScreenDrawer {
             tabBarView.tag = -1
             
             let navigationElemenrId: String? = element.navigationElementId
+            tabBarView.faseElementId = navigationElemenrId
             let tabBarItemsCount = viewModel.screen.navigationElementButtonsCount()
             
             if let navButtons = viewModel.screen.navigationElementButtons(), tabBarItemsCount > 0 {

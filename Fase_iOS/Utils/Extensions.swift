@@ -88,7 +88,8 @@ extension UIView {
     
     func nestedElementsIds() -> [String] {
         var iDs: [String] = [self.faseElementId]
-        var view = self
+        var view = self        
+        
         while let superview = view.superview, let id = superview.faseElementId, id != FaseElementsId.scrollView.rawValue, id != FaseElementsId.substrateView.rawValue {
             view = superview
             iDs.insert(id, at: 0)
