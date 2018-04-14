@@ -71,6 +71,29 @@ class Router {
         //
     }
     
+    func processResponse(response: Response?, error: Error?,for viewModel: FaseViewModel?) {
+        if let error = error {
+            print(error.localizedDescription)
+            if error.code == 500 {
+                self.showServerErrorAlert()
+            }
+        } else if let response = response {
+            if let elementsUpdate = response.elementsUpdate, let viewModel = viewModel {
+                viewModel.updateScreen(with: elementsUpdate)
+            }
+            if let screen = response.screen, let sessionInfo = response.sessionInfo {
+                APIClientService.saveNewSessionInfo(sessionInfo: sessionInfo)
+                
+                let viewModel = FaseViewModel(with: screen)
+                viewModel.router = self
+                self.displayViewController(with: viewModel)
+            }
+            if let resources = response.resources {
+                ResourcesService.saveResources(resources)
+            }
+        }
+    }
+    
     // MARK: - Private
     
     func rootViewController() -> FaseViewController? {

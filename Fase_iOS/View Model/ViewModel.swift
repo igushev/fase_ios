@@ -88,7 +88,7 @@ class FaseViewModel: NSObject, Fase {
     
     // MARK: - Actions
     
-    @objc func onClick(_ sender: UIView) {
+    @objc func onClickBarButtonItem(_ sender: UIView) {
         print("Catch sender \(sender.faseElementId)")
         
         if let elementId = sender.faseElementId {
@@ -96,8 +96,20 @@ class FaseViewModel: NSObject, Fase {
                 contextMenuCallback(sender, button)
                 return
             }
-            
-            self.sendCallbackRequest(for: elementId, navigationId: sender.navigationElementId)
+            self.sendCallbackRequest(for: elementId)
+        }
+    }
+    
+    @objc func onClick(_ sender: UIView) {
+        print("Catch sender \(sender.faseElementId)")
+        
+        if let elementId = sender.faseElementId {
+            if let button = self.element(with: elementId) as? Button, let _ = button.contextMenu(), let contextMenuCallback = self.contextMenuCallback {
+                contextMenuCallback(sender, button)
+                return
+            }            
+            let ids = sender.nestedElementsIds()
+            self.sendCallbackRequest(for: ids)
         }
     }
     
@@ -176,23 +188,7 @@ class FaseViewModel: NSObject, Fase {
                     return
                 }
                 
-                if let error = error {
-                    print(error.localizedDescription)
-                    if error.code == 500 {
-                        strongSelf.router?.showServerErrorAlert()
-                    }
-                } else {
-                    if let elementsUpdate = response?.elementsUpdate {
-                        strongSelf.updateScreen(with: elementsUpdate)
-                    }
-                    if let screen = response?.screen, let sessionInfo = response?.sessionInfo {
-                        APIClientService.saveNewSessionInfo(sessionInfo: sessionInfo)
-                        
-                        let viewModel = FaseViewModel(with: screen)
-                        viewModel.router = strongSelf.router
-                        strongSelf.router?.displayViewController(with: viewModel)
-                    }
-                }
+                strongSelf.router?.processResponse(response: response, error: error, for: strongSelf)
             }
         }
         
@@ -200,18 +196,32 @@ class FaseViewModel: NSObject, Fase {
     
     // MARK: - Element callback request
     
-    // Element callback for buttons
-    func sendCallbackRequest(for elementId: String, navigationId: String?) {
+    // for bar button items
+    func sendCallbackRequest(for elementId: String) {
         self.isElementCallbackProcessing = true
         
         var elementIds = [elementId]
-        if let navigationId = navigationId {
-            elementIds.insert(navigationId, at: 0)
+        var method = "on_click"
+        
+        let elementCallback = ElementCallback(elementsUpdate: self.elementsUpdate(), elementIds: elementIds, method: method, locale: nil, device: Device.currentDevice())
+        
+        APIClientService.elementCallback(for: elementCallback!, screenId: self.screen.screenId!) { [weak self] (response, error) in
+            guard let strongSelf = self else {
+                return
+            }
+            strongSelf.isElementCallbackProcessing = false
+            strongSelf.router?.processResponse(response: response, error: error, for: strongSelf)
         }
+    }
+    
+    // for another ui elements
+    func sendCallbackRequest(for elementIds: [String]) {
+        self.isElementCallbackProcessing = true
+        
         var method = "on_click"
         var locale: Locale? = nil
         
-        if let element = self.element(with: elementId), let countryCode = NSLocale.current.regionCode {
+        if let element = self.element(with: elementIds.last!), let countryCode = NSLocale.current.regionCode {
             locale = element.isRequestLocale == true ? Locale(countryCode: countryCode) : nil
             
             let elementTypeString = element.`class`
@@ -252,52 +262,7 @@ class FaseViewModel: NSObject, Fase {
                 return
             }
             strongSelf.isElementCallbackProcessing = false
-            
-            if let error = error {
-                print(error.localizedDescription)
-                if error.code == 500 {
-                    strongSelf.router?.showServerErrorAlert()
-                }
-            } else {
-                if let screen = response?.screen, let sessionInfo = response?.sessionInfo {
-                    APIClientService.saveNewSessionInfo(sessionInfo: sessionInfo)
-                    
-                    let viewModel = FaseViewModel(with: screen)
-                    viewModel.router = strongSelf.router
-                    strongSelf.router?.displayViewController(with: viewModel)
-                }
-                if let resources = response?.resources {
-                    ResourcesService.saveResources(resources)
-                }
-            }
-        }
-    }
-    
-    // Element callback for frames
-    func sendCallbackRequest(for elementIds: [String]) {
-        self.isElementCallbackProcessing = true
-        let method = "on_click"
-        let elementCallback = ElementCallback(elementsUpdate: self.elementsUpdate(), elementIds: elementIds, method: method, locale: nil, device: Device.currentDevice())
-        
-        APIClientService.elementCallback(for: elementCallback!, screenId: self.screen.screenId!) { [weak self] (response, error) in
-            guard let strongSelf = self else {
-                return
-            }
-            strongSelf.isElementCallbackProcessing = false
-            
-            if let error = error {
-                print(error.localizedDescription)
-                if error.code == 500 {
-                    strongSelf.router?.showServerErrorAlert()
-                }
-            } else {
-                if let screen = response?.screen {
-                    
-                    let viewModel = FaseViewModel(with: screen)
-                    viewModel.router = strongSelf.router
-                    strongSelf.router?.displayViewController(with: viewModel)
-                }
-            }
+            strongSelf.router?.processResponse(response: response, error: error, for: strongSelf)
         }
     }
     
@@ -588,7 +553,8 @@ extension FaseViewModel: CNContactPickerDelegate {
             
             picker.dismiss(animated: true, completion: nil)
             
-            self.sendCallbackRequest(for: textField.faseElementId, navigationId: nil)
+            let ids = textField.nestedElementsIds()
+            self.sendCallbackRequest(for: ids)
         }
     }
     
@@ -601,7 +567,8 @@ extension FaseViewModel: CNContactPickerDelegate {
             }
             picker.dismiss(animated: true, completion: nil)
             
-            self.sendCallbackRequest(for: textField.faseElementId, navigationId: nil)
+            let ids = textField.nestedElementsIds()
+            self.sendCallbackRequest(for: ids)
         }
     }
     

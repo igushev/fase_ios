@@ -45,18 +45,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     return
                 }
                 
-                if let error = error {
-                    print(error.localizedDescription)
-                } else {
-                    if let screen = response?.screen {
-                        let viewModel = FaseViewModel(with: screen)
-                        viewModel.router = strongSelf.router
-                        strongSelf.router?.displayViewController(with: viewModel)
-                    }
-                    if let resources = response?.resources {
-                        ResourcesService.saveResources(resources)
-                    }
-                }
+                strongSelf.router?.processResponse(response: response, error: error, for: nil)
             })
         } else {
             APIClientService.getServices(for: device, completion: { [weak self] (response, error) in
@@ -64,27 +53,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     return
                 }
                 
-                if let error = error {
-                    print(error.localizedDescription)
-                } else {
-                    if let screen = response?.screen {
-                        let viewModel = FaseViewModel(with: screen)
-                        viewModel.router = strongSelf.router
-                        strongSelf.router?.displayViewController(with: viewModel)
-                    }
-                    if let resources = response?.resources {
-                        ResourcesService.saveResources(resources)
-                    }
-                }
+                strongSelf.router?.processResponse(response: response, error: error, for: nil)
             })
         }
-        
     }
-    
-    //    public override preferredStatusBarStyle() {
-    //        return UIStatusBarStyle.LightContent; //Or Default/Black/etc.
-    //    }
-    
     
 }
 
