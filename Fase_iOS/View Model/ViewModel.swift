@@ -54,7 +54,7 @@ class FaseViewModel: NSObject, Fase {
         self.screen = screen
         self.isNeedTabBar = (self.screen.navigationElement() != nil)
         self.isNeedTableView = self.screen.hasFrameElements()
-        self.screenUpdateTimer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(sendScreenUpdateRequest), userInfo: nil, repeats: true)
+        self.screenUpdateTimer = Timer.scheduledTimer(timeInterval: 2.0, target: self, selector: #selector(sendScreenUpdateRequest), userInfo: nil, repeats: true)
         self.pickers = [:]
         self.pickersToolbars = [:]
     }
@@ -107,7 +107,7 @@ class FaseViewModel: NSObject, Fase {
             if let button = self.element(with: elementId) as? Button, let _ = button.contextMenu(), let contextMenuCallback = self.contextMenuCallback {
                 contextMenuCallback(sender, button)
                 return
-            }            
+            }
             let ids = sender.nestedElementsIds()
             self.sendCallbackRequest(for: ids)
         }
@@ -172,31 +172,28 @@ class FaseViewModel: NSObject, Fase {
     // MARK: - Screen update request
     
     @objc func sendScreenUpdateRequest() {
+        if self.isElementCallbackProcessing == true {
+            return
+        }
+        
         let elementsUpdate = self.elementsUpdate()
-        if let oldElementsUpdate = self.oldElementsUpdate {
-            // if no changes, dont send screen update
-            if oldElementsUpdate == elementsUpdate || self.isElementCallbackProcessing == true {
+        
+        let summaryElementsUpdates = elementsUpdate?.differenceFrom(oldElementsUpdate: self.oldElementsUpdate)
+        let screenUpdate = ScreenUpdate(elementsUpdate: summaryElementsUpdates, device: Device.currentDevice())
+        
+        APIClientService.screenUpdate(for: screenUpdate!, screenId: self.screen.screenId!) { [weak self] (response, error) in
+            guard let strongSelf = self else {
                 return
             }
             
-            let summaryElementsUpdates = elementsUpdate?.differenceFrom(oldElementsUpdate: self.oldElementsUpdate!)
-            self.oldElementsUpdate = elementsUpdate
-            
-            let screenUpdate = ScreenUpdate(elementsUpdate: summaryElementsUpdates, device: Device.currentDevice())
-            APIClientService.screenUpdate(for: screenUpdate!, screenId: self.screen.screenId!) { [weak self] (response, error) in
-                guard let strongSelf = self else {
-                    return
-                }
-                
-                strongSelf.router?.processResponse(response: response, error: error, for: strongSelf)
-            }
+            strongSelf.router?.processResponse(response: response, error: error, for: strongSelf)
+            strongSelf.oldElementsUpdate = elementsUpdate
         }
-        
     }
     
     // MARK: - Element callback request
     
-    // for bar button items
+    // for bar button item
     func sendCallbackRequest(for elementId: String) {
         self.isElementCallbackProcessing = true
         

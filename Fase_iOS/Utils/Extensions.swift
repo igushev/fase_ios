@@ -88,7 +88,7 @@ extension UIView {
     
     func nestedElementsIds() -> [String] {
         var iDs: [String] = [self.faseElementId]
-        var view = self        
+        var view = self
         
         while let superview = view.superview, let id = superview.faseElementId, id != FaseElementsId.scrollView.rawValue, id != FaseElementsId.substrateView.rawValue {
             view = superview
@@ -723,7 +723,15 @@ extension ElementsUpdate: Equatable {
         return true
     }
     
-    func differenceFrom(oldElementsUpdate: ElementsUpdate) -> ElementsUpdate? {
+    func differenceFrom(oldElementsUpdate: ElementsUpdate?) -> ElementsUpdate? {
+        guard let oldElementsUpdate = oldElementsUpdate else {
+            return self
+        }
+        
+        if oldElementsUpdate == self {
+            return nil
+        }
+        
         var newElementsUpdate = ElementsUpdate()
         
         if self.valueArray?.count != oldElementsUpdate.valueArray?.count {
