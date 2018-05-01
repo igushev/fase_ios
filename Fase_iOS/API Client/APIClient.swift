@@ -13,6 +13,7 @@ enum BaseURL: String {
     case helloWorld = "http://hello-world-fase-env-test1.us-west-2.elasticbeanstalk.com/"
     case notes = "http://notes-fase-env-test1.us-west-2.elasticbeanstalk.com/"
     case karmaCounter = "http://karmacounter-fase-env-test1.us-west-2.elasticbeanstalk.com/"
+    case test = "http://fase-test-fase-env-test1.us-west-2.elasticbeanstalk.com/"
 }
 
 enum URLPath: String {
@@ -25,12 +26,24 @@ enum URLPath: String {
     case getResource = "getresource/filename/"
 }
 
+enum FASE_SCHEME: String {
+    case notes = "notes"
+    case karma = "karma"
+    case test = "test"
+    case unknown = "unknown"
+    
+    init(with string: String?) {
+        self = FASE_SCHEME(rawValue: (string?.lowercased())!) ?? .unknown
+    }
+}
+
 typealias ResponseHandler = (Data?, Error?) -> Void
 typealias ResourceHandler = (Data?, Error?) -> Void
 typealias JSON = AnyObject
 
 class APIClient {
-    static let shared = APIClient(with: URL(string: BaseURL.notes.rawValue)!)
+    static let shared = APIClient(with: ProcessInfo.processInfo.environment["FASE_SCHEME"])
+    //    static let shared = APIClient(with: URL(string: BaseURL.notes.rawValue)!)
     
     var baseURL: URL!
     var sessionInfo: SessionInfo? {
@@ -102,6 +115,30 @@ class APIClient {
     
     private init(with baseUrl: URL) {
         self.baseURL = baseUrl
+    }
+    
+    init(with faseSchemeId: String?) {
+        guard let faseSchemeId = faseSchemeId else { return }
+        
+        let faseSchemeType = FASE_SCHEME(rawValue: faseSchemeId)!
+        
+        switch faseSchemeType {
+        case .notes:
+            self.baseURL = URL(string: BaseURL.notes.rawValue)!
+            break
+            
+        case .karma:
+            self.baseURL = URL(string: BaseURL.karmaCounter.rawValue)!
+            break
+            
+        case .test:
+            self.baseURL = URL(string: BaseURL.test.rawValue)
+            break
+            
+        case .unknown:
+            self.baseURL = URL(string: BaseURL.helloWorld.rawValue)
+            break
+        }
     }
     
     private func get(path: String, parameters: Dictionary<String, Any>?, completion: @escaping ResponseHandler) {
