@@ -7,108 +7,158 @@
 //
 
 import Foundation
+import ObjectMapper
 
-struct Device: Codable {
-    var deviceType: String
-    var deviceToken: String
-    
-    enum CodingKeys: String, CodingKey {
-        case deviceType = "device_type"
-        case deviceToken = "device_token"
-    }
+struct Device: Mappable {
+    var deviceType: String?
+    var deviceToken: String?
+    var pixelDensity: CGFloat?
     
     init(type: String, token: String) {
         self.deviceType = type
         self.deviceToken = token
+        self.pixelDensity = UIScreen.main.scale
+    }
+    
+    init?(map: Map) { }
+    
+    mutating func mapping(map: Map) {
+        deviceType <- map["device_type"]
+        deviceToken <- map["device_token"]
+        pixelDensity <- map["pixel_density"]
     }
 }
 
-struct SessionInfo {
-    var sessionId: String
+class SessionInfo: NSObject, Mappable, NSCoding {
+    var sessionId: String?
     
-    enum CodingKeys: String, CodingKey {
-        case sessionId = "session_id"
+    required init?(map: Map) { }
+    
+    func mapping(map: Map) {
+        sessionId <- map["session_id"]
     }
     
-    init(sessionId: String) {
-        self.sessionId = sessionId
-    }
-}
-
-struct ScreenInfo {
-    var screenId: String
-    
-    enum CodingKeys: String, CodingKey {
-        case screenId = "screen_id"
+    required init?(coder aDecoder: NSCoder) {
+        self.sessionId = aDecoder.decodeObject(forKey: "sessionId") as? String
     }
     
-    init(screenId: String) {
-        self.screenId = screenId
+    func encode(with aCoder: NSCoder) {
+        aCoder.encode(sessionId, forKey: "sessionId")
     }
 }
 
-// Explore what entity is it
-struct ElementsUpdate {
-    var valueArray: Array<String>
-    var arrayArrayIds: Array<Array<String>>
+struct ScreenInfo: Mappable {
+    var screenId: String?
     
-    enum CodingKeys: String, CodingKey {
-        case valueArray = "value_list"
-        case arrayArrayIds = "id_list_list"
+    init?(map: Map) { }
+    
+    mutating func mapping(map: Map) {
+        screenId <- map["screen_id"]
     }
 }
 
-struct ScreenUpdate {
-    var elementsUpdate: ElementsUpdate
-    var device: Device
+struct ElementsUpdate: Mappable {
+    var valueArray: Array<String>?
+    var arrayArrayIds: Array<Array<String>>?
     
-    enum CodingKeys: String, CodingKey {
-        case elementsUpdate = "elements_update"
-        case device = "device"
+    init?(map: Map) { }
+    init() {
+        valueArray = []
+        arrayArrayIds = []
+    }
+    
+    mutating func mapping(map: Map) {
+        valueArray <- map["value_list"]
+        arrayArrayIds <- map["id_list_list"]
     }
 }
 
-struct ElementCallback {
-    var elementsUpdate: ElementsUpdate
-    var arrayIds: Array<String>
-    var method: String
-    var locale: Locale
-    var device: Device
+struct ScreenUpdate: Mappable {
+    var elementsUpdate: ElementsUpdate?
+    var device: Device?
     
-    enum CodingKeys: String, CodingKey {
-        case elementsUpdate = "elements_update"
-        case arrayIds = "id_list"
-        case method = "method"
-        case locale = "locale"
-        case device = "device"
+    init?(map: Map) { }
+    
+    init?(elementsUpdate: ElementsUpdate?, device: Device) {
+        self.elementsUpdate = elementsUpdate
+        self.device = device
+    }
+    
+    mutating func mapping(map: Map) {
+        elementsUpdate <- map["elements_update"]
+        device <- map["device"]
     }
 }
 
-struct ScreenProg {
-    var screen: Screen
-    var recentDevice: Device
-    var elementsUpdate: ElementsUpdate
-    var sessionId: String
+struct ElementCallback: Mappable {
+    var elementsUpdate: ElementsUpdate?
+    var arrayIds: Array<String>?
+    var method: String?
+    var locale: Locale?
+    var device: Device?
     
-    enum CodingKeys: String, CodingKey {
-        case screen = "screen"
-        case device = "device"
-        case elementsUpdate = "elements_update"
-        case sessionId = "session_id"
+    init?(map: Map) { }
+    
+    init?(elementsUpdate: ElementsUpdate?, elementIds: Array<String>?, method: String?, locale: Locale?, device: Device) {
+        self.elementsUpdate = elementsUpdate
+        self.arrayIds = elementIds
+        self.method = method
+        self.locale = locale
+        self.device = device
+    }
+    
+    mutating func mapping(map: Map) {
+        elementsUpdate <- map["elements_update"]
+        arrayIds <- map["id_list"]
+        method <- map["method"]
+        locale <- map["locale"]
+        device <- map["device"]
     }
 }
 
-struct Response {
-    var elementsUpdate: ElementsUpdate
-    var screenInfo: ScreenInfo
-    var sessionInfo: SessionInfo
-    var screen: Screen
+struct ScreenProg: Mappable {
+    var screen: Screen?
+    var recentDevice: Device?
+    var elementsUpdate: ElementsUpdate?
+    var sessionId: String?
     
-    enum CodingKeys: String, CodingKey {
-        case elementsUpdate = "elements_update"
-        case screenInfo = "screen_info"
-        case sessionInfo = "session_info"
-        case screen = "screen"
+    init?(map: Map) { }
+    
+    mutating func mapping(map: Map) {
+        screen <- map["screen"]
+        recentDevice <- map["recent_device"]
+        elementsUpdate <- map["elements_update"]
+        sessionId <- map["session_id"]
+    }
+}
+
+struct Response: Mappable {
+    var elementsUpdate: ElementsUpdate?
+    var resources: Resources?
+    var screenInfo: ScreenInfo?
+    var sessionInfo: SessionInfo?
+    var screen: Screen?
+    
+    init?(map: Map) { }
+    
+    mutating func mapping(map: Map) {
+        elementsUpdate <- map["elements_update"]
+        resources <- map["resources"]
+        screenInfo <- map["screen_info"]
+        sessionInfo <- map["session_info"]
+        screen <- map["screen"]
+    }
+}
+
+struct Method: Mappable {
+    var method: String!
+    
+    init?(map: Map) {
+        method = try! map.value("method")
+    }
+    
+    mutating func mapping(map: Map) {
+        method <- map["method"]
     }
 }
 
@@ -129,10 +179,27 @@ struct BadRequest: StatusProtocol {
     var code: Int
 }
 
-struct Resource {
-    var fileName: String    
+struct Resource: Mappable {
+    var fileName: String
+    
+    init?(map: Map) {
+        fileName = try! map.value("filename")
+    }
+    
+    mutating func mapping(map: Map) {
+        fileName <- map["filename"]
+    }
 }
 
-struct Resources {
-    var resourceArray: Array<Resource>
+struct Resources: Mappable {
+    var resourceList: Array<Resource>
+    
+    init?(map: Map) {
+        resourceList = try! map.value("resource_list")
+    }
+    
+    mutating func mapping(map: Map) {
+        resourceList <- map["resource_list"]
+    }
 }
+

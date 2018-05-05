@@ -7,40 +7,56 @@
 //
 
 import UIKit
+import GooglePlaces
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
+    
     var window: UIWindow?
-
-
+    var router: Router?
+    
+    let googleAPIKey = "AIzaSyDOvC4C4LK7BGDw90LVTzdN4Qc_t3N_TLY"
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        // setup google place picker
+        GMSPlacesClient.provideAPIKey(googleAPIKey)
+        
+        // setup app
+        if let window = self.window {
+            self.router = Router(with: window)
+        }
+        
+        self.setupStartScreen()
+        
         return true
     }
-
-    func applicationWillResignActive(_ application: UIApplication) {
-        // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-        // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
+    
+    func setupStartScreen() {
+        var uuid = ""
+        if let currentUUID = UIDevice.current.identifierForVendor?.uuidString {
+            uuid = currentUUID
+        }
+        let type = UIDevice.current.systemName + " " + UIDevice.current.systemVersion
+        let device = Device(type: type, token: uuid)
+        
+        if APIClientService.isSessionInfoExist == true {
+            APIClientService.getScreen(for: device, completion: { [weak self] (response, error) in
+                guard let strongSelf = self else {
+                    return
+                }
+                
+                strongSelf.router?.processResponse(response: response, error: error, for: nil)
+            })
+        } else {
+            APIClientService.getServices(for: device, completion: { [weak self] (response, error) in
+                guard let strongSelf = self else {
+                    return
+                }
+                
+                strongSelf.router?.processResponse(response: response, error: error, for: nil)
+            })
+        }
     }
-
-    func applicationDidEnterBackground(_ application: UIApplication) {
-        // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
-        // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
-    }
-
-    func applicationWillEnterForeground(_ application: UIApplication) {
-        // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
-    }
-
-    func applicationDidBecomeActive(_ application: UIApplication) {
-        // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-    }
-
-    func applicationWillTerminate(_ application: UIApplication) {
-        // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
-    }
-
-
+    
 }
 
