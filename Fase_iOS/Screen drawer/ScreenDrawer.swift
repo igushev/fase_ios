@@ -471,8 +471,11 @@ class ScreenDrawer {
         element.faseElementId = id
         
         var superview: UIView! = self.view
+        var superviewElement: Element?
+        
         if let parentId = parentElementId, let parentView = self.view(with: parentId) {
             superview = parentView
+            superviewElement = self.viewModel?.element(with: parentId)
         }
         
         // If navigation buttons, break because they was drawn before
@@ -509,17 +512,13 @@ class ScreenDrawer {
         
         // Constraints
         button.translatesAutoresizingMaskIntoConstraints = false
-        
         button.snp.makeConstraints { (make) in
-            make.centerX.equalToSuperview()
+            var superviewOrientation = FrameType.none
             
-            if superview.subviews.count > 1 {
-                let prevSubview = superview.subviews[superview.subviews.count - 2]
-                
-                make.top.equalTo(prevSubview.snp.bottom).offset(5)
-            } else {
-                make.top.equalToSuperview().offset(5)
+            if let superviewElement = superviewElement as? Frame {
+                superviewOrientation = superviewElement.orientation
             }
+            FaseConstraintsMaker.makeConstraints(make: make, elementType: ElementType.button, view: button, in: superview, superviewOrientation: superviewOrientation)
         }
     }
     
@@ -527,8 +526,11 @@ class ScreenDrawer {
         element.faseElementId = id
         
         var superview: UIView! = self.view
+        var superviewElement: Element?
+        
         if let parentId = parentElementId, let parentView = self.viewThatCanHasClonesWithSameId(with: parentId) {
             superview = parentView
+            superviewElement = self.viewModel?.element(with: parentId)
         }
         
         let x: CGFloat = 0 //self.getXForElement(with: UIElementsWidth.button.rawValue)
@@ -578,20 +580,12 @@ class ScreenDrawer {
         label.translatesAutoresizingMaskIntoConstraints = false
         
         label.snp.makeConstraints { (make) in
-            make.leading.equalToSuperview().offset(5)
-            make.trailing.equalToSuperview().offset(-5)
+            var superviewOrientation = FrameType.none
             
-            if superview.subviews.count > 1 {
-                let prevSubview = superview.subviews[superview.subviews.count - 2]
-                make.top.equalTo(prevSubview.snp.bottom).offset(5)
-            } else {
-                // Send label in frame to avoid this check
-                if superview.tag == 100 {
-                    make.top.equalToSuperview().offset(70)
-                } else {
-                    make.top.equalToSuperview().offset(5)
-                }
+            if let superviewElement = superviewElement as? Frame {
+                superviewOrientation = superviewElement.orientation
             }
+            FaseConstraintsMaker.makeConstraints(make: make, elementType: ElementType.label, view: label, in: superview, superviewOrientation: superviewOrientation)
         }
     }
     
@@ -599,16 +593,17 @@ class ScreenDrawer {
         element.faseElementId = id
         
         var superview: UIView! = self.view
+        var superviewElement: Element?
+        
         if let parentId = parentElementId, let parentView = self.viewThatCanHasClonesWithSameId(with: parentId) {
             superview = parentView
+            superviewElement = self.viewModel?.element(with: parentId)
         }
         
         let x: CGFloat = superview.frame.maxX - UIElementsWidth.image.rawValue //self.getXForElement(with: UIElementsWidth.button.rawValue)
         var y: CGFloat = 0
-        var width: CGFloat = UIElementsWidth.image.rawValue
+        let width: CGFloat = UIElementsWidth.image.rawValue
         let height: CGFloat = UIElementsWidth.image.rawValue
-        
-        width = superview.bounds.width
         
         if superview != self.view, superview.subviews.count > 0 {
             y = (superview.subviews.last?.frame.maxY)! + 1
@@ -616,16 +611,16 @@ class ScreenDrawer {
         
         let frame = CGRect(x: x, y: y, width: width, height: height)
         let imageView = UIImageView(frame: frame)
-        imageView.faseElementId = id  // is it needed in label?
-        imageView.contentMode = .scaleAspectFit
+        imageView.faseElementId = id
+        imageView.contentMode = .center
         
         var image: UIImage? = UIImage()
-        if let data = ResourcesService.getResource(by: element.fileName), let savedImage = UIImage(data: data) {
-            image = savedImage
+        if let data = ResourcesService.getResource(by: element.fileName), let savedImage = UIImage(data: data), let resizedImage = savedImage.resizedImage(with: CGSize(width: FaseImageWidth.navigationItem.rawValue, height: FaseImageWidth.navigationItem.rawValue)) {
+            image = resizedImage
         }
         imageView.image = image
-        imageView.image = imageView.image?.withRenderingMode(.alwaysTemplate)
-        imageView.tintColor = UIColor.FaseColors.textColor
+        //        imageView.image = imageView.image?.withRenderingMode(.alwaysTemplate)
+        //        imageView.tintColor = UIColor.FaseColors.textColor
         
         superview.addSubview(imageView)
         self.y += imageView.frame.size.height
@@ -636,10 +631,12 @@ class ScreenDrawer {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         
         imageView.snp.makeConstraints { (make) in
-            make.trailing.equalToSuperview().offset(-5)
-            make.top.equalToSuperview().offset(5)
-            make.width.equalTo(UIElementsWidth.image.rawValue)
-            make.height.equalTo(UIElementsWidth.image.rawValue)
+            var superviewOrientation = FrameType.none
+            
+            if let superviewElement = superviewElement as? Frame {
+                superviewOrientation = superviewElement.orientation
+            }
+            FaseConstraintsMaker.makeConstraints(make: make, elementType: ElementType.image, view: imageView, in: superview, superviewOrientation: superviewOrientation)
         }
     }
     

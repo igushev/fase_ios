@@ -70,10 +70,13 @@ class ElementContainer: Element {
                     elementTuple.append(elementId)
                     
                     // Map ui element
-                    let elementMap = Map(mappingType: .fromJSON, JSON: value[1] as! [String : Any])
-                    if let element = ElementMappingService.mapElement(with: elementMap) {
-                        elementTuple.append(element)
+                    if let elementJSON = value[1] as? [String : Any] {
+                        let elementMap = Map(mappingType: .fromJSON, JSON: elementJSON)
+                        if let element = ElementMappingService.mapElement(with: elementMap) {
+                            elementTuple.append(element)
+                        }
                     }
+                    
                     
                     elements.append(elementTuple)
                 }
@@ -483,7 +486,8 @@ class Separator: VisualElement {
 }
 
 enum FrameType: Int {
-    case vertical = 1
+    case none = 0
+    case vertical
     case horizontal
 }
 

@@ -580,6 +580,3 @@ extension FaseViewModel: CNContactPickerDelegate {
         textField.text = contact.displayName
     }
 }
-
-
-

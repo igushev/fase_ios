@@ -35,6 +35,9 @@
 		5B4A2D64205574A100578E83 /* APIClientService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4A2D5F205574A100578E83 /* APIClientService.swift */; };
 		5B4A2D65205574A100578E83 /* ElementMappingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4A2D60205574A100578E83 /* ElementMappingService.swift */; };
 		5B4A2D66205574A100578E83 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4A2D62205574A100578E83 /* Extensions.swift */; };
+		5B644A47209DD5B5003BEA7E /* FaseConstraintsMaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B644A46209DD5B4003BEA7E /* FaseConstraintsMaker.swift */; };
+		5B644A48209DD5B5003BEA7E /* FaseConstraintsMaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B644A46209DD5B4003BEA7E /* FaseConstraintsMaker.swift */; };
+		5B644A49209DD5B5003BEA7E /* FaseConstraintsMaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B644A46209DD5B4003BEA7E /* FaseConstraintsMaker.swift */; };
 		5B6A13DB2091B5C7007A9DE2 /* DataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BFCBD84204F37EB0063A171 /* DataModels.swift */; };
 		5B6A13DC2091B5C7007A9DE2 /* APIClientService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4A2D5F205574A100578E83 /* APIClientService.swift */; };
 		5B6A13DD2091B5C7007A9DE2 /* FaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4A2D5D205574A000578E83 /* FaseViewController.swift */; };
@@ -95,6 +98,7 @@
 		5B4A2D5F205574A100578E83 /* APIClientService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIClientService.swift; sourceTree = "<group>"; };
 		5B4A2D60205574A100578E83 /* ElementMappingService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElementMappingService.swift; sourceTree = "<group>"; };
 		5B4A2D62205574A100578E83 /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		5B644A46209DD5B4003BEA7E /* FaseConstraintsMaker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FaseConstraintsMaker.swift; sourceTree = "<group>"; };
 		5B6A13F42091B5C7007A9DE2 /* Fase_iOS_karma.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Fase_iOS_karma.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B6A13F52091B5C8007A9DE2 /* Fase_iOS_karma-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Fase_iOS_karma-Info.plist"; path = "/Users/ctrc/Documents/iOS projects/Work/Fase_iOS_remote/Fase_iOS/Fase_iOS_karma-Info.plist"; sourceTree = "<absolute>"; };
 		5BCBD6772055A9AD0008315B /* ScreenDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenDrawer.swift; sourceTree = "<group>"; };
@@ -222,6 +226,7 @@
 		5BCBD6762055A9750008315B /* Screen drawer */ = {
 			isa = PBXGroup;
 			children = (
+				5B644A46209DD5B4003BEA7E /* FaseConstraintsMaker.swift */,
 				5BCBD6772055A9AD0008315B /* ScreenDrawer.swift */,
 			);
 			path = "Screen drawer";
@@ -663,6 +668,7 @@
 				5B0AA805209860FD007B64C7 /* ViewModel.swift in Sources */,
 				5B0AA806209860FD007B64C7 /* UIElementsModels.swift in Sources */,
 				5B0AA807209860FD007B64C7 /* Router.swift in Sources */,
+				5B644A49209DD5B5003BEA7E /* FaseConstraintsMaker.swift in Sources */,
 				5B0AA808209860FD007B64C7 /* AppDelegate.swift in Sources */,
 				5B0AA809209860FD007B64C7 /* ServiceModels.swift in Sources */,
 				5B0AA80A209860FD007B64C7 /* Extensions.swift in Sources */,
@@ -684,6 +690,7 @@
 				5B6A13E12091B5C7007A9DE2 /* ViewModel.swift in Sources */,
 				5B6A13E22091B5C7007A9DE2 /* UIElementsModels.swift in Sources */,
 				5B6A13E32091B5C7007A9DE2 /* Router.swift in Sources */,
+				5B644A48209DD5B5003BEA7E /* FaseConstraintsMaker.swift in Sources */,
 				5B6A13E42091B5C7007A9DE2 /* AppDelegate.swift in Sources */,
 				5B6A13E52091B5C7007A9DE2 /* ServiceModels.swift in Sources */,
 				5B6A13E62091B5C7007A9DE2 /* Extensions.swift in Sources */,
@@ -705,6 +712,7 @@
 				5B212801205D3A2D003A0997 /* ViewModel.swift in Sources */,
 				5BFCBD89204F37EB0063A171 /* UIElementsModels.swift in Sources */,
 				5B4A2D5B2055749900578E83 /* Router.swift in Sources */,
+				5B644A47209DD5B5003BEA7E /* FaseConstraintsMaker.swift in Sources */,
 				5BFCBD56204F379E0063A171 /* AppDelegate.swift in Sources */,
 				5BFCBD88204F37EB0063A171 /* ServiceModels.swift in Sources */,
 				5B4A2D66205574A100578E83 /* Extensions.swift in Sources */,
