@@ -71,7 +71,7 @@ class Router {
         //
     }
     
-    func processResponse(response: Response?, error: Error?,for viewModel: FaseViewModel?) {
+    func processResponse(response: Response?, error: Error?, for viewModel: FaseViewModel?) {
         if let error = error {
             print(error.localizedDescription)
             if error.code == 500 {
@@ -83,6 +83,9 @@ class Router {
             }
             if let screen = response.screen, let sessionInfo = response.sessionInfo {
                 APIClientService.saveNewSessionInfo(sessionInfo: sessionInfo)
+                if let vM = viewModel {
+                    vM.screenUpdateTimer.invalidate()
+                }
                 
                 let viewModel = FaseViewModel(with: screen)
                 viewModel.router = self
