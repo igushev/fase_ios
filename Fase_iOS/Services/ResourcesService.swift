@@ -9,6 +9,20 @@
 import UIKit
 
 class ResourcesService {
+    
+    static func resetResources() {
+        let fileManager = FileManager.default
+        let tempFolderPath = NSTemporaryDirectory()
+        do {
+            let filePaths = try fileManager.contentsOfDirectory(atPath: tempFolderPath)
+            for filePath in filePaths {
+                try fileManager.removeItem(atPath: tempFolderPath + filePath)
+            }
+        } catch {
+            print("Could not clear temp folder: \(error)")
+        }
+    }
+    
     static func saveResources(_ resources: Resources) {
         resources.resourceList.forEach { (resource) in
             let resourceName = resource.fileName.components(separatedBy: "/").last!

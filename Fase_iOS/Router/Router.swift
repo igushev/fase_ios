@@ -92,6 +92,9 @@ class Router {
                 self.displayViewController(with: viewModel)
             }
             if let resources = response.resources {
+                if resources.resetResources == true {
+                    ResourcesService.resetResources()
+                }
                 ResourcesService.saveResources(resources)
             }
         }
