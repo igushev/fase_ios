@@ -26,23 +26,12 @@ enum URLPath: String {
     case getResource = "getresource/filename/"
 }
 
-enum FASE_SCHEME: String {
-    case notes = "notes"
-    case karma = "karma"
-    case test = "test"
-    case unknown = "unknown"
-    
-    init(with string: String?) {
-        self = FASE_SCHEME(rawValue: (string?.lowercased())!) ?? .unknown
-    }
-}
-
 typealias ResponseHandler = (Data?, Error?) -> Void
 typealias ResourceHandler = (Data?, Error?) -> Void
 typealias JSON = AnyObject
 
 class APIClient {
-    static let shared = APIClient(with: ProcessInfo.processInfo.environment["FASE_SCHEME"])
+    static let shared = APIClient()
     //    static let shared = APIClient(with: URL(string: BaseURL.notes.rawValue)!)
     
     var baseURL: URL!
@@ -113,32 +102,16 @@ class APIClient {
     
     // MARK: - Private
     
-    private init(with baseUrl: URL) {
-        self.baseURL = baseUrl
-    }
-    
-    init(with faseSchemeId: String?) {
-        guard let faseSchemeId = faseSchemeId else { return }
-        
-        let faseSchemeType = FASE_SCHEME(rawValue: faseSchemeId)!
-        
-        switch faseSchemeType {
-        case .notes:
+    init() {
+        #if NOTES
             self.baseURL = URL(string: BaseURL.notes.rawValue)!
-            break
-            
-        case .karma:
+        #elseif KARMA
             self.baseURL = URL(string: BaseURL.karmaCounter.rawValue)!
-            break
-            
-        case .test:
-            self.baseURL = URL(string: BaseURL.test.rawValue)
-            break
-            
-        case .unknown:
+        #elseif TEST
+            self.baseURL = URL(string: BaseURL.test.rawValue)!
+        #else
             self.baseURL = URL(string: BaseURL.helloWorld.rawValue)
-            break
-        }
+        #endif
     }
     
     private func get(path: String, parameters: Dictionary<String, Any>?, completion: @escaping ResponseHandler) {

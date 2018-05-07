@@ -783,6 +783,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Fase_iOS/Fase_iOS_test-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-D\" \"TEST\"";
 				PRODUCT_BUNDLE_IDENTIFIER = "Fase.Fase-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
@@ -801,6 +802,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Fase_iOS/Fase_iOS_test-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-D\" \"TEST\"";
 				PRODUCT_BUNDLE_IDENTIFIER = "Fase.Fase-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
@@ -819,6 +821,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Fase_iOS/Fase_iOS_karma-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-D\" \"KARMA\"";
 				PRODUCT_BUNDLE_IDENTIFIER = "Fase.Fase-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
@@ -837,6 +840,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Fase_iOS/Fase_iOS_karma-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-D\" \"KARMA\"";
 				PRODUCT_BUNDLE_IDENTIFIER = "Fase.Fase-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
@@ -962,6 +966,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Fase_iOS/Fase_iOS_notes-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-D\" \"NOTES\"";
 				PRODUCT_BUNDLE_IDENTIFIER = "Fase.Fase-iOS-notes";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
@@ -980,6 +985,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Fase_iOS/Fase_iOS_notes-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-D\" \"NOTES\"";
 				PRODUCT_BUNDLE_IDENTIFIER = "Fase.Fase-iOS-notes";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
