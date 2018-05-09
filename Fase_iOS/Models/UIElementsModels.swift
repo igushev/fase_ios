@@ -376,12 +376,14 @@ class Menu: VisualElement {
 class Button: VisualElement {
     var text: String!
     var onClick: Method!
+    var align: Align!
     
     required init?(map: Map) {
         super.init(map: map)
         
         text = try? map.value("text")
         onClick = try? map.value("on_click")
+        align = try? map.value("align")
     }
     
     override func mapping(map: Map) {
@@ -389,6 +391,7 @@ class Button: VisualElement {
         
         text <- map["text"]
         onClick <- map["on_click"]
+        align <- map["align"]
     }
 }
 
