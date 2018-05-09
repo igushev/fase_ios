@@ -41,6 +41,18 @@ extension Error {
     var domain: String { return (self as NSError).domain }
 }
 
+extension String {
+    func textHeight(with font: UIFont) -> CGFloat {
+        return self.height(withWidth: UIElementsWidth.label.rawValue, font: font)
+    }
+    
+    func height(withWidth width: CGFloat, font: UIFont) -> CGFloat {
+        let maxSize = CGSize(width: width, height: CGFloat.greatestFiniteMagnitude)
+        let actualSize = self.boundingRect(with: maxSize, options: [.usesLineFragmentOrigin], attributes: [.font : font], context: nil)
+        return actualSize.height
+    }
+}
+
 // MARK: - UIKit extensions
 
 private var faseElementIdAssociationKey: UInt8 = 0
@@ -179,6 +191,10 @@ extension UIColor {
 
 extension Frame {
     func frameTotalHeight() -> CGFloat {
+        return self.orientation == FrameType.vertical ? self.verticalFrameTotalHeight() : self.horizontalFrameTotalHeight()
+    }
+    
+    func verticalFrameTotalHeight() -> CGFloat {
         var height: CGFloat = 0
         var count: CGFloat = 0
         
@@ -199,6 +215,8 @@ extension Frame {
                 height += (element as! Frame).frameTotalHeight()
             } else if elementType == ElementType.label {
                 height += UIElementsHeight.label.rawValue
+                //                let font = UIFont.systemFont(ofSize: (element as! Label).font.appFontSize)
+                //                height += (element as! Label).text.textHeight(with: font)
             } else if elementType == ElementType.button {
                 height += UIElementsHeight.button.rawValue
             } else if elementType == ElementType.text {
@@ -210,6 +228,37 @@ extension Frame {
             }
             
             count += 1
+        }
+        
+        return height
+    }
+    
+    func horizontalFrameTotalHeight() -> CGFloat {
+        var height: CGFloat = 0
+        
+        for tuple in self.idElementList {
+            if tuple.count == 1 {
+                break
+            }
+            
+            let element = tuple[1] as! Element
+            let elementTypeString = element.`class`
+            let elementType = ElementType(with: elementTypeString)
+            
+            if elementType == ElementType.frame {
+                height = max(height, (element as! Frame).frameTotalHeight())
+            } else if elementType == ElementType.label {
+                height = max(height, UIElementsHeight.label.rawValue)
+            } else if elementType == ElementType.button {
+                height = max(height, UIElementsHeight.button.rawValue)
+            } else if elementType == ElementType.text {
+                height = (element as! Text).multiline == true ? max(height, UIElementsHeight.textView.rawValue) : max(height, UIElementsHeight.textField.rawValue)
+            } else if elementType == ElementType.dateTimePicker {
+                height = max(height, UIElementsHeight.textField.rawValue)
+            } else if elementType == ElementType.placePicker {
+                height = max(height, UIElementsHeight.textField.rawValue)
+            }
+            
         }
         
         return height
