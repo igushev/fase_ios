@@ -120,7 +120,7 @@ class ScreenDrawer {
     
     // MARK: - Private
     
-    func draw(element: Element, with id: String, parentElementId: String?) {
+    private func draw(element: Element, with id: String, parentElementId: String?) {
         let elementTypeString = element.`class`
         let elementType = ElementType(with: elementTypeString)
         
@@ -180,7 +180,7 @@ class ScreenDrawer {
         // TODO: Add gesture recognizer if at least one textfield
     }
     
-    func drawTabBar(for element: ElementContainer, with id: String) {
+    private func drawTabBar(for element: ElementContainer, with id: String) {
         if let viewModel = self.viewModel /*viewModel.screen.scrollable == true*/ {
             var x: CGFloat = 0
             var y = self.view.frame.height - UIElementsHeight.navigation.rawValue
@@ -229,11 +229,687 @@ class ScreenDrawer {
         }
     }
     
-    func drawFrame(for element: Frame, with id: String, parentElementId: String?) {
+    private func drawFrame(for element: Frame, with id: String, parentElementId: String?) {
         if element.idElementList.count == 0 {
             return
         }
         
+        let isHorizontalFrame = (element.orientation == FrameType.vertical)
+        
+        self.drawStandardFrame(for: element, with: id, parentElementId: parentElementId)
+        
+//        if isHorizontalFrame == true {
+//            self.drawStandardFrame(for: element, with: id, parentElementId: parentElementId)
+//        } else {
+//            self.drawStackViewFrame(for: element, with: id, parentElementId: parentElementId)
+//        }
+    }
+    
+    private func drawTextField(for element: Text, with id: String, parentElementId: String?) {
+        element.faseElementId = id
+        
+        var superview: UIView! = self.view
+        if let parentId = parentElementId, let parentView = self.view(with: parentId) {
+            superview = parentView
+        }
+        
+        let x = self.getXForElement(with: self.maxWidth)
+        let y = self.y
+        let width = self.maxWidth
+        let height = UIElementsHeight.textField.rawValue
+        
+        let frame = CGRect(x: x, y: y, width: width, height: height)
+        let textField = UITextField(frame: frame)
+        textField.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
+        textField.textColor = UIColor.FaseColors.textColor
+        textField.borderStyle = .roundedRect
+        textField.faseElementId = id
+        if let parentId = parentElementId {
+            textField.navigationElementId = parentId
+        }
+        
+        superview.addSubview(textField)
+        self.y += textField.frame.size.height
+        
+        if let placeholder = element.hint {
+            textField.placeholder = placeholder
+        }
+        
+        if let text = element.text {
+            textField.text = text
+        }
+        
+        textField.enableUserInteractionForSuperviews()
+        
+        self.uiControls.append(textField)
+        
+        // Constraints
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        
+        textField.snp.makeConstraints { (make) in
+            make.centerX.equalToSuperview()
+            make.width.equalTo(textField.frame.width)
+            
+            if superview.subviews.count > 1 {
+                let prevSubview = superview.subviews[superview.subviews.count - 2]
+                
+                make.top.equalTo(prevSubview.snp.bottom).offset(5)
+            } else {
+                make.top.equalToSuperview().offset(5)
+            }
+        }
+    }
+    
+    private func drawTextView(for element: Text, with id: String, parentElementId: String?) {
+        element.faseElementId = id
+        
+        var superview: UIView! = self.view
+        if let parentId = parentElementId, let parentView = self.view(with: parentId) {
+            superview = parentView
+        }
+        
+        let x = self.getXForElement(with: self.maxWidth)
+        let y = self.y
+        let width = self.maxWidth
+        let height = UIElementsHeight.textView.rawValue
+        
+        let frame = CGRect(x: x, y: y, width: width, height: height)
+        let textView = UITextView(frame: frame)
+        textView.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
+        textView.textColor = UIColor.FaseColors.textColor
+        textView.layer.cornerRadius = 5.0
+        textView.isSelectable = true
+        textView.font = UIFont.systemFont(ofSize: 17.0)
+        textView.delegate = self.viewModel
+        textView.faseElementId = id
+        textView.layer.borderWidth = 1.0
+        textView.layer.borderColor = UIColor.FaseColors.borderColor.cgColor
+        
+        if let parentId = parentElementId {
+            textView.navigationElementId = parentId
+        }
+        
+        superview.addSubview(textView)
+        self.y += textView.frame.size.height
+        
+        if let placeholder = element.hint, element.text == nil {
+            textView.text = placeholder
+            textView.textColor = UIColor.FaseColors.placeholderColor
+        }
+        
+        if let text = element.text {
+            textView.text = text
+        }
+        
+        textView.enableUserInteractionForSuperviews()
+        
+        self.uiControls.append(textView)
+        
+        // Constraints
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        
+        textView.snp.makeConstraints { (make) in
+            make.centerX.equalToSuperview()
+            make.height.equalTo(textView.frame.height)
+            make.width.equalTo(textView.frame.width)
+            
+            if superview.subviews.count > 1 {
+                let prevSubview = superview.subviews[superview.subviews.count - 2]
+                
+                make.top.equalTo(prevSubview.snp.bottom).offset(5)
+            } else {
+                make.top.equalToSuperview().offset(5)
+            }
+        }
+    }
+    
+    private func drawButton(for element: Button, with id: String, parentElementId: String?) {
+        element.faseElementId = id
+        
+        var superview: UIView! = self.view
+        var superviewElement: Element?
+        
+        if let parentId = parentElementId, let parentView = self.view(with: parentId) {
+            superview = parentView
+            superviewElement = self.viewModel?.element(with: parentId)
+        }
+        
+        // If navigation buttons, break because they was drawn before
+        if id == FaseElementsId.mainButton.rawValue || id == FaseElementsId.previousButton.rawValue || id == FaseElementsId.nextButton.rawValue {
+            return
+        }
+        let x = self.getXForElement(with: UIElementsWidth.button.rawValue)
+        let y: CGFloat = 0
+        let width = UIElementsWidth.button.rawValue
+        let height = UIElementsHeight.button.rawValue
+        
+        let frame = CGRect(x: x, y: y, width: width, height: height)
+        let button = UIButton(frame: frame)
+        button.setTitleColor(UIColor.FaseColors.buttonTextColor, for: .normal)
+        button.faseElementId = id
+        
+        if let parentId = parentElementId {
+            button.navigationElementId = parentId
+        }
+        if let viewModel = self.viewModel {
+            button.addTarget(viewModel, action: #selector(FaseViewModel.onClick(_:)), for: .touchUpInside)
+        }
+        
+        superview.addSubview(button)
+        self.y += button.frame.size.height
+        
+        if let text = element.text {
+            button.setTitle(text, for: .normal)
+        }
+        
+        button.enableUserInteractionForSuperviews()
+        
+        self.uiControls.append(button)
+        
+        // Constraints
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.snp.makeConstraints { (make) in
+            var superviewOrientation = FrameType.none
+            
+            if let superviewElement = superviewElement as? Frame {
+                superviewOrientation = superviewElement.orientation
+            }
+            FaseConstraintsMaker.makeConstraints(make: make, elementType: ElementType.button, view: button, in: superview, superviewOrientation: superviewOrientation)
+        }
+    }
+    
+    private func drawLabel(for element: Label, with id: String, parentElementId: String?) {
+        element.faseElementId = id
+        
+        var superview: UIView! = self.view
+        var superviewElement: Element?
+        
+        if let parentId = parentElementId, let parentView = self.viewThatCanHasClonesWithSameId(with: parentId) {
+            superview = parentView
+            superviewElement = self.viewModel?.element(with: parentId)
+        }
+        
+        let x: CGFloat = 0 //self.getXForElement(with: UIElementsWidth.button.rawValue)
+        var y: CGFloat = 0
+        var width: CGFloat = self.viewSize().width
+        let height: CGFloat = UIElementsHeight.label.rawValue
+        
+        width = superview.bounds.width
+        
+        if superview != self.view, superview.subviews.count > 0 {
+            y = (superview.subviews.last?.frame.maxY)! + 1
+        }
+        
+        let frame = CGRect(x: x, y: y, width: width, height: height)
+        let label = UILabel(frame: frame)
+        label.font = UIFont.systemFont(ofSize: element.font.appFontSize)
+        label.textColor = UIColor.FaseColors.textColor
+        label.faseElementId = id
+        
+        switch element.align {
+        case .left:
+            label.textAlignment = .left
+            break
+            
+        case .right:
+            label.textAlignment = .right
+            break
+            
+        case .center:
+            label.textAlignment = .center
+            break
+            
+        default:
+            label.textAlignment = .left
+        }
+        
+        superview.addSubview(label)
+        self.y += label.frame.size.height
+        
+        if let text = element.text {
+            label.text = text
+        }
+        
+        self.uiControls.append(label)
+        
+        // Constraints
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        label.snp.makeConstraints { (make) in
+            var superviewOrientation = FrameType.none
+            
+            if let superviewElement = superviewElement as? Frame {
+                superviewOrientation = superviewElement.orientation
+            }
+            FaseConstraintsMaker.makeConstraints(make: make, elementType: ElementType.label, view: label, in: superview, superviewOrientation: superviewOrientation)
+        }
+    }
+    
+    private func drawImageView(for element: Image, with id: String, parentElementId: String?) {
+        element.faseElementId = id
+        
+        var superview: UIView! = self.view
+        var superviewElement: Element?
+        
+        if let parentId = parentElementId, let parentView = self.viewThatCanHasClonesWithSameId(with: parentId) {
+            superview = parentView
+            superviewElement = self.viewModel?.element(with: parentId)
+        }
+        
+        let x: CGFloat = superview.frame.maxX - UIElementsWidth.image.rawValue //self.getXForElement(with: UIElementsWidth.button.rawValue)
+        var y: CGFloat = 0
+        let width: CGFloat = UIElementsWidth.image.rawValue
+        let height: CGFloat = UIElementsWidth.image.rawValue
+        
+        if superview != self.view, superview.subviews.count > 0 {
+            y = (superview.subviews.last?.frame.maxY)! + 1
+        }
+        
+        let frame = CGRect(x: x, y: y, width: width, height: height)
+        let imageView = UIImageView(frame: frame)
+        imageView.faseElementId = id
+        imageView.contentMode = .center
+        
+        var image: UIImage? = UIImage()
+        if let data = ResourcesService.getResource(by: element.fileName), let savedImage = UIImage(data: data), let resizedImage = savedImage.resizedImage(with: CGSize(width: FaseImageWidth.navigationItem.rawValue, height: FaseImageWidth.navigationItem.rawValue)) {
+            image = resizedImage
+        }
+        imageView.image = image
+        //        imageView.image = imageView.image?.withRenderingMode(.alwaysTemplate)
+        //        imageView.tintColor = UIColor.FaseColors.textColor
+        
+        superview.addSubview(imageView)
+        self.y += imageView.frame.size.height
+        
+        self.uiControls.append(imageView)
+        
+        // Constraints
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        
+        imageView.snp.makeConstraints { (make) in
+            var superviewOrientation = FrameType.none
+            
+            if let superviewElement = superviewElement as? Frame {
+                superviewOrientation = superviewElement.orientation
+            }
+            FaseConstraintsMaker.makeConstraints(make: make, elementType: ElementType.image, view: imageView, in: superview, superviewOrientation: superviewOrientation)
+        }
+    }
+    
+    private func drawDatePicker(for element: DateTimePicker, with id: String, parentElementId: String?) {
+        element.faseElementId = id
+        
+        var superview: UIView! = self.view
+        if let parentId = parentElementId, let parentView = self.view(with: parentId) {
+            superview = parentView
+        }
+        
+        let x = self.getXForElement(with: self.maxWidth)
+        let y = self.y
+        let width = self.maxWidth
+        let height = UIElementsHeight.textField.rawValue
+        
+        let frame = CGRect(x: x, y: y, width: width, height: height)
+        let textField = UITextField(frame: frame)
+        textField.faseElementId = id
+        
+        if let setupBlock = self.datePickerSetupBlock {
+            setupBlock(textField)
+        }
+        
+        textField.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
+        textField.textColor = UIColor.FaseColors.textColor
+        textField.borderStyle = .roundedRect
+        if let parentId = parentElementId {
+            textField.navigationElementId = parentId
+        }
+        
+        superview.addSubview(textField)
+        self.y += textField.frame.size.height
+        
+        if let placeholder = element.hint {
+            textField.placeholder = placeholder
+        }
+        
+        if let value = element.datetime {
+            textField.text = String(describing: value)
+        }
+        
+        self.uiControls.append(textField)
+        
+        // Constraints
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        
+        textField.snp.makeConstraints { (make) in
+            make.centerX.equalToSuperview()
+            make.width.equalTo(textField.frame.width)
+            
+            if superview.subviews.count > 1 {
+                let prevSubview = superview.subviews[superview.subviews.count - 2]
+                
+                make.top.equalTo(prevSubview.snp.bottom).offset(5)
+            } else {
+                make.top.equalToSuperview().offset(5)
+            }
+        }
+    }
+    
+    private func drawPlacePicker(for element: PlacePicker, with id: String, parentElementId: String?) {
+        element.faseElementId = id
+        
+        var superview: UIView! = self.view
+        if let parentId = parentElementId, let parentView = self.view(with: parentId) {
+            superview = parentView
+        }
+        
+        let x = self.getXForElement(with: self.maxWidth)
+        let y = self.y
+        let width = self.maxWidth
+        let height = UIElementsHeight.textField.rawValue
+        
+        let frame = CGRect(x: x, y: y, width: width, height: height)
+        let textField = UITextField(frame: frame)
+        textField.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
+        textField.textColor = UIColor.FaseColors.textColor
+        textField.borderStyle = .roundedRect
+        textField.delegate = self.viewModel
+        textField.faseElementId = id
+        if let parentId = parentElementId {
+            textField.navigationElementId = parentId
+        }
+        
+        superview.addSubview(textField)
+        self.y += textField.frame.size.height
+        
+        if let placeholder = element.hint {
+            textField.placeholder = placeholder
+        }
+        
+        if let place = element.place, let text = place.placeString() {
+            textField.text = text
+        }
+        
+        self.uiControls.append(textField)
+        
+        // Constraints
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        
+        textField.snp.makeConstraints { (make) in
+            make.centerX.equalToSuperview()
+            make.width.equalTo(textField.frame.width)
+            
+            if superview.subviews.count > 1 {
+                let prevSubview = superview.subviews[superview.subviews.count - 2]
+                
+                make.top.equalTo(prevSubview.snp.bottom).offset(5)
+            } else {
+                make.top.equalToSuperview().offset(5)
+            }
+        }
+    }
+    
+    private func drawSelect(for element: Select, with id: String, parentElementId: String?) {
+        element.faseElementId = id
+        
+        var superview: UIView! = self.view
+        if let parentId = parentElementId, let parentView = self.view(with: parentId) {
+            superview = parentView
+        }
+        
+        let x = self.getXForElement(with: self.maxWidth)
+        let y = self.y
+        let width = self.maxWidth
+        let height = UIElementsHeight.textField.rawValue
+        
+        let frame = CGRect(x: x, y: y, width: width, height: height)
+        let textField = UITextField(frame: frame)
+        textField.faseElementId = id
+        
+        if let setupBlock = self.pickerSetupBlock {
+            setupBlock(textField)
+        }
+        
+        textField.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
+        textField.textColor = UIColor.FaseColors.textColor
+        textField.borderStyle = .roundedRect
+        textField.delegate = self.viewModel
+        
+        if let parentId = parentElementId {
+            textField.navigationElementId = parentId
+        }
+        
+        superview.addSubview(textField)
+        self.y += textField.frame.size.height
+        
+        if let placeholder = element.hint {
+            textField.placeholder = placeholder
+        }
+        
+        if let text = element.value {
+            textField.text = text
+        }
+        
+        self.uiControls.append(textField)
+        
+        // Constraints
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        
+        textField.snp.makeConstraints { (make) in
+            make.centerX.equalToSuperview()
+            make.width.equalTo(textField.frame.width)
+            
+            if superview.subviews.count > 1 {
+                let prevSubview = superview.subviews[superview.subviews.count - 2]
+                
+                make.top.equalTo(prevSubview.snp.bottom).offset(5)
+            } else {
+                // TODO: - offset(5)
+                make.top.equalToSuperview().offset(75)
+            }
+        }
+    }
+    
+    private func drawContactPicker(for element: ContactPicker, with id: String, parentElementId: String?) {
+        element.faseElementId = id
+        
+        var superview: UIView! = self.view
+        if let parentId = parentElementId, let parentView = self.view(with: parentId) {
+            superview = parentView
+        }
+        
+        let x = self.getXForElement(with: self.maxWidth)
+        let y = self.y
+        let width = self.maxWidth
+        let height = UIElementsHeight.textField.rawValue
+        
+        let frame = CGRect(x: x, y: y, width: width, height: height)
+        let textField = UITextField(frame: frame)
+        textField.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
+        textField.textColor = UIColor.FaseColors.textColor
+        textField.borderStyle = .roundedRect
+        textField.delegate = self.viewModel
+        textField.faseElementId = id
+        if let parentId = parentElementId {
+            textField.navigationElementId = parentId
+        }
+        
+        superview.addSubview(textField)
+        self.y += textField.frame.size.height
+        
+        if let placeholder = element.hint {
+            textField.placeholder = placeholder
+        }
+        
+        if let contact = element.contact {
+            textField.text = contact.displayName
+        }
+        
+        self.uiControls.append(textField)
+        
+        // Constraints
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        
+        textField.snp.makeConstraints { (make) in
+            make.centerX.equalToSuperview()
+            make.width.equalTo(textField.frame.width)
+            
+            if superview.subviews.count > 1 {
+                let prevSubview = superview.subviews[superview.subviews.count - 2]
+                
+                make.top.equalTo(prevSubview.snp.bottom).offset(5)
+            } else {
+                make.top.equalToSuperview().offset(5)
+            }
+        }
+    }
+    
+    private func drawSwitch(for element: Switch, with id: String, parentElementId: String?) {
+        element.faseElementId = id
+        
+        var superview: UIView! = self.view
+        if let parentId = parentElementId, let parentView = self.view(with: parentId) {
+            superview = parentView
+        }
+        
+        let x = self.getXForElement(with: self.maxWidth)
+        let y = self.y
+        let width = UIElementsWidth.switch.rawValue
+        let height = UIElementsHeight.switch.rawValue
+        let frame = CGRect(x: x, y: y, width: width, height: height)
+        
+        let `switch` = UISwitch(frame: frame)
+        `switch`.faseElementId = id
+        
+        superview.addSubview(`switch`)
+        self.y += `switch`.frame.size.height
+        
+        self.uiControls.append(`switch`)
+        
+        // Constraints
+        `switch`.translatesAutoresizingMaskIntoConstraints = false
+        
+        `switch`.snp.makeConstraints { (make) in
+            make.width.equalTo(`switch`.frame.width)
+            make.height.equalTo(`switch`.frame.height)
+            
+            if let align = element.align {
+                switch align {
+                case .left:
+                    make.leading.equalToSuperview().offset(5)
+                    break
+                    
+                case .right:
+                    make.trailing.equalToSuperview().offset(-5)
+                    break
+                    
+                case .center:
+                    make.centerX.equalToSuperview()
+                    break
+                }
+            }
+            
+            if superview.subviews.count > 1 {
+                let prevSubview = superview.subviews[superview.subviews.count - 2]
+                
+                make.top.equalTo(prevSubview.snp.bottom).offset(5)
+            } else {
+                make.top.equalToSuperview().offset(5)
+            }
+        }
+        
+        if let text = element.text {
+            let x = `switch`.frame.maxX
+            let y = `switch`.frame.minY
+            let width = UIElementsWidth.textField.rawValue
+            let height = UIElementsHeight.textField.rawValue
+            let textField = UITextField(frame: CGRect(x: x, y: y, width: width, height: height))
+            
+            textField.text = text
+            superview.addSubview(textField)
+            
+            // Constraints
+            textField.translatesAutoresizingMaskIntoConstraints = false
+            
+            textField.snp.makeConstraints({ (make) in
+                make.leading.equalTo(`switch`.snp.trailing).offset(10)
+                make.height.equalTo(`switch`.snp.height)
+                make.centerY.equalTo(`switch`.snp.centerY)
+            })
+        }
+    }
+    
+    // MARK: - Help methods
+    
+    private func getXForElement(with width: CGFloat) -> CGFloat {
+        return self.viewSize().width / 2 - CGFloat(width / 2)
+    }
+    
+    private func viewSize() -> CGSize {
+        return self.view.bounds.size
+    }
+    
+    private func datePickerInputView() -> UITextField? {
+        if let textField = self.viewThatIdContains(id: "date_picker") as? UITextField {
+            return textField
+        }
+        return nil
+    }
+    
+    // MARK: - Utils
+    
+    func view(with faseElementId: String) -> UIView? {
+        for control in self.uiControls {
+            if control.faseElementId == faseElementId {
+                return control
+            }
+        }
+        
+        return nil
+    }
+    
+    func viewThatIdContains(id: String) -> UIView? {
+        for control in self.uiControls {
+            if control.faseElementId.contains(id) == true {
+                return control
+            }
+        }
+        
+        return nil
+    }
+    
+    private func drawSubstrateView(id: String, superview: UIScrollView?, height: Int) {
+        if let scrollView = superview {
+            let x = 0
+            let y = 0
+            let width = Int(scrollView.frame.width)
+            
+            let frame = UIView(frame: CGRect(x: x, y: y, width: width, height: height))
+            frame.faseElementId = id
+            frame.isUserInteractionEnabled = true
+            frame.tag = -2
+            
+            superview?.addSubview(frame)
+            self.uiControls.append(frame)
+            
+            // Constraints
+            frame.translatesAutoresizingMaskIntoConstraints = false
+            
+            frame.snp.makeConstraints { (make) in
+                frame.snp.remakeConstraints({ newMake in
+                    make.top.equalToSuperview()
+                    make.bottom.equalToSuperview()
+                    make.leading.equalToSuperview()
+                    make.trailing.equalToSuperview()
+                    
+                    make.width.equalToSuperview()
+                    make.height.equalTo(frame.frame.height)
+                })
+            }
+            
+        }
+    }
+    
+    private func drawStandardFrame(for element: Frame, with id: String, parentElementId: String?) {
         let x = 0
         var y = 0
         var width = 0
@@ -349,668 +1025,8 @@ class ScreenDrawer {
         }
     }
     
-    func drawTextField(for element: Text, with id: String, parentElementId: String?) {
-        element.faseElementId = id
+    private func drawStackViewFrame(for element: Frame, with id: String, parentElementId: String?) {
         
-        var superview: UIView! = self.view
-        if let parentId = parentElementId, let parentView = self.view(with: parentId) {
-            superview = parentView
-        }
-        
-        let x = self.getXForElement(with: self.maxWidth)
-        let y = self.y
-        let width = self.maxWidth
-        let height = UIElementsHeight.textField.rawValue
-        
-        let frame = CGRect(x: x, y: y, width: width, height: height)
-        let textField = UITextField(frame: frame)
-        textField.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
-        textField.textColor = UIColor.FaseColors.textColor
-        textField.borderStyle = .roundedRect
-        textField.faseElementId = id
-        if let parentId = parentElementId {
-            textField.navigationElementId = parentId
-        }
-        
-        superview.addSubview(textField)
-        self.y += textField.frame.size.height
-        
-        if let placeholder = element.hint {
-            textField.placeholder = placeholder
-        }
-        
-        if let text = element.text {
-            textField.text = text
-        }
-        
-        textField.enableUserInteractionForSuperviews()
-        
-        self.uiControls.append(textField)
-        
-        // Constraints
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        
-        textField.snp.makeConstraints { (make) in
-            make.centerX.equalToSuperview()
-            make.width.equalTo(textField.frame.width)
-            
-            if superview.subviews.count > 1 {
-                let prevSubview = superview.subviews[superview.subviews.count - 2]
-                
-                make.top.equalTo(prevSubview.snp.bottom).offset(5)
-            } else {
-                make.top.equalToSuperview().offset(5)
-            }
-        }
-    }
-    
-    func drawTextView(for element: Text, with id: String, parentElementId: String?) {
-        element.faseElementId = id
-        
-        var superview: UIView! = self.view
-        if let parentId = parentElementId, let parentView = self.view(with: parentId) {
-            superview = parentView
-        }
-        
-        let x = self.getXForElement(with: self.maxWidth)
-        let y = self.y
-        let width = self.maxWidth
-        let height = UIElementsHeight.textView.rawValue
-        
-        let frame = CGRect(x: x, y: y, width: width, height: height)
-        let textView = UITextView(frame: frame)
-        textView.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
-        textView.textColor = UIColor.FaseColors.textColor
-        textView.layer.cornerRadius = 5.0
-        textView.isSelectable = true
-        textView.font = UIFont.systemFont(ofSize: 17.0)
-        textView.delegate = self.viewModel
-        textView.faseElementId = id
-        textView.layer.borderWidth = 1.0
-        textView.layer.borderColor = UIColor.FaseColors.borderColor.cgColor
-        
-        if let parentId = parentElementId {
-            textView.navigationElementId = parentId
-        }
-        
-        superview.addSubview(textView)
-        self.y += textView.frame.size.height
-        
-        if let placeholder = element.hint, element.text == nil {
-            textView.text = placeholder
-            textView.textColor = UIColor.FaseColors.placeholderColor
-        }
-        
-        if let text = element.text {
-            textView.text = text
-        }
-        
-        textView.enableUserInteractionForSuperviews()
-        
-        self.uiControls.append(textView)
-        
-        // Constraints
-        textView.translatesAutoresizingMaskIntoConstraints = false
-        
-        textView.snp.makeConstraints { (make) in
-            make.centerX.equalToSuperview()
-            make.height.equalTo(textView.frame.height)
-            make.width.equalTo(textView.frame.width)
-            
-            if superview.subviews.count > 1 {
-                let prevSubview = superview.subviews[superview.subviews.count - 2]
-                
-                make.top.equalTo(prevSubview.snp.bottom).offset(5)
-            } else {
-                make.top.equalToSuperview().offset(5)
-            }
-        }
-    }
-    
-    func drawButton(for element: Button, with id: String, parentElementId: String?) {
-        element.faseElementId = id
-        
-        var superview: UIView! = self.view
-        var superviewElement: Element?
-        
-        if let parentId = parentElementId, let parentView = self.view(with: parentId) {
-            superview = parentView
-            superviewElement = self.viewModel?.element(with: parentId)
-        }
-        
-        // If navigation buttons, break because they was drawn before
-        if id == FaseElementsId.mainButton.rawValue || id == FaseElementsId.previousButton.rawValue || id == FaseElementsId.nextButton.rawValue {
-            return
-        }
-        let x = self.getXForElement(with: UIElementsWidth.button.rawValue)
-        let y: CGFloat = 0
-        let width = UIElementsWidth.button.rawValue
-        let height = UIElementsHeight.button.rawValue
-        
-        let frame = CGRect(x: x, y: y, width: width, height: height)
-        let button = UIButton(frame: frame)
-        button.setTitleColor(UIColor.FaseColors.buttonTextColor, for: .normal)
-        button.faseElementId = id
-        
-        if let parentId = parentElementId {
-            button.navigationElementId = parentId
-        }
-        if let viewModel = self.viewModel {
-            button.addTarget(viewModel, action: #selector(FaseViewModel.onClick(_:)), for: .touchUpInside)
-        }
-        
-        superview.addSubview(button)
-        self.y += button.frame.size.height
-        
-        if let text = element.text {
-            button.setTitle(text, for: .normal)
-        }
-        
-        button.enableUserInteractionForSuperviews()
-        
-        self.uiControls.append(button)
-        
-        // Constraints
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.snp.makeConstraints { (make) in
-            var superviewOrientation = FrameType.none
-            
-            if let superviewElement = superviewElement as? Frame {
-                superviewOrientation = superviewElement.orientation
-            }
-            FaseConstraintsMaker.makeConstraints(make: make, elementType: ElementType.button, view: button, in: superview, superviewOrientation: superviewOrientation)
-        }
-    }
-    
-    func drawLabel(for element: Label, with id: String, parentElementId: String?) {
-        element.faseElementId = id
-        
-        var superview: UIView! = self.view
-        var superviewElement: Element?
-        
-        if let parentId = parentElementId, let parentView = self.viewThatCanHasClonesWithSameId(with: parentId) {
-            superview = parentView
-            superviewElement = self.viewModel?.element(with: parentId)
-        }
-        
-        let x: CGFloat = 0 //self.getXForElement(with: UIElementsWidth.button.rawValue)
-        var y: CGFloat = 0
-        var width: CGFloat = self.viewSize().width
-        let height: CGFloat = UIElementsHeight.label.rawValue
-        
-        width = superview.bounds.width
-        
-        if superview != self.view, superview.subviews.count > 0 {
-            y = (superview.subviews.last?.frame.maxY)! + 1
-        }
-        
-        let frame = CGRect(x: x, y: y, width: width, height: height)
-        let label = UILabel(frame: frame)
-        label.font = UIFont.systemFont(ofSize: element.font.appFontSize)
-        label.textColor = UIColor.FaseColors.textColor
-        label.faseElementId = id
-        
-        switch element.align {
-        case .left:
-            label.textAlignment = .left
-            break
-            
-        case .right:
-            label.textAlignment = .right
-            break
-            
-        case .center:
-            label.textAlignment = .center
-            break
-            
-        default:
-            label.textAlignment = .left
-        }
-        
-        superview.addSubview(label)
-        self.y += label.frame.size.height
-        
-        if let text = element.text {
-            label.text = text
-        }
-        
-        self.uiControls.append(label)
-        
-        // Constraints
-        label.translatesAutoresizingMaskIntoConstraints = false
-        
-        label.snp.makeConstraints { (make) in
-            var superviewOrientation = FrameType.none
-            
-            if let superviewElement = superviewElement as? Frame {
-                superviewOrientation = superviewElement.orientation
-            }
-            FaseConstraintsMaker.makeConstraints(make: make, elementType: ElementType.label, view: label, in: superview, superviewOrientation: superviewOrientation)
-        }
-    }
-    
-    func drawImageView(for element: Image, with id: String, parentElementId: String?) {
-        element.faseElementId = id
-        
-        var superview: UIView! = self.view
-        var superviewElement: Element?
-        
-        if let parentId = parentElementId, let parentView = self.viewThatCanHasClonesWithSameId(with: parentId) {
-            superview = parentView
-            superviewElement = self.viewModel?.element(with: parentId)
-        }
-        
-        let x: CGFloat = superview.frame.maxX - UIElementsWidth.image.rawValue //self.getXForElement(with: UIElementsWidth.button.rawValue)
-        var y: CGFloat = 0
-        let width: CGFloat = UIElementsWidth.image.rawValue
-        let height: CGFloat = UIElementsWidth.image.rawValue
-        
-        if superview != self.view, superview.subviews.count > 0 {
-            y = (superview.subviews.last?.frame.maxY)! + 1
-        }
-        
-        let frame = CGRect(x: x, y: y, width: width, height: height)
-        let imageView = UIImageView(frame: frame)
-        imageView.faseElementId = id
-        imageView.contentMode = .center
-        
-        var image: UIImage? = UIImage()
-        if let data = ResourcesService.getResource(by: element.fileName), let savedImage = UIImage(data: data), let resizedImage = savedImage.resizedImage(with: CGSize(width: FaseImageWidth.navigationItem.rawValue, height: FaseImageWidth.navigationItem.rawValue)) {
-            image = resizedImage
-        }
-        imageView.image = image
-        //        imageView.image = imageView.image?.withRenderingMode(.alwaysTemplate)
-        //        imageView.tintColor = UIColor.FaseColors.textColor
-        
-        superview.addSubview(imageView)
-        self.y += imageView.frame.size.height
-        
-        self.uiControls.append(imageView)
-        
-        // Constraints
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        
-        imageView.snp.makeConstraints { (make) in
-            var superviewOrientation = FrameType.none
-            
-            if let superviewElement = superviewElement as? Frame {
-                superviewOrientation = superviewElement.orientation
-            }
-            FaseConstraintsMaker.makeConstraints(make: make, elementType: ElementType.image, view: imageView, in: superview, superviewOrientation: superviewOrientation)
-        }
-    }
-    
-    func drawDatePicker(for element: DateTimePicker, with id: String, parentElementId: String?) {
-        element.faseElementId = id
-        
-        var superview: UIView! = self.view
-        if let parentId = parentElementId, let parentView = self.view(with: parentId) {
-            superview = parentView
-        }
-        
-        let x = self.getXForElement(with: self.maxWidth)
-        let y = self.y
-        let width = self.maxWidth
-        let height = UIElementsHeight.textField.rawValue
-        
-        let frame = CGRect(x: x, y: y, width: width, height: height)
-        let textField = UITextField(frame: frame)
-        textField.faseElementId = id
-        
-        if let setupBlock = self.datePickerSetupBlock {
-            setupBlock(textField)
-        }
-        
-        textField.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
-        textField.textColor = UIColor.FaseColors.textColor
-        textField.borderStyle = .roundedRect
-        if let parentId = parentElementId {
-            textField.navigationElementId = parentId
-        }
-        
-        superview.addSubview(textField)
-        self.y += textField.frame.size.height
-        
-        if let placeholder = element.hint {
-            textField.placeholder = placeholder
-        }
-        
-        if let value = element.datetime {
-            textField.text = String(describing: value)
-        }
-        
-        self.uiControls.append(textField)
-        
-        // Constraints
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        
-        textField.snp.makeConstraints { (make) in
-            make.centerX.equalToSuperview()
-            make.width.equalTo(textField.frame.width)
-            
-            if superview.subviews.count > 1 {
-                let prevSubview = superview.subviews[superview.subviews.count - 2]
-                
-                make.top.equalTo(prevSubview.snp.bottom).offset(5)
-            } else {
-                make.top.equalToSuperview().offset(5)
-            }
-        }
-    }
-    
-    func drawPlacePicker(for element: PlacePicker, with id: String, parentElementId: String?) {
-        element.faseElementId = id
-        
-        var superview: UIView! = self.view
-        if let parentId = parentElementId, let parentView = self.view(with: parentId) {
-            superview = parentView
-        }
-        
-        let x = self.getXForElement(with: self.maxWidth)
-        let y = self.y
-        let width = self.maxWidth
-        let height = UIElementsHeight.textField.rawValue
-        
-        let frame = CGRect(x: x, y: y, width: width, height: height)
-        let textField = UITextField(frame: frame)
-        textField.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
-        textField.textColor = UIColor.FaseColors.textColor
-        textField.borderStyle = .roundedRect
-        textField.delegate = self.viewModel
-        textField.faseElementId = id
-        if let parentId = parentElementId {
-            textField.navigationElementId = parentId
-        }
-        
-        superview.addSubview(textField)
-        self.y += textField.frame.size.height
-        
-        if let placeholder = element.hint {
-            textField.placeholder = placeholder
-        }
-        
-        if let place = element.place, let text = place.placeString() {
-            textField.text = text
-        }
-        
-        self.uiControls.append(textField)
-        
-        // Constraints
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        
-        textField.snp.makeConstraints { (make) in
-            make.centerX.equalToSuperview()
-            make.width.equalTo(textField.frame.width)
-            
-            if superview.subviews.count > 1 {
-                let prevSubview = superview.subviews[superview.subviews.count - 2]
-                
-                make.top.equalTo(prevSubview.snp.bottom).offset(5)
-            } else {
-                make.top.equalToSuperview().offset(5)
-            }
-        }
-    }
-    
-    func drawSelect(for element: Select, with id: String, parentElementId: String?) {
-        element.faseElementId = id
-        
-        var superview: UIView! = self.view
-        if let parentId = parentElementId, let parentView = self.view(with: parentId) {
-            superview = parentView
-        }
-        
-        let x = self.getXForElement(with: self.maxWidth)
-        let y = self.y
-        let width = self.maxWidth
-        let height = UIElementsHeight.textField.rawValue
-        
-        let frame = CGRect(x: x, y: y, width: width, height: height)
-        let textField = UITextField(frame: frame)
-        textField.faseElementId = id
-        
-        if let setupBlock = self.pickerSetupBlock {
-            setupBlock(textField)
-        }
-        
-        textField.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
-        textField.textColor = UIColor.FaseColors.textColor
-        textField.borderStyle = .roundedRect
-        textField.delegate = self.viewModel
-        
-        if let parentId = parentElementId {
-            textField.navigationElementId = parentId
-        }
-        
-        superview.addSubview(textField)
-        self.y += textField.frame.size.height
-        
-        if let placeholder = element.hint {
-            textField.placeholder = placeholder
-        }
-        
-        if let text = element.value {
-            textField.text = text
-        }
-        
-        self.uiControls.append(textField)
-        
-        // Constraints
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        
-        textField.snp.makeConstraints { (make) in
-            make.centerX.equalToSuperview()
-            make.width.equalTo(textField.frame.width)
-            
-            if superview.subviews.count > 1 {
-                let prevSubview = superview.subviews[superview.subviews.count - 2]
-                
-                make.top.equalTo(prevSubview.snp.bottom).offset(5)
-            } else {
-                // TODO: - offset(5)
-                make.top.equalToSuperview().offset(75)
-            }
-        }
-    }
-    
-    func drawContactPicker(for element: ContactPicker, with id: String, parentElementId: String?) {
-        element.faseElementId = id
-        
-        var superview: UIView! = self.view
-        if let parentId = parentElementId, let parentView = self.view(with: parentId) {
-            superview = parentView
-        }
-        
-        let x = self.getXForElement(with: self.maxWidth)
-        let y = self.y
-        let width = self.maxWidth
-        let height = UIElementsHeight.textField.rawValue
-        
-        let frame = CGRect(x: x, y: y, width: width, height: height)
-        let textField = UITextField(frame: frame)
-        textField.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
-        textField.textColor = UIColor.FaseColors.textColor
-        textField.borderStyle = .roundedRect
-        textField.delegate = self.viewModel
-        textField.faseElementId = id
-        if let parentId = parentElementId {
-            textField.navigationElementId = parentId
-        }
-        
-        superview.addSubview(textField)
-        self.y += textField.frame.size.height
-        
-        if let placeholder = element.hint {
-            textField.placeholder = placeholder
-        }
-        
-        if let contact = element.contact {
-            textField.text = contact.displayName
-        }
-        
-        self.uiControls.append(textField)
-        
-        // Constraints
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        
-        textField.snp.makeConstraints { (make) in
-            make.centerX.equalToSuperview()
-            make.width.equalTo(textField.frame.width)
-            
-            if superview.subviews.count > 1 {
-                let prevSubview = superview.subviews[superview.subviews.count - 2]
-                
-                make.top.equalTo(prevSubview.snp.bottom).offset(5)
-            } else {
-                make.top.equalToSuperview().offset(5)
-            }
-        }
-    }
-    
-    func drawSwitch(for element: Switch, with id: String, parentElementId: String?) {
-        element.faseElementId = id
-        
-        var superview: UIView! = self.view
-        if let parentId = parentElementId, let parentView = self.view(with: parentId) {
-            superview = parentView
-        }
-        
-        let x = self.getXForElement(with: self.maxWidth)
-        let y = self.y
-        let width = UIElementsWidth.switch.rawValue
-        let height = UIElementsHeight.switch.rawValue
-        let frame = CGRect(x: x, y: y, width: width, height: height)
-        
-        let `switch` = UISwitch(frame: frame)
-        `switch`.faseElementId = id
-        
-        superview.addSubview(`switch`)
-        self.y += `switch`.frame.size.height
-        
-        self.uiControls.append(`switch`)
-        
-        // Constraints
-        `switch`.translatesAutoresizingMaskIntoConstraints = false
-        
-        `switch`.snp.makeConstraints { (make) in
-            make.width.equalTo(`switch`.frame.width)
-            make.height.equalTo(`switch`.frame.height)
-            
-            if let align = element.align {
-                switch align {
-                case .left:
-                    make.leading.equalToSuperview().offset(5)
-                    break
-                    
-                case .right:
-                    make.trailing.equalToSuperview().offset(-5)
-                    break
-                    
-                case .center:
-                    make.centerX.equalToSuperview()
-                    break
-                }
-            }
-            
-            if superview.subviews.count > 1 {
-                let prevSubview = superview.subviews[superview.subviews.count - 2]
-                
-                make.top.equalTo(prevSubview.snp.bottom).offset(5)
-            } else {
-                make.top.equalToSuperview().offset(5)
-            }
-        }
-        
-        if let text = element.text {
-            let x = `switch`.frame.maxX
-            let y = `switch`.frame.minY
-            let width = UIElementsWidth.textField.rawValue
-            let height = UIElementsHeight.textField.rawValue
-            let textField = UITextField(frame: CGRect(x: x, y: y, width: width, height: height))
-            
-            textField.text = text
-            superview.addSubview(textField)
-            
-            // Constraints
-            textField.translatesAutoresizingMaskIntoConstraints = false
-            
-            textField.snp.makeConstraints({ (make) in
-                make.leading.equalTo(`switch`.snp.trailing).offset(10)
-                make.height.equalTo(`switch`.snp.height)
-                make.centerY.equalTo(`switch`.snp.centerY)
-            })
-        }
-    }
-    
-    // MARK: - Help methods
-    
-    func getXForElement(with width: CGFloat) -> CGFloat {
-        return self.viewSize().width / 2 - CGFloat(width / 2)
-    }
-    
-    func viewSize() -> CGSize {
-        return self.view.bounds.size
-    }
-    
-    func datePickerInputView() -> UITextField? {
-        if let textField = self.viewThatIdContains(id: "date_picker") as? UITextField {
-            return textField
-        }
-        return nil
-    }
-    
-    // MARK: - Private
-    
-    func view(with faseElementId: String) -> UIView? {
-        for control in self.uiControls {
-            if control.faseElementId == faseElementId {
-                return control
-            }
-        }
-        
-        return nil
-    }
-    
-    func viewThatIdContains(id: String) -> UIView? {
-        for control in self.uiControls {
-            if control.faseElementId.contains(id) == true {
-                return control
-            }
-        }
-        
-        return nil
-    }
-    
-    func drawSubstrateView(id: String, superview: UIScrollView?, height: Int) {
-        if let scrollView = superview {
-            let x = 0
-            let y = 0
-            let width = Int(scrollView.frame.width)
-            
-            let frame = UIView(frame: CGRect(x: x, y: y, width: width, height: height))
-            frame.faseElementId = id
-            frame.isUserInteractionEnabled = true
-            frame.tag = -2
-            
-            superview?.addSubview(frame)
-            self.uiControls.append(frame)
-            
-            // Constraints
-            frame.translatesAutoresizingMaskIntoConstraints = false
-            
-            frame.snp.makeConstraints { (make) in
-                frame.snp.remakeConstraints({ newMake in
-                    make.top.equalToSuperview()
-                    make.bottom.equalToSuperview()
-                    make.leading.equalToSuperview()
-                    make.trailing.equalToSuperview()
-                    
-                    make.width.equalToSuperview()
-                    make.height.equalTo(frame.frame.height)
-                })
-            }
-            
-        }
     }
     
     func scrollableContentHeight(elements: [ElementTuple]) -> Int {
