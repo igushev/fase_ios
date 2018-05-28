@@ -13,12 +13,13 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.setupStackView()
+//        self.setupStackView()
     }
     
     func setupStackView() {
         let label = UILabel(frame: CGRect.zero)
-        label.text = "Test Label"
+        label.numberOfLines = 0
+        label.text = "\"elements_update\" = \"<null>\";resources = \"<null>\";screen = \"<null>\";"
         
         let view = UIView(frame: CGRect.zero)
         view.backgroundColor = UIColor.brown

@@ -35,6 +35,7 @@ enum FaseElementsId: String {
     case contextMenu = "context_menu"
     case scrollView = "scrollview"
     case substrateView = "substrate_view"
+    case navigation = "navigation"
 }
 
 class ScreenDrawer {
@@ -869,7 +870,7 @@ class ScreenDrawer {
     
     func viewThatIdContains(id: String) -> UIView? {
         for control in self.uiControls {
-            if control.faseElementId.contains(id) == true {
+            if control.faseElementId?.contains(id) == true {
                 return control
             }
         }

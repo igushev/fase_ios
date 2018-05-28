@@ -38,13 +38,13 @@ class FaseViewController: UIViewController {
         self.setupNavBar()
         self.setupPickersIfNedded()
         
-        self.viewModel.screenDrawer = ScreenDrawer(with: self.view)
+        self.viewModel.screenDrawer = ExperimentalScreenDrawer(with: self.view)
         self.viewModel.drawElements()
         self.decorateView()
         
-        self.gestureRecognizer = UITapGestureRecognizer(target: self.viewModel, action: #selector(FaseViewModel.onClickGestureRecognizer(_:)))
+//        self.gestureRecognizer = UITapGestureRecognizer(target: self.viewModel, action: #selector(FaseViewModel.onClickGestureRecognizer(_:)))
         self.view.isUserInteractionEnabled = true
-        self.view.addGestureRecognizer(self.gestureRecognizer!)
+//        self.view.addGestureRecognizer(self.gestureRecognizer!)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -201,7 +201,7 @@ class FaseViewController: UIViewController {
         if sender.isMember(of: UIBarButtonItem.self) == false {
             nestedElemetnsIds = sender.nestedElementsIds()
         } else {
-            nestedElemetnsIds.append(sender.faseElementId)
+            nestedElemetnsIds.append(sender.faseElementId!)
         }
         
         if let menu = button.contextMenu() {

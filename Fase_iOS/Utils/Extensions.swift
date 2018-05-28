@@ -61,7 +61,7 @@ private var scrollViewAssociationKey: UInt8 = 0
 
 extension UIView {
     // This var stores fase element id for convenience. Element id is in the same array that element
-    var faseElementId: String! {
+    var faseElementId: String? {
         get {
             return objc_getAssociatedObject(self, &faseElementIdAssociationKey) as? String
         }
@@ -99,7 +99,7 @@ extension UIView {
     }
     
     func nestedElementsIds() -> [String] {
-        var iDs: [String] = [self.faseElementId]
+        var iDs: [String] = [self.faseElementId!]
         var view = self
         
         while let superview = view.superview, let id = superview.faseElementId, id != FaseElementsId.scrollView.rawValue, id != FaseElementsId.substrateView.rawValue {
@@ -187,6 +187,16 @@ extension UIColor {
     }
 }
 
+extension UIFont {
+    func sizeOfString (string: String, constrainedToWidth width: Double) -> CGSize {
+        return NSString(string: string).boundingRect(
+            with: CGSize(width: width, height: .greatestFiniteMagnitude),
+            options: .usesLineFragmentOrigin,
+            attributes: [.font: self],
+            context: nil).size
+    }
+}
+
 // MARK: - Fase extensions
 
 extension Frame {
@@ -203,9 +213,10 @@ extension Frame {
                 break
             }
             
-            if count >= 1 {
-                height += UIElementsHeight.verticalSpace.rawValue
-            }
+            // Unnecessary if stack view has layout margins
+//            if count >= 1 {
+//                height += UIElementsHeight.verticalSpace.rawValue
+//            }
             
             let element = tuple[1] as! Element
             let elementTypeString = element.`class`
@@ -215,6 +226,7 @@ extension Frame {
                 height += (element as! Frame).frameTotalHeight()
             } else if elementType == ElementType.label {
                 height += UIElementsHeight.label.rawValue
+                // TODO: - Count label height depend on text size
                 //                let font = UIFont.systemFont(ofSize: (element as! Label).font.appFontSize)
                 //                height += (element as! Label).text.textHeight(with: font)
             } else if elementType == ElementType.button {

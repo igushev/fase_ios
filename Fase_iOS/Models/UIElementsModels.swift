@@ -318,7 +318,7 @@ class Slider: VisualElement {
 
 class Image: VisualElement {
     var fileName: String!
-    var url: String!
+    var url: String?
     
     required init?(map: Map) {
         super.init(map: map)
