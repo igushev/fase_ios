@@ -214,9 +214,9 @@ extension Frame {
             }
             
             // Unnecessary if stack view has layout margins
-//            if count >= 1 {
-//                height += UIElementsHeight.verticalSpace.rawValue
-//            }
+            if count >= 1 {
+                height += UIElementsHeight.verticalSpace.rawValue
+            }
             
             let element = tuple[1] as! Element
             let elementTypeString = element.`class`
@@ -338,6 +338,46 @@ extension Frame {
         }
         return nil
     }
+    
+    func hasMaxElements() -> Bool {
+        
+        for tuple in idElementList {
+            if tuple.count == 1 {
+                break
+            }
+            
+            let element = tuple[1] as! ElementContainer
+            
+            let elementTypeString = element.`class`
+            let elementType = ElementType(with: elementTypeString)
+            
+            switch elementType {
+            case .text:
+                if (element as! Text).size == .max {
+                    return true
+                }
+                break
+                
+            case .web:
+                if (element as! Web).size == .max {
+                    return true
+                }
+                break
+                
+            case .label:
+                if (element as! Label).size == .max {
+                    return true
+                }
+                break
+                
+            default:
+                break
+            }
+            
+        }
+        
+        return false
+    }
 }
 
 extension VisualElement {
@@ -447,6 +487,77 @@ extension Device {
 }
 
 extension Screen {
+    
+    func screenContentHeight() -> CGFloat {
+        var height: CGFloat = 0
+        var count: CGFloat = 0
+        
+        for tuple in self.idElementList {
+            if tuple.count == 1 {
+                break
+            }
+            
+            let elementId = tuple[0] as! String
+            let element = tuple[1] as! Element
+            let elementTypeString = element.`class`
+            let elementType = ElementType(with: elementTypeString)
+            
+            if elementType == ElementType.frame {
+                height += (element as! Frame).frameTotalHeight()
+            } else if elementType == ElementType.label {
+                height += UIElementsHeight.label.rawValue
+                // TODO: - Count label height depend on text size
+                //                let font = UIFont.systemFont(ofSize: (element as! Label).font.appFontSize)
+                //                height += (element as! Label).text.textHeight(with: font)
+            } else if elementType == ElementType.button &&
+                elementId != FaseElementsId.mainButton.rawValue &&
+                elementId != FaseElementsId.previousButton.rawValue {
+                height += UIElementsHeight.button.rawValue
+            } else if elementType == ElementType.text {
+                height += (element as! Text).multiline == true ? UIElementsHeight.textView.rawValue : UIElementsHeight.textField.rawValue
+            } else if elementType == ElementType.dateTimePicker {
+                height += UIElementsHeight.textField.rawValue
+            } else if elementType == ElementType.placePicker {
+                height += UIElementsHeight.textField.rawValue
+            } else if elementType == ElementType.select {
+                height += UIElementsHeight.textField.rawValue
+            }
+            
+            height += UIElementsHeight.verticalSpace.rawValue
+            
+            count += 1
+        }
+        
+        return height
+    }
+    
+    func hasElementWithMaxSize() -> Bool {
+        var has = false
+        for tuple in self.idElementList {
+            if tuple.count == 1 {
+                break
+            }
+            let element = tuple[1] as! Element
+            
+            if element is ElementContainer {
+                let elementTypeString = element.`class`
+                let elementType = ElementType(with: elementTypeString)
+                
+                if elementType == ElementType.frame {
+                    if (element as! Frame).size == .max {
+                        has = true
+                    }
+                }
+                if elementType == ElementType.text {
+                    if (element as! Text).size == .max {
+                        has = true
+                    }
+                }
+            }
+        }
+        return has
+    }
+    
     func hasNavigationElement() -> Bool {
         var hasNavigation = false
         for tuple in self.idElementList {

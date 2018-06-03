@@ -12,6 +12,7 @@ import SnapKit
 class FaseConstraintsMaker {
     
     static func makeConstraints(make: ConstraintMaker, elementType: ElementType, view: UIView, in superview: UIView, superviewOrientation: FrameType) {
+        
         switch elementType {
         case .frame:
             break
@@ -32,12 +33,16 @@ class FaseConstraintsMaker {
             self.makeConstraintsFor(button: view as! UIButton, make: make, superview: superview, superviewOrientation: superviewOrientation)
             break
             
-        case .label:            
+        case .label:
             self.makeConstraintsFor(label: view as! UILabel, make: make, superview: superview, superviewOrientation: superviewOrientation)
             break
             
         case .image:
             self.makeConstraintsFor(imageView: view as! UIImageView, make: make, superview: superview, superviewOrientation: superviewOrientation)
+            break
+            
+        case .switchElement:
+            self.makeGenericConstraintsFor(view: view, make: make, superview: superview, superviewOrientation: superviewOrientation)
             break
             
         default:
@@ -89,7 +94,7 @@ class FaseConstraintsMaker {
     
     private static func makeConstraintsFor(label: UILabel, make: ConstraintMaker, superview: UIView, superviewOrientation: FrameType) {
         self.makeGenericConstraintsFor(view: label, make: make, superview: superview, superviewOrientation: superviewOrientation)
-//        make.height.equalTo(UIElementsHeight.label.rawValue)
+        //        make.height.equalTo(UIElementsHeight.label.rawValue)
     }
     
     private static func makeConstraintsFor(textField: UITextField, make: ConstraintMaker, superview: UIView, superviewOrientation: FrameType) {
@@ -105,13 +110,16 @@ class FaseConstraintsMaker {
     private static func makeConstraintsFor(imageView: UIImageView, make: ConstraintMaker, superview: UIView, superviewOrientation: FrameType) {
         self.makeGenericConstraintsFor(view: imageView, make: make, superview: superview, superviewOrientation: superviewOrientation)
         
-//        make.trailing.equalToSuperview().offset(-5)
-//        make.top.equalToSuperview().offset(5)
-//        make.width.equalTo(UIElementsWidth.image.rawValue)
-//        make.height.equalTo(UIElementsWidth.image.rawValue)
+        //        make.trailing.equalToSuperview().offset(-5)
+        //        make.top.equalToSuperview().offset(5)
+        //        make.width.equalTo(UIElementsWidth.image.rawValue)
+        //        make.height.equalTo(UIElementsWidth.image.rawValue)
     }
     
     private static func makeGenericConstraintsFor(view: UIView, make: ConstraintMaker, superview: UIView, superviewOrientation: FrameType) {
+        
+        let superviewOrientation = (superviewOrientation == .none) ? .vertical : superviewOrientation
+        
         if superviewOrientation == FrameType.vertical {
             make.leading.equalToSuperview().offset(5)
             make.trailing.equalToSuperview().offset(-5)

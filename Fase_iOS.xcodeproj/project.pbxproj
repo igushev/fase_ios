@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0BC39E8A87BD891F4A76C27B /* Pods_Fase_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABB06E271698DA2ABD7EC85D /* Pods_Fase_iOS.framework */; };
 		3E21FFA14939DB6A56447537 /* Pods_Fase_iOS_karma.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D7023C11A69CCEDAF36EF44C /* Pods_Fase_iOS_karma.framework */; };
 		5B0AA7FF209860FD007B64C7 /* DataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BFCBD84204F37EB0063A171 /* DataModels.swift */; };
 		5B0AA800209860FD007B64C7 /* APIClientService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4A2D5F205574A100578E83 /* APIClientService.swift */; };
@@ -23,7 +22,6 @@
 		5B0AA80A209860FD007B64C7 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4A2D62205574A100578E83 /* Extensions.swift */; };
 		5B0AA80B209860FD007B64C7 /* ScreenDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BCBD6772055A9AD0008315B /* ScreenDrawer.swift */; };
 		5B0AA80C209860FD007B64C7 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4A2D572055748F00578E83 /* APIClient.swift */; };
-		5B0AA80E209860FD007B64C7 /* Pods_Fase_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABB06E271698DA2ABD7EC85D /* Pods_Fase_iOS.framework */; };
 		5B0AA810209860FD007B64C7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5BFCBD5E204F379E0063A171 /* LaunchScreen.storyboard */; };
 		5B0AA811209860FD007B64C7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5BFCBD5C204F379E0063A171 /* Assets.xcassets */; };
 		5B0AA812209860FD007B64C7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5BFCBD59204F379E0063A171 /* Main.storyboard */; };
@@ -53,7 +51,6 @@
 		5B6A13E62091B5C7007A9DE2 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4A2D62205574A100578E83 /* Extensions.swift */; };
 		5B6A13E72091B5C7007A9DE2 /* ScreenDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BCBD6772055A9AD0008315B /* ScreenDrawer.swift */; };
 		5B6A13E82091B5C7007A9DE2 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4A2D572055748F00578E83 /* APIClient.swift */; };
-		5B6A13EA2091B5C7007A9DE2 /* Pods_Fase_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABB06E271698DA2ABD7EC85D /* Pods_Fase_iOS.framework */; };
 		5B6A13EC2091B5C7007A9DE2 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5BFCBD5E204F379E0063A171 /* LaunchScreen.storyboard */; };
 		5B6A13ED2091B5C7007A9DE2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5BFCBD5C204F379E0063A171 /* Assets.xcassets */; };
 		5B6A13EE2091B5C7007A9DE2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5BFCBD59204F379E0063A171 /* Main.storyboard */; };
@@ -141,7 +138,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5B0AA80E209860FD007B64C7 /* Pods_Fase_iOS.framework in Frameworks */,
 				66FBC3FF8E2B10995385C6D5 /* Pods_Fase_iOS_test.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -150,7 +146,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5B6A13EA2091B5C7007A9DE2 /* Pods_Fase_iOS.framework in Frameworks */,
 				3E21FFA14939DB6A56447537 /* Pods_Fase_iOS_karma.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -159,7 +154,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0BC39E8A87BD891F4A76C27B /* Pods_Fase_iOS.framework in Frameworks */,
 				789A246A3315AB7B2CE17034 /* Pods_Fase_iOS_notes.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -52,7 +52,7 @@ class ExperimentalScreenDrawer {
             scrollView.snp.makeConstraints({ make in
                 make.leading.equalToSuperview()
                 make.trailing.equalToSuperview()
-                make.bottom.equalToSuperview().offset(49)
+                make.bottom.equalToSuperview().offset(-50) // Hack to avoid
                 make.top.equalToSuperview().offset(64)
             })
             
@@ -73,6 +73,9 @@ class ExperimentalScreenDrawer {
             
             if elementType == ElementType.frame, self.viewModel?.screen.scrollable == true {
                 self.drawSubstrateView(id: FaseElementsId.substrateView.rawValue, superview: self.view.scrollView, height: height)
+            } else if self.viewModel?.screen.scrollable != true {
+                let height = self.viewModel?.screen.screenContentHeight()
+                self.drawStackViewSubstrateView(id: FaseElementsId.substrateView.rawValue, superview: self.view, height: height!)
             }
             
             parentElementId = FaseElementsId.substrateView.rawValue
@@ -210,9 +213,9 @@ class ExperimentalScreenDrawer {
     
     func drawFrame(for element: Frame, with id: String, parentElementId: String?) {
         // Commented to allow draw empty frames with MAX size
-//        if element.idElementList.count == 0 {
-//            return
-//        }
+        //        if element.idElementList.count == 0 {
+        //            return
+        //        }
         
         var superview: UIView! = self.view
         
@@ -242,8 +245,6 @@ class ExperimentalScreenDrawer {
             } else {
                 superview.addSubview(view)
             }
-            
-            // FIXME: - why view is not drawing??
             
             self.uiControls.append(view)
         } else {
@@ -293,7 +294,7 @@ class ExperimentalScreenDrawer {
                 make.leading.equalToSuperview()
                 make.trailing.equalToSuperview()
                 
-                if element.orientation == FrameType.horizontal {
+                if element.orientation == FrameType.horizontal || element.size == .min {
                     make.height.equalTo(height)
                 } else {
                     
@@ -314,6 +315,10 @@ class ExperimentalScreenDrawer {
                     if superview.tag == 100 {
                         make.top.equalToSuperview().offset(64)
                         make.height.equalTo(height)
+                        
+                        if element.hasMaxElements() == true && element.size == .max {
+                            make.bottom.equalToSuperview()
+                        }
                     } else {
                         make.top.equalToSuperview()
                     }
@@ -426,12 +431,12 @@ class ExperimentalScreenDrawer {
         
         self.y += textView.frame.size.height
         
-        if let placeholder = element.hint, element.text == nil {
+        if let placeholder = element.hint, element.text == nil || element.text == "" {
             textView.text = placeholder
             textView.textColor = UIColor.FaseColors.placeholderColor
         }
         
-        if let text = element.text {
+        if let text = element.text, text.isEmpty == false {
             textView.text = text
         }
         
@@ -447,14 +452,16 @@ class ExperimentalScreenDrawer {
         // Constraints
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.snp.makeConstraints { (make) in
-            make.height.equalTo(UIElementsHeight.textView.rawValue)
+            if element.size == .min {
+                make.height.equalTo(UIElementsHeight.textView.rawValue)
+            }
             
             var superviewOrientation = FrameType.none
             
             if let superviewElement = superviewElement as? Frame {
                 superviewOrientation = superviewElement.orientation
             }
-            FaseConstraintsMaker.makeConstraints(make: make, elementType: ElementType.text, view: textView, in: superview, superviewOrientation: superviewOrientation)            
+            FaseConstraintsMaker.makeConstraints(make: make, elementType: ElementType.text, view: textView, in: superview, superviewOrientation: superviewOrientation)
         }
         
     }
@@ -590,10 +597,15 @@ class ExperimentalScreenDrawer {
                 let contentSize = label.intrinsicContentSize
                 label.snp.makeConstraints({ make in
                     make.width.equalTo(contentSize.width)
-                })                
+                })
             }
             
             FaseConstraintsMaker.makeConstraints(make: make, elementType: ElementType.label, view: label, in: superview, superviewOrientation: superviewOrientation)
+            
+            //            if let text = label.text, text.isEmpty == false {
+            //                let labelHeight = text.textHeight(with: label.font)
+            //                make.height.equalTo(labelHeight)
+            //            }
         }
     }
     
@@ -620,15 +632,42 @@ class ExperimentalScreenDrawer {
         let frame = CGRect(x: x, y: y, width: width, height: height)
         let imageView = UIImageView(frame: frame)
         imageView.faseElementId = id
-        imageView.contentMode = .center
+        imageView.isUserInteractionEnabled = false
+        
+        if element.onClick != nil {
+            imageView.isUserInteractionEnabled = true
+            imageView.enableUserInteractionForSuperviews()
+            
+            let tapGR = UITapGestureRecognizer(target: self.viewModel, action: #selector(FaseViewModel.onClickGestureRecognizer(_:)))
+            imageView.addGestureRecognizer(tapGR)
+        }
+        
+        switch element.align {
+        case .left:
+            imageView.contentMode = .left
+            break
+            
+        case .right:
+            imageView.contentMode = .right
+            break
+            
+        case .center:
+            imageView.contentMode = .center
+            break
+            
+        default:
+            imageView.contentMode = .center
+            break
+        }
         
         var image: UIImage? = UIImage()
-        // FIXME: - Load image by url
+        
         if let urlString = element.url, let url = URL(string: urlString), let data = try? Data(contentsOf: url), let urlImage = UIImage(data: data) {
-            let resizedImage = urlImage.resizedImage(with: CGSize(width: FaseImageWidth.navigationItem.rawValue, height: FaseImageWidth.navigationItem.rawValue))
-            image = resizedImage
-        } else if let data = ResourcesService.getResource(by: element.fileName), let savedImage = UIImage(data: data), let resizedImage = savedImage.resizedImage(with: CGSize(width: FaseImageWidth.navigationItem.rawValue, height: FaseImageWidth.navigationItem.rawValue)) {
-            image = resizedImage
+            //            let resizedImage = urlImage.resizedImage(with: CGSize(width: FaseImageWidth.navigationItem.rawValue, height: FaseImageWidth.navigationItem.rawValue))
+            image = urlImage
+        } else if let data = ResourcesService.getResource(by: element.fileName), let savedImage = UIImage(data: data) {
+            //            let resizedImage = savedImage.resizedImage(with: CGSize(width: FaseImageWidth.navigationItem.rawValue, height: FaseImageWidth.navigationItem.rawValue))
+            image = savedImage
         }
         imageView.image = image
         //        imageView.image = imageView.image?.withRenderingMode(.alwaysTemplate)
@@ -646,6 +685,12 @@ class ExperimentalScreenDrawer {
         
         // Constraints
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.snp.makeConstraints { make in
+            //            if let image = imageView.image {
+            //                make.height.equalTo(image.size.height)
+            //                make.width.equalTo(image.size.width)
+            //            }
+        }
         
     }
     
@@ -680,7 +725,6 @@ class ExperimentalScreenDrawer {
             textField.navigationElementId = parentId
         }
         
-        superview.addSubview(textField)
         self.y += textField.frame.size.height
         
         if let placeholder = element.hint {
@@ -802,7 +846,6 @@ class ExperimentalScreenDrawer {
             textField.navigationElementId = parentId
         }
         
-        superview.addSubview(textField)
         self.y += textField.frame.size.height
         
         if let placeholder = element.hint {
@@ -860,7 +903,6 @@ class ExperimentalScreenDrawer {
             textField.navigationElementId = parentId
         }
         
-        superview.addSubview(textField)
         self.y += textField.frame.size.height
         
         if let placeholder = element.hint {
@@ -895,8 +937,11 @@ class ExperimentalScreenDrawer {
         element.faseElementId = id
         
         var superview: UIView! = self.view
+        var superviewElement: Element?
+        
         if let parentId = parentElementId, let parentView = self.view(with: parentId) {
             superview = parentView
+            superviewElement = self.viewModel?.element(with: parentId)
         }
         
         let x = self.getXForElement(with: self.maxWidth)
@@ -908,17 +953,32 @@ class ExperimentalScreenDrawer {
         let `switch` = UISwitch(frame: frame)
         `switch`.faseElementId = id
         
-        superview.addSubview(`switch`)
         self.y += `switch`.frame.size.height
         
+        let switchStackView = UIStackView(arrangedSubviews: [`switch`])
+        switchStackView.axis = .horizontal
+        switchStackView.distribution = .fill
+        switchStackView.spacing = 5.0
+        
+        if superview is UIStackView {
+            (superview as! UIStackView).addArrangedSubview(switchStackView)
+        } else {
+            superview.addSubview(switchStackView)
+        }
         self.uiControls.append(`switch`)
         
         // Constraints
-        `switch`.translatesAutoresizingMaskIntoConstraints = false
+        switchStackView.translatesAutoresizingMaskIntoConstraints = false
         
-        `switch`.snp.makeConstraints { (make) in
-            make.width.equalTo(`switch`.frame.width)
+        switchStackView.snp.makeConstraints { (make) in
             make.height.equalTo(`switch`.frame.height)
+            
+            var superviewOrientation = FrameType.none
+            
+            if let superviewElement = superviewElement as? Frame {
+                superviewOrientation = superviewElement.orientation
+            }
+            FaseConstraintsMaker.makeConstraints(make: make, elementType: ElementType.switchElement, view: switchStackView, in: superview, superviewOrientation: superviewOrientation)
             
             if let align = element.align {
                 switch align {
@@ -936,13 +996,6 @@ class ExperimentalScreenDrawer {
                 }
             }
             
-            if superview.subviews.count > 1 {
-                let prevSubview = superview.subviews[superview.subviews.count - 2]
-                
-                make.top.equalTo(prevSubview.snp.bottom).offset(5)
-            } else {
-                make.top.equalToSuperview().offset(5)
-            }
         }
         
         if let text = element.text {
@@ -950,19 +1003,22 @@ class ExperimentalScreenDrawer {
             let y = `switch`.frame.minY
             let width = UIElementsWidth.textField.rawValue
             let height = UIElementsHeight.textField.rawValue
-            let textField = UITextField(frame: CGRect(x: x, y: y, width: width, height: height))
             
-            textField.text = text
-            superview.addSubview(textField)
+            let label = UILabel(frame: CGRect(x: x, y: y, width: width, height: height))
             
-            // Constraints
-            textField.translatesAutoresizingMaskIntoConstraints = false
+            label.text = text
             
-            textField.snp.makeConstraints({ (make) in
-                make.leading.equalTo(`switch`.snp.trailing).offset(10)
-                make.height.equalTo(`switch`.snp.height)
-                make.centerY.equalTo(`switch`.snp.centerY)
-            })
+            switchStackView.addArrangedSubview(label)
+            //            superview.addSubview(label)
+            //
+            //            // Constraints
+            //            label.translatesAutoresizingMaskIntoConstraints = false
+            //
+            //            label.snp.makeConstraints({ (make) in
+            //                make.leading.equalTo(`switch`.snp.trailing).offset(10)
+            //                make.height.equalTo(`switch`.snp.height)
+            //                make.centerY.equalTo(`switch`.snp.centerY)
+            //            })
         }
     }
     
@@ -998,6 +1054,56 @@ class ExperimentalScreenDrawer {
             }
             
         }
+    }
+    
+    private func drawStackViewSubstrateView(id: String, superview: UIView, height: CGFloat) {
+        let x = 0
+        let y = 0
+        let width = Int(superview.frame.width)
+        
+        let stackView = UIStackView(frame: CGRect(x: x, y: y, width: width, height: Int(height)))
+        stackView.axis = .vertical
+        stackView.distribution = .fill
+        stackView.faseElementId = id
+        stackView.isUserInteractionEnabled = true
+        stackView.tag = -2
+        
+        stackView.spacing = 5.0
+        stackView.layoutMargins = UIEdgeInsetsMake(5, 5, 5, 5)
+        stackView.isLayoutMarginsRelativeArrangement = true
+        
+        superview.addSubview(stackView)
+        self.uiControls.append(stackView)
+        
+        // Constraints
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        stackView.snp.makeConstraints { (make) in
+            stackView.snp.remakeConstraints({ newMake in
+                
+                if superview.tag == 100 {
+                    make.top.equalToSuperview().offset(64)
+                    
+                    //                    if element.hasMaxElements() == true && element.size == .max {
+                    //                        make.bottom.equalToSuperview()
+                    //                    }
+                } else {
+                    make.top.equalToSuperview()
+                }
+                
+                // Also
+                if self.viewModel?.screen.hasElementWithMaxSize() == true {
+                    make.bottom.equalToSuperview()
+                } else {
+                    make.height.equalTo(height)
+                }
+                make.leading.equalToSuperview()
+                make.trailing.equalToSuperview()
+                
+                make.width.equalToSuperview()
+            })
+        }
+        
     }
     
     private func scrollableContentHeight(elements: [ElementTuple]) -> Int {
@@ -1064,7 +1170,7 @@ class ExperimentalScreenDrawer {
                 if controlElementId == faseElementId {
                     elements.append(control)
                 }
-            }            
+            }
         }
         
         return elements.last

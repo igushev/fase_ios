@@ -122,6 +122,9 @@ class FaseViewModel: NSObject, Fase {
             if let elementId = view.faseElementId, let frame = self.element(with: elementId) as? Frame, let _ = frame.onClick {
                 let nestedElementsIds = view.nestedElementsIds()
                 self.sendCallbackRequest(for: nestedElementsIds)
+            } else if let elementId = view.faseElementId, let image = self.element(with: elementId) as? Image, let _ = image.onClick {
+                let nestedElementsIds = view.nestedElementsIds()
+                self.sendCallbackRequest(for: nestedElementsIds)
             }
         }
         
@@ -582,3 +585,4 @@ extension FaseViewModel: CNContactPickerDelegate {
         textField.text = contact.displayName
     }
 }
+

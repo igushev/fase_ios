@@ -33,6 +33,7 @@ enum ElementType: String {
     case frame = "frame"
     case separator = "separator"
     case navigation = "navigation"
+    case web = "web"
     case unknown = "unknown"
     
     init(with string: String?) {
@@ -319,12 +320,16 @@ class Slider: VisualElement {
 class Image: VisualElement {
     var fileName: String!
     var url: String?
+    var onClick: Method!
+    var align: Align!
     
     required init?(map: Map) {
         super.init(map: map)
         
         fileName = try? map.value("filename") // maybe file_name? check response
         url = try? map.value("url")
+        onClick = try? map.value("on_click")
+        align = try? map.value("align")
     }
     
     override func mapping(map: Map) {
@@ -332,6 +337,8 @@ class Image: VisualElement {
         
         fileName <- map["filename"]
         url <- map["url"]
+        onClick <- map["on_click"]
+        align <- map["align"]
     }
 }
 
@@ -486,6 +493,10 @@ class PlacePicker: VisualElement {
 
 class Separator: VisualElement {
     
+}
+
+class Web: VisualElement {
+    var size: Size!
 }
 
 enum FrameType: Int {

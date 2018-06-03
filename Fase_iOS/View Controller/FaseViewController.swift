@@ -42,9 +42,9 @@ class FaseViewController: UIViewController {
         self.viewModel.drawElements()
         self.decorateView()
         
-//        self.gestureRecognizer = UITapGestureRecognizer(target: self.viewModel, action: #selector(FaseViewModel.onClickGestureRecognizer(_:)))
+        //        self.gestureRecognizer = UITapGestureRecognizer(target: self.viewModel, action: #selector(FaseViewModel.onClickGestureRecognizer(_:)))
         self.view.isUserInteractionEnabled = true
-//        self.view.addGestureRecognizer(self.gestureRecognizer!)
+        //        self.view.addGestureRecognizer(self.gestureRecognizer!)
     }
     
     override func viewDidAppear(_ animated: Bool) {
