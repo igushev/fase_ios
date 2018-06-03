@@ -1,0 +1,6 @@
+framework module Pods_Fase_iOS_test {
+  umbrella header "Pods-Fase_iOS_test-umbrella.h"
+
+  export *
+  module * { export * }
+}
