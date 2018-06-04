@@ -7,19 +7,38 @@
 //
 
 import UIKit
+import SnapKit
 
 class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+//        self.setupStackView()
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    
+    func setupStackView() {
+        let label = UILabel(frame: CGRect.zero)
+        label.numberOfLines = 0
+        label.text = "\"elements_update\" = \"<null>\";resources = \"<null>\";screen = \"<null>\";"
+        
+        let view = UIView(frame: CGRect.zero)
+        view.backgroundColor = UIColor.brown
+        
+        let button = UIButton(frame: CGRect.zero)
+        button.setTitle("Test button", for: .normal)
+        button.setTitleColor(UIColor.black, for: .normal)
+        
+        let stackView = UIStackView(arrangedSubviews: [label, view, button])
+        stackView.distribution = .fill
+        
+        self.view.addSubview(stackView)
+        
+        stackView.snp.makeConstraints { make in
+            make.leading.equalToSuperview()
+            make.trailing.equalToSuperview()
+            make.top.equalToSuperview().offset(50)
+        }
     }
-
 
 }
 

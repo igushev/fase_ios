@@ -57,6 +57,20 @@ struct ScreenInfo: Mappable {
     }
 }
 
+struct VersionInfo: Mappable {
+    var version: String?
+    
+    init(version: String) {
+        self.version = version
+    }
+    
+    init?(map: Map) { }
+    
+    mutating func mapping(map: Map) {
+        version <- map["version"]
+    }
+}
+
 struct ElementsUpdate: Mappable {
     var valueArray: Array<String>?
     var arrayArrayIds: Array<Array<String>>?
@@ -133,6 +147,7 @@ struct ScreenProg: Mappable {
 }
 
 struct Response: Mappable {
+    var versionInfo: VersionInfo?
     var elementsUpdate: ElementsUpdate?
     var resources: Resources?
     var screenInfo: ScreenInfo?
@@ -142,6 +157,7 @@ struct Response: Mappable {
     init?(map: Map) { }
     
     mutating func mapping(map: Map) {
+        versionInfo <- map["version_info"]
         elementsUpdate <- map["elements_update"]
         resources <- map["resources"]
         screenInfo <- map["screen_info"]
@@ -193,13 +209,16 @@ struct Resource: Mappable {
 
 struct Resources: Mappable {
     var resourceList: Array<Resource>
+    var resetResources: Bool
     
     init?(map: Map) {
         resourceList = try! map.value("resource_list")
+        resetResources = try! map.value("reset_resources")
     }
     
     mutating func mapping(map: Map) {
         resourceList <- map["resource_list"]
+        resetResources <- map["reset_resources"]
     }
 }
 

@@ -15,7 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     var router: Router?
     
-    let googleAPIKey = "AIzaSyDOvC4C4LK7BGDw90LVTzdN4Qc_t3N_TLY"
+    let googleAPIKey = "AIzaSyCu1UzB1uv73-108iQMJgUFHmYedscHnT4"
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // setup google place picker

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>SchemeUserState</key>
+	<dict>
+		<key>Fase_iOS_karma.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>4</integer>
+		</dict>
+		<key>Fase_iOS_notes.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>5</integer>
+		</dict>
+		<key>Fase_iOS_test.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>6</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>5B0AA7FC209860FD007B64C7</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>5B6A13D82091B5C7007A9DE2</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>5BFCBD51204F379E0063A171</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>5BFCBD65204F379F0063A171</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>5BFCBD70204F379F0063A171</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+	</dict>
+</dict>
+</plist>

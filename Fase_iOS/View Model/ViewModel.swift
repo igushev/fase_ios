@@ -24,7 +24,7 @@ class FaseViewModel: NSObject, Fase {
     
     var screen: Screen!
     weak var router: Router?
-    var screenDrawer: ScreenDrawer!
+    var screenDrawer: ExperimentalScreenDrawer!
     
     var contextMenuCallback: ContextMenuCallback?
     
@@ -116,9 +116,14 @@ class FaseViewModel: NSObject, Fase {
     // On frame tap
     @objc func onClickGestureRecognizer(_ sender: UITapGestureRecognizer) {
         if let view = sender.view {
-            let point = sender.location(in: view)
-            if let tappedView = view.hitTest(point, with: nil), let elementId = tappedView.faseElementId, let frame = self.element(with: elementId) as? Frame, let onClick = frame.onClick {
-                let nestedElementsIds = tappedView.nestedElementsIds()
+            
+            //if let tappedView = view.hitTest(point, with: nil),
+            
+            if let elementId = view.faseElementId, let frame = self.element(with: elementId) as? Frame, let _ = frame.onClick {
+                let nestedElementsIds = view.nestedElementsIds()
+                self.sendCallbackRequest(for: nestedElementsIds)
+            } else if let elementId = view.faseElementId, let image = self.element(with: elementId) as? Image, let _ = image.onClick {
+                let nestedElementsIds = view.nestedElementsIds()
                 self.sendCallbackRequest(for: nestedElementsIds)
             }
         }
@@ -276,7 +281,7 @@ class FaseViewModel: NSObject, Fase {
                 let text = textField.text
                 let idsArray = textField.nestedElementsIds()
                 
-                if let element = self.elementButNotFrame(with: textField.faseElementId) {
+                if let element = self.elementButNotFrame(with: textField.faseElementId!) {
                     let elementTypeString = element.`class`
                     let elementType = ElementType(with: elementTypeString)
                     
@@ -580,3 +585,4 @@ extension FaseViewModel: CNContactPickerDelegate {
         textField.text = contact.displayName
     }
 }
+
