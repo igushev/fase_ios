@@ -16,9 +16,6 @@ class ExperimentalScreenDrawer {
     private(set) var elements: Array<Element>!
     private(set) var uiControls: Array<UIView>!
     
-    private var y: CGFloat
-    private var maxWidth: CGFloat
-    
     weak var viewModel: FaseViewModel?
     var datePickerSetupBlock: ((UITextField) -> Void)?
     var pickerSetupBlock: ((UITextField) -> Void)?
@@ -31,60 +28,71 @@ class ExperimentalScreenDrawer {
         self.view = view
         self.elements = []
         self.uiControls = []
-        self.y = 20 + 44 // 20 - status bar height, 44 - nav bar height
-        self.maxWidth = view.bounds.width - 8 * 2
     }
     
     // MARK: - Draw functions
     
     func draw(elements: Array<ElementTuple>) {
+        // Add ScrollView is Screen is scrollable.
         if let viewModel = self.viewModel, viewModel.screen.scrollable == true {
             let scrollView = UIScrollView(frame: self.view.frame)
             scrollView.isScrollEnabled = true
             scrollView.showsVerticalScrollIndicator = true
             scrollView.showsHorizontalScrollIndicator = false
             scrollView.isUserInteractionEnabled = true
-            scrollView.translatesAutoresizingMaskIntoConstraints = false
-            scrollView.faseElementId = "scrollview"
             
             self.view.addSubview(scrollView)
-            
+
             scrollView.snp.makeConstraints({ make in
+                make.top.equalToSuperview().offset(64)
+                make.bottom.equalToSuperview().offset(-50) // Hack to avoid
                 make.leading.equalToSuperview()
                 make.trailing.equalToSuperview()
-                make.bottom.equalToSuperview().offset(-50) // Hack to avoid
-                make.top.equalToSuperview().offset(64)
             })
             
             self.view.scrollView = scrollView
             scrollView.layoutIfNeeded()
         }
-        
-        var parentElementId = viewModel?.screen.scrollable == true ? FaseElementsId.scrollView.rawValue : nil
-        
-        // FIXME: - Correctly get frame element
-        // Draw substrate if needed
-        if let tuple = elements.first {
-            let element = tuple[1] as! Element
-            let elementTypeString = element.`class`
-            let elementType = ElementType(with: elementTypeString)
-            
-            let height = self.scrollableContentHeight(elements: elements)
-            
-            if elementType == ElementType.frame, self.viewModel?.screen.scrollable == true {
-                self.drawSubstrateView(id: FaseElementsId.substrateView.rawValue, superview: self.view.scrollView, height: height)
-            } else if self.viewModel?.screen.scrollable != true {
-                let height = self.viewModel?.screen.screenContentHeight()
-                self.drawStackViewSubstrateView(id: FaseElementsId.substrateView.rawValue, superview: self.view, height: height!)
+
+        // Add Top-Level StackView where all Elements will be added.
+        // Put it either inside ScrollView or directly into View.
+        // Code below would be agnistic to where StackView is located.
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.distribution = .fill
+        stackView.faseElementId = FaseElementsId.substrateView.rawValue
+        self.uiControls.append(stackView)
+
+        if let viewModel = self.viewModel, viewModel.screen.scrollable == true {
+            self.view.scrollView?.addSubview(stackView)
+            stackView.snp.makeConstraints { (make) in
+                make.top.equalToSuperview()
+                make.bottom.equalToSuperview()
+                make.trailing.equalToSuperview()
             }
-            
-            parentElementId = FaseElementsId.substrateView.rawValue
+        } else if self.viewModel?.screen.scrollable != true {
+            self.view.addSubview(stackView)
+            stackView.snp.makeConstraints { (make) in
+                make.top.equalToSuperview().offset(64)
+            }
+            if let viewModel = self.viewModel, viewModel.screen.hasElementWithMaxSize() == true {
+                stackView.snp.makeConstraints { (make) in
+                    make.bottom.equalToSuperview()
+                    make.trailing.equalToSuperview()
+                }
+            }
+        }
+
+        stackView.snp.makeConstraints { (make) in
+            make.leading.equalToSuperview()
+            make.width.equalToSuperview()
         }
         
-        
+        var parentElementId = FaseElementsId.substrateView.rawValue
+       
         for tuple in elements {
             if tuple.count == 1 {
-                break
+                continue
             }
             
             let id = tuple[0] as! String
@@ -212,123 +220,51 @@ class ExperimentalScreenDrawer {
     }
     
     func drawFrame(for element: Frame, with id: String, parentElementId: String?) {
-        // Commented to allow draw empty frames with MAX size
-        //        if element.idElementList.count == 0 {
-        //            return
-        //        }
-        
         var superview: UIView! = self.view
-        
-        let x = 0
-        var y = 0
-        var width = Int(superview.frame.width)
-        let height = Int(element.frameTotalHeight())
-        
-        if parentElementId == FaseElementsId.scrollView.rawValue {
-            superview = self.view.scrollView
-        }
         
         if let parentId = parentElementId, let parentView = self.view(with: parentId) {
             superview = parentView
-            width = Int(superview.frame.width)
         }
         
-        if superview != self.view, superview.subviews.count > 0 {
-            y = Int((superview.subviews.last?.frame.maxY)!) + 1
+        let stackView = UIStackView()
+        stackView.axis = (element.orientation == FrameType.horizontal) ? .horizontal : .vertical
+        stackView.distribution = .fill
+        
+        stackView.spacing = 5.0
+        stackView.layoutMargins = UIEdgeInsetsMake(5, 5, 5, 5)
+        stackView.isLayoutMarginsRelativeArrangement = true
+
+        stackView.faseElementId = id
+        element.faseElementId = id
+        
+        if element.border == true {
+            stackView.layer.borderWidth = 1
+            stackView.layer.borderColor = UIColor.FaseColors.borderColor.cgColor
         }
         
-        if element.idElementList.count == 0 {
-            let view = UIView(frame: CGRect(x: x, y: y, width: width, height: height))
+        stackView.isUserInteractionEnabled = true
+        if element.onClick != nil {
+            // TODO: - Add gesture recognizer
+            stackView.enableUserInteractionForSuperviews()
             
-            if superview is UIStackView {
-                (superview as! UIStackView).addArrangedSubview(view)
-            } else {
-                superview.addSubview(view)
-            }
-            
-            self.uiControls.append(view)
+            let tapGR = UITapGestureRecognizer(target: self.viewModel, action: #selector(FaseViewModel.onClickGestureRecognizer(_:)))
+            stackView.addGestureRecognizer(tapGR)
+        }
+        
+        if superview is UIStackView {
+            (superview as! UIStackView).addArrangedSubview(stackView)
         } else {
-            let stackView = UIStackView(frame: CGRect(x: x, y: y, width: width, height: height))
-            stackView.axis = (element.orientation == FrameType.horizontal) ? .horizontal : .vertical
-            
-            if element.orientation == FrameType.horizontal {
-                stackView.distribution = .fill
-            }
-            
-            stackView.spacing = 5.0
-            stackView.layoutMargins = UIEdgeInsetsMake(5, 5, 5, 5)
-            stackView.isLayoutMarginsRelativeArrangement = true
-            
-            stackView.faseElementId = id
-            element.faseElementId = id
-            
-            if element.border == true {
-                stackView.layer.borderWidth = 1
-                stackView.layer.borderColor = UIColor.FaseColors.borderColor.cgColor
-            }
-            
-            if element.onClick != nil {
-                // TODO: - Add gesture recognizer
-                stackView.isUserInteractionEnabled = true
-                stackView.enableUserInteractionForSuperviews()
-                
-                let tapGR = UITapGestureRecognizer(target: self.viewModel, action: #selector(FaseViewModel.onClickGestureRecognizer(_:)))
-                stackView.addGestureRecognizer(tapGR)
-            } else {
-                stackView.isUserInteractionEnabled = false
-            }
-            
-            stackView.isUserInteractionEnabled = true
-            
-            if superview is UIStackView {
-                (superview as! UIStackView).addArrangedSubview(stackView)
-            } else {
-                superview.addSubview(stackView)
-            }
-            self.uiControls.append(stackView)
-            
-            // Constraints
-            stackView.translatesAutoresizingMaskIntoConstraints = false
-            stackView.snp.makeConstraints({ make in
-                
-                make.leading.equalToSuperview()
-                make.trailing.equalToSuperview()
-                
-                if element.orientation == FrameType.horizontal || element.size == .min {
-                    make.height.equalTo(height)
-                } else {
-                    
-                }
-                
-                if superview.subviews.count > 1 {
-                    let prevSubview = superview.subviews[superview.subviews.count - 2]
-                    
-                    if prevSubview.tag == -1 {
-                        make.top.equalToSuperview().offset(64)
-                        //                    make.bottom.equalTo(prevSubview.snp.top)
-                    } else if prevSubview.tag == -2 {
-                        
-                    } else {
-                        make.top.equalTo(prevSubview.snp.bottom).offset(1)
-                    }
-                } else {
-                    if superview.tag == 100 {
-                        make.top.equalToSuperview().offset(64)
-                        make.height.equalTo(height)
-                        
-                        if element.hasMaxElements() == true && element.size == .max {
-                            make.bottom.equalToSuperview()
-                        }
-                    } else {
-                        make.top.equalToSuperview()
-                    }
-                }
-                
-            })
-            
-            // Draw nested into frame elements
-            self.y = (superview == self.view) ? 70 : stackView.frame.minY
+            superview.addSubview(stackView)
+        }
+        self.uiControls.append(stackView)
+
+        // Draw nested into frame elements
+        if element.idElementList.count > 0 {
             for tuple in element.idElementList {
+                if tuple.count == 1 {
+                    continue
+                }
+
                 let elementId = tuple[0] as! String
                 let element = tuple[1] as! Element
                 
@@ -343,20 +279,12 @@ class ExperimentalScreenDrawer {
         element.faseElementId = id
         
         var superview: UIView! = self.view
-        var superviewElement: Element?
         
         if let parentId = parentElementId, let parentView = self.view(with: parentId) {
             superview = parentView
-            superviewElement = self.viewModel?.element(with: parentId)
         }
         
-        let x = self.getXForElement(with: self.maxWidth)
-        let y = self.y
-        let width = self.maxWidth
-        let height = UIElementsHeight.textField.rawValue
-        
-        let frame = CGRect(x: x, y: y, width: width, height: height)
-        let textField = UITextField(frame: frame)
+        let textField = UITextField()
         textField.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
         textField.textColor = UIColor.FaseColors.textColor
         textField.borderStyle = .roundedRect
@@ -364,8 +292,6 @@ class ExperimentalScreenDrawer {
         if let parentId = parentElementId {
             textField.navigationElementId = parentId
         }
-        
-        self.y += textField.frame.size.height
         
         if let placeholder = element.hint {
             textField.placeholder = placeholder
@@ -375,6 +301,11 @@ class ExperimentalScreenDrawer {
             textField.text = text
         }
         
+        let contentSize = textField.intrinsicContentSize
+        textField.heightAnchor.constraint(equalToConstant: contentSize.height).isActive = true
+        textField.setContentCompressionResistancePriority(UILayoutPriority.defaultLow, for: .horizontal)
+        textField.setContentHuggingPriority(UILayoutPriority.defaultLow, for: .horizontal)
+        
         if superview is UIStackView {
             (superview as! UIStackView).addArrangedSubview(textField)
         } else {
@@ -383,38 +314,18 @@ class ExperimentalScreenDrawer {
         self.uiControls.append(textField)
         
         textField.enableUserInteractionForSuperviews()
-        
-        // Constraints
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.snp.makeConstraints { (make) in
-            var superviewOrientation = FrameType.none
-            
-            if let superviewElement = superviewElement as? Frame {
-                superviewOrientation = superviewElement.orientation
-            }
-            FaseConstraintsMaker.makeConstraints(make: make, elementType: ElementType.text, view: textField, in: superview, superviewOrientation: superviewOrientation)
-        }
-        
     }
     
     private func drawTextView(for element: Text, with id: String, parentElementId: String?) {
         element.faseElementId = id
         
         var superview: UIView! = self.view
-        var superviewElement: Element?
         
         if let parentId = parentElementId, let parentView = self.view(with: parentId) {
             superview = parentView
-            superviewElement = self.viewModel?.element(with: parentId)
         }
         
-        let x = self.getXForElement(with: self.maxWidth)
-        let y = self.y
-        let width = self.maxWidth
-        let height = UIElementsHeight.textView.rawValue
-        
-        let frame = CGRect(x: x, y: y, width: width, height: height)
-        let textView = UITextView(frame: frame)
+        let textView = UITextView()
         textView.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
         textView.textColor = UIColor.FaseColors.textColor
         textView.layer.cornerRadius = 5.0
@@ -424,12 +335,10 @@ class ExperimentalScreenDrawer {
         textView.faseElementId = id
         textView.layer.borderWidth = 1.0
         textView.layer.borderColor = UIColor.FaseColors.borderColor.cgColor
-        
+
         if let parentId = parentElementId {
             textView.navigationElementId = parentId
         }
-        
-        self.y += textView.frame.size.height
         
         if let placeholder = element.hint, element.text == nil || element.text == "" {
             textView.text = placeholder
@@ -440,6 +349,17 @@ class ExperimentalScreenDrawer {
             textView.text = text
         }
         
+        let contentSize = textView.intrinsicContentSize
+        textView.setContentCompressionResistancePriority(UILayoutPriority.defaultLow, for: .horizontal)
+        textView.setContentHuggingPriority(UILayoutPriority.defaultLow, for: .horizontal)
+        if element.size != .min {
+            textView.setContentCompressionResistancePriority(UILayoutPriority.defaultLow, for: .vertical)
+            textView.setContentHuggingPriority(UILayoutPriority.defaultLow, for: .vertical)
+        }
+        else {
+            textView.widthAnchor.constraint(equalToConstant: contentSize.height).isActive = true
+        }
+        
         if superview is UIStackView {
             (superview as! UIStackView).addArrangedSubview(textView)
         } else {
@@ -448,47 +368,29 @@ class ExperimentalScreenDrawer {
         self.uiControls.append(textView)
         
         textView.enableUserInteractionForSuperviews()
-        
-        // Constraints
-        textView.translatesAutoresizingMaskIntoConstraints = false
-        textView.snp.makeConstraints { (make) in
-            if element.size == .min {
-                make.height.equalTo(UIElementsHeight.textView.rawValue)
-            }
-            
-            var superviewOrientation = FrameType.none
-            
-            if let superviewElement = superviewElement as? Frame {
-                superviewOrientation = superviewElement.orientation
-            }
-            FaseConstraintsMaker.makeConstraints(make: make, elementType: ElementType.text, view: textView, in: superview, superviewOrientation: superviewOrientation)
-        }
-        
+
     }
     
     private func drawButton(for element: Button, with id: String, parentElementId: String?) {
         element.faseElementId = id
         
         var superview: UIView! = self.view
-        var superviewElement: Element?
         
         if let parentId = parentElementId, let parentView = self.view(with: parentId) {
             superview = parentView
-            superviewElement = self.viewModel?.element(with: parentId)
         }
         
         // If navigation buttons, break because they was drawn before
         if id == FaseElementsId.mainButton.rawValue || id == FaseElementsId.previousButton.rawValue || id == FaseElementsId.nextButton.rawValue {
             return
         }
-        let x = self.getXForElement(with: UIElementsWidth.button.rawValue)
-        let y: CGFloat = 0
-        let width = UIElementsWidth.button.rawValue
-        let height = UIElementsHeight.button.rawValue
-        
-        let frame = CGRect(x: x, y: y, width: width, height: height)
-        let button = UIButton(frame: frame)
+
+        let button = UIButton()
         button.setTitleColor(UIColor.FaseColors.buttonTextColor, for: .normal)
+        button.backgroundColor = .clear
+        button.layer.cornerRadius = 5.0
+        button.layer.borderWidth = 1
+        button.layer.borderColor = UIColor.FaseColors.borderColor.cgColor
         button.faseElementId = id
         
         if let parentId = parentElementId {
@@ -498,12 +400,14 @@ class ExperimentalScreenDrawer {
             button.addTarget(viewModel, action: #selector(FaseViewModel.onClick(_:)), for: .touchUpInside)
         }
         
-        self.y += button.frame.size.height
-        
         if let text = element.text {
             button.setTitle(text, for: .normal)
         }
         
+        let contentSize = button.intrinsicContentSize
+        button.heightAnchor.constraint(equalToConstant: contentSize.height).isActive = true
+        button.widthAnchor.constraint(equalToConstant: contentSize.width).isActive = true
+
         if superview is UIStackView {
             (superview as! UIStackView).addArrangedSubview(button)
         } else {
@@ -511,48 +415,28 @@ class ExperimentalScreenDrawer {
         }
         self.uiControls.append(button)
         button.enableUserInteractionForSuperviews()
-        
-        // Constraints
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.snp.makeConstraints { (make) in
-            var superviewOrientation = FrameType.none
-            
-            if let superviewElement = superviewElement as? Frame {
-                superviewOrientation = superviewElement.orientation
-            }
-            FaseConstraintsMaker.makeConstraints(make: make, elementType: ElementType.button, view: button, in: superview, superviewOrientation: superviewOrientation)
-        }
+
     }
     
     private func drawLabel(for element: Label, with id: String, parentElementId: String?) {
         element.faseElementId = id
         
         var superview: UIView! = self.view
-        var superviewElement: Element?
         
         if let parentId = parentElementId, let parentView = self.viewThatCanHasClonesWithSameId(with: parentId) {
             superview = parentView
-            superviewElement = self.viewModel?.element(with: parentId)
         }
         
-        let x: CGFloat = 0 //self.getXForElement(with: UIElementsWidth.button.rawValue)
-        var y: CGFloat = 0
-        var width: CGFloat = self.viewSize().width
-        let height: CGFloat = UIElementsHeight.label.rawValue
-        
-        width = superview.bounds.width
-        
-        if superview != self.view, superview.subviews.count > 0 {
-            y = (superview.subviews.last?.frame.maxY)! + 1
-        }
-        
-        let frame = CGRect(x: x, y: y, width: width, height: height)
-        let label = UILabel(frame: frame)
+        let label = UILabel()
         label.font = UIFont.systemFont(ofSize: element.font.appFontSize)
         label.textColor = UIColor.FaseColors.textColor
         label.faseElementId = id
         label.isUserInteractionEnabled = true
         
+        if let text = element.text {
+            label.text = text
+        }
+
         switch element.align {
         case .left:
             label.textAlignment = .left
@@ -567,14 +451,17 @@ class ExperimentalScreenDrawer {
             break
             
         default:
-            label.textAlignment = .left
+            label.textAlignment = .center
         }
-        
-        superview.addSubview(label)
-        self.y += label.frame.size.height
-        
-        if let text = element.text {
-            label.text = text
+
+        let contentSize = label.intrinsicContentSize
+        label.heightAnchor.constraint(equalToConstant: contentSize.height).isActive = true
+        if element.size != .min {
+            label.setContentCompressionResistancePriority(UILayoutPriority.defaultLow, for: .horizontal)
+            label.setContentHuggingPriority(UILayoutPriority.defaultLow, for: .horizontal)
+        }
+        else {
+            label.widthAnchor.constraint(equalToConstant: contentSize.width).isActive = true
         }
         
         if superview is UIStackView {
@@ -584,56 +471,34 @@ class ExperimentalScreenDrawer {
         }
         self.uiControls.append(label)
         
-        // Constraints
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.snp.makeConstraints { (make) in
-            var superviewOrientation = FrameType.none
-            
-            if let superviewElement = superviewElement as? Frame {
-                superviewOrientation = superviewElement.orientation
-            }
-            
-            if element.size == .min {
-                let contentSize = label.intrinsicContentSize
-                label.snp.makeConstraints({ make in
-                    make.width.equalTo(contentSize.width)
-                })
-            }
-            
-            FaseConstraintsMaker.makeConstraints(make: make, elementType: ElementType.label, view: label, in: superview, superviewOrientation: superviewOrientation)
-            
-            //            if let text = label.text, text.isEmpty == false {
-            //                let labelHeight = text.textHeight(with: label.font)
-            //                make.height.equalTo(labelHeight)
-            //            }
-        }
     }
     
     private func drawImageView(for element: Image, with id: String, parentElementId: String?) {
         element.faseElementId = id
         
         var superview: UIView! = self.view
-        var superviewElement: Element?
         
         if let parentId = parentElementId, let parentView = self.viewThatCanHasClonesWithSameId(with: parentId) {
             superview = parentView
-            superviewElement = self.viewModel?.element(with: parentId)
         }
-        
-        let x: CGFloat = superview.frame.maxX - UIElementsWidth.image.rawValue //self.getXForElement(with: UIElementsWidth.button.rawValue)
-        var y: CGFloat = 0
-        let width: CGFloat = UIElementsWidth.image.rawValue
-        let height: CGFloat = UIElementsWidth.image.rawValue
-        
-        if superview != self.view, superview.subviews.count > 0 {
-            y = (superview.subviews.last?.frame.maxY)! + 1
+
+        // Get Image itself
+        var image: UIImage? = UIImage()
+        if let urlString = element.url, let url = URL(string: urlString), let data = try? Data(contentsOf: url), let urlImage = UIImage(data: data) {
+            image = urlImage
+        } else if let data = ResourcesService.getResource(by: element.fileName), let filenameImage = UIImage(data: data) {
+            image = filenameImage
         }
-        
-        let frame = CGRect(x: x, y: y, width: width, height: height)
-        let imageView = UIImageView(frame: frame)
+
+        let imageView = UIImageView(image: image)
         imageView.faseElementId = id
         imageView.isUserInteractionEnabled = false
-        
+
+        if let image = imageView.image {
+            imageView.widthAnchor.constraint(equalToConstant: image.size.width).isActive = true
+            imageView.heightAnchor.constraint(equalToConstant: image.size.height).isActive = true
+        }
+
         if element.onClick != nil {
             imageView.isUserInteractionEnabled = true
             imageView.enableUserInteractionForSuperviews()
@@ -656,25 +521,9 @@ class ExperimentalScreenDrawer {
             break
             
         default:
-            imageView.contentMode = .center
+            imageView.contentMode = .scaleAspectFit
             break
         }
-        
-        var image: UIImage? = UIImage()
-        
-        if let urlString = element.url, let url = URL(string: urlString), let data = try? Data(contentsOf: url), let urlImage = UIImage(data: data) {
-            //            let resizedImage = urlImage.resizedImage(with: CGSize(width: FaseImageWidth.navigationItem.rawValue, height: FaseImageWidth.navigationItem.rawValue))
-            image = urlImage
-        } else if let data = ResourcesService.getResource(by: element.fileName), let savedImage = UIImage(data: data) {
-            //            let resizedImage = savedImage.resizedImage(with: CGSize(width: FaseImageWidth.navigationItem.rawValue, height: FaseImageWidth.navigationItem.rawValue))
-            image = savedImage
-        }
-        imageView.image = image
-        //        imageView.image = imageView.image?.withRenderingMode(.alwaysTemplate)
-        //        imageView.tintColor = UIColor.FaseColors.textColor
-        
-        superview.addSubview(imageView)
-        self.y += imageView.frame.size.height
         
         if superview is UIStackView {
             (superview as! UIStackView).addArrangedSubview(imageView)
@@ -682,41 +531,24 @@ class ExperimentalScreenDrawer {
             superview.addSubview(imageView)
         }
         self.uiControls.append(imageView)
-        
-        // Constraints
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.snp.makeConstraints { make in
-            //            if let image = imageView.image {
-            //                make.height.equalTo(image.size.height)
-            //                make.width.equalTo(image.size.width)
-            //            }
-        }
-        
     }
     
     private func drawDatePicker(for element: DateTimePicker, with id: String, parentElementId: String?) {
         element.faseElementId = id
         
         var superview: UIView! = self.view
-        var superviewElement: Element?
         
         if let parentId = parentElementId, let parentView = self.view(with: parentId) {
             superview = parentView
-            superviewElement = self.viewModel?.element(with: parentId)
         }
-        
-        let x = self.getXForElement(with: self.maxWidth)
-        let y = self.y
-        let width = self.maxWidth
-        let height = UIElementsHeight.textField.rawValue
-        
-        let frame = CGRect(x: x, y: y, width: width, height: height)
-        let textField = UITextField(frame: frame)
+
+        let textField = UITextField()
         textField.faseElementId = id
         
-        if let setupBlock = self.datePickerSetupBlock {
+        // TODO: Fails when emtpy.
+        /*if let setupBlock = self.datePickerSetupBlock {
             setupBlock(textField)
-        }
+        }*/
         
         textField.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
         textField.textColor = UIColor.FaseColors.textColor
@@ -724,8 +556,6 @@ class ExperimentalScreenDrawer {
         if let parentId = parentElementId {
             textField.navigationElementId = parentId
         }
-        
-        self.y += textField.frame.size.height
         
         if let placeholder = element.hint {
             textField.placeholder = placeholder
@@ -734,45 +564,31 @@ class ExperimentalScreenDrawer {
         if let value = element.datetime {
             textField.text = String(describing: value)
         }
-        
+
+        let contentSize = textField.intrinsicContentSize
+        textField.heightAnchor.constraint(equalToConstant: contentSize.height).isActive = true
+        textField.setContentCompressionResistancePriority(UILayoutPriority.defaultLow, for: .horizontal)
+        textField.setContentHuggingPriority(UILayoutPriority.defaultLow, for: .horizontal)
+
         if superview is UIStackView {
             (superview as! UIStackView).addArrangedSubview(textField)
         } else {
             superview.addSubview(textField)
         }
         self.uiControls.append(textField)
-        
-        // Constraints
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.snp.makeConstraints { (make) in
-            var superviewOrientation = FrameType.none
-            
-            if let superviewElement = superviewElement as? Frame {
-                superviewOrientation = superviewElement.orientation
-            }
-            FaseConstraintsMaker.makeConstraints(make: make, elementType: ElementType.dateTimePicker, view: textField, in: superview, superviewOrientation: superviewOrientation)
-        }
-        
+
     }
     
     private func drawPlacePicker(for element: PlacePicker, with id: String, parentElementId: String?) {
         element.faseElementId = id
         
         var superview: UIView! = self.view
-        var superviewElement: Element?
         
         if let parentId = parentElementId, let parentView = self.view(with: parentId) {
             superview = parentView
-            superviewElement = self.viewModel?.element(with: parentId)
         }
-        
-        let x = self.getXForElement(with: self.maxWidth)
-        let y = self.y
-        let width = self.maxWidth
-        let height = UIElementsHeight.textField.rawValue
-        
-        let frame = CGRect(x: x, y: y, width: width, height: height)
-        let textField = UITextField(frame: frame)
+
+        let textField = UITextField()
         textField.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
         textField.textColor = UIColor.FaseColors.textColor
         textField.borderStyle = .roundedRect
@@ -781,9 +597,6 @@ class ExperimentalScreenDrawer {
         if let parentId = parentElementId {
             textField.navigationElementId = parentId
         }
-        
-        superview.addSubview(textField)
-        self.y += textField.frame.size.height
         
         if let placeholder = element.hint {
             textField.placeholder = placeholder
@@ -792,50 +605,35 @@ class ExperimentalScreenDrawer {
         if let place = element.place, let text = place.placeString() {
             textField.text = text
         }
-        
+
+        let contentSize = textField.intrinsicContentSize
+        textField.heightAnchor.constraint(equalToConstant: contentSize.height).isActive = true
+        textField.setContentCompressionResistancePriority(UILayoutPriority.defaultLow, for: .horizontal)
+        textField.setContentHuggingPriority(UILayoutPriority.defaultLow, for: .horizontal)
+
         if superview is UIStackView {
             (superview as! UIStackView).addArrangedSubview(textField)
         } else {
             superview.addSubview(textField)
         }
         self.uiControls.append(textField)
-        
-        // Constraints
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.snp.makeConstraints { (make) in
-            var superviewOrientation = FrameType.none
-            
-            if let superviewElement = superviewElement as? Frame {
-                superviewOrientation = superviewElement.orientation
-            }
-            FaseConstraintsMaker.makeConstraints(make: make, elementType: ElementType.placePicker, view: textField, in: superview, superviewOrientation: superviewOrientation)
-        }
-        
     }
     
     private func drawSelect(for element: Select, with id: String, parentElementId: String?) {
         element.faseElementId = id
         
         var superview: UIView! = self.view
-        var superviewElement: Element?
         
         if let parentId = parentElementId, let parentView = self.view(with: parentId) {
             superview = parentView
-            superviewElement = self.viewModel?.element(with: parentId)
         }
-        
-        let x = self.getXForElement(with: self.maxWidth)
-        let y = self.y
-        let width = self.maxWidth
-        let height = UIElementsHeight.textField.rawValue
-        
-        let frame = CGRect(x: x, y: y, width: width, height: height)
-        let textField = UITextField(frame: frame)
+        let textField = UITextField()
         textField.faseElementId = id
         
-        if let setupBlock = self.pickerSetupBlock {
+        // TODO: Fails when emtpy.
+        /*if let setupBlock = self.pickerSetupBlock {
             setupBlock(textField)
-        }
+        }*/
         
         textField.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
         textField.textColor = UIColor.FaseColors.textColor
@@ -845,8 +643,6 @@ class ExperimentalScreenDrawer {
         if let parentId = parentElementId {
             textField.navigationElementId = parentId
         }
-        
-        self.y += textField.frame.size.height
         
         if let placeholder = element.hint {
             textField.placeholder = placeholder
@@ -855,45 +651,29 @@ class ExperimentalScreenDrawer {
         if let text = element.value {
             textField.text = text
         }
-        
+
+        let contentSize = textField.intrinsicContentSize
+        textField.heightAnchor.constraint(equalToConstant: contentSize.height).isActive = true
+        textField.setContentCompressionResistancePriority(UILayoutPriority.defaultLow, for: .horizontal)
+        textField.setContentHuggingPriority(UILayoutPriority.defaultLow, for: .horizontal)
+
         if superview is UIStackView {
             (superview as! UIStackView).addArrangedSubview(textField)
         } else {
             superview.addSubview(textField)
         }
         self.uiControls.append(textField)
-        
-        // Constraints
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.snp.makeConstraints { (make) in
-            var superviewOrientation = FrameType.none
-            
-            if let superviewElement = superviewElement as? Frame {
-                superviewOrientation = superviewElement.orientation
-            }
-            FaseConstraintsMaker.makeConstraints(make: make, elementType: ElementType.select, view: textField, in: superview, superviewOrientation: superviewOrientation)
-        }
-        
     }
     
     private func drawContactPicker(for element: ContactPicker, with id: String, parentElementId: String?) {
         element.faseElementId = id
         
         var superview: UIView! = self.view
-        var superviewElement: Element?
         
         if let parentId = parentElementId, let parentView = self.view(with: parentId) {
             superview = parentView
-            superviewElement = self.viewModel?.element(with: parentId)
         }
-        
-        let x = self.getXForElement(with: self.maxWidth)
-        let y = self.y
-        let width = self.maxWidth
-        let height = UIElementsHeight.textField.rawValue
-        
-        let frame = CGRect(x: x, y: y, width: width, height: height)
-        let textField = UITextField(frame: frame)
+        let textField = UITextField()
         textField.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
         textField.textColor = UIColor.FaseColors.textColor
         textField.borderStyle = .roundedRect
@@ -902,8 +682,6 @@ class ExperimentalScreenDrawer {
         if let parentId = parentElementId {
             textField.navigationElementId = parentId
         }
-        
-        self.y += textField.frame.size.height
         
         if let placeholder = element.hint {
             textField.placeholder = placeholder
@@ -919,212 +697,82 @@ class ExperimentalScreenDrawer {
             superview.addSubview(textField)
         }
         self.uiControls.append(textField)
-        
-        // Constraints
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.snp.makeConstraints { (make) in
-            var superviewOrientation = FrameType.none
-            
-            if let superviewElement = superviewElement as? Frame {
-                superviewOrientation = superviewElement.orientation
-            }
-            FaseConstraintsMaker.makeConstraints(make: make, elementType: ElementType.contactPicker, view: textField, in: superview, superviewOrientation: superviewOrientation)
-        }
-        
+
+        let contentSize = textField.intrinsicContentSize
+        textField.heightAnchor.constraint(equalToConstant: contentSize.height).isActive = true
+        textField.setContentCompressionResistancePriority(UILayoutPriority.defaultLow, for: .horizontal)
+        textField.setContentHuggingPriority(UILayoutPriority.defaultLow, for: .horizontal)
+
     }
     
     private func drawSwitch(for element: Switch, with id: String, parentElementId: String?) {
         element.faseElementId = id
         
         var superview: UIView! = self.view
-        var superviewElement: Element?
         
         if let parentId = parentElementId, let parentView = self.view(with: parentId) {
             superview = parentView
-            superviewElement = self.viewModel?.element(with: parentId)
         }
-        
-        let x = self.getXForElement(with: self.maxWidth)
-        let y = self.y
-        let width = UIElementsWidth.switch.rawValue
-        let height = UIElementsHeight.switch.rawValue
-        let frame = CGRect(x: x, y: y, width: width, height: height)
-        
-        let `switch` = UISwitch(frame: frame)
-        `switch`.faseElementId = id
-        
-        self.y += `switch`.frame.size.height
-        
-        let switchStackView = UIStackView(arrangedSubviews: [`switch`])
+
+        let switch_ = UISwitch()
+        switch_.faseElementId = id
+        let contentSize = switch_.intrinsicContentSize
+        switch_.heightAnchor.constraint(equalToConstant: contentSize.height).isActive = true
+        switch_.widthAnchor.constraint(equalToConstant: contentSize.width).isActive = true
+        var height = contentSize.height
+        var width = contentSize.width
+
+        let switchStackView = UIStackView(arrangedSubviews: [switch_])
         switchStackView.axis = .horizontal
         switchStackView.distribution = .fill
         switchStackView.spacing = 5.0
+
+        if let text = element.text {
+            let label = UILabel()
+            label.textColor = UIColor.FaseColors.textColor
+            label.faseElementId = id
+            label.isUserInteractionEnabled = true
+            label.text = text
+            let contentSize = label.intrinsicContentSize
+            label.heightAnchor.constraint(equalToConstant: contentSize.height).isActive = true
+            label.widthAnchor.constraint(equalToConstant: contentSize.width).isActive = true
+            height = max(height, contentSize.height)
+            width += contentSize.width
+            switchStackView.addArrangedSubview(label)
+
+        }
+        switchStackView.heightAnchor.constraint(equalToConstant: height).isActive = true
+        switchStackView.widthAnchor.constraint(equalToConstant: width).isActive = true
+        
+        // TODO: Does not work.
+        if let align = element.align {
+            switch align {
+            case .left:
+                switchStackView.contentMode = .left
+                break
+                
+            case .right:
+                switchStackView.contentMode = .right
+                break
+                
+            case .center:
+                switchStackView.contentMode = .center
+                break
+            }
+        } else {
+            switchStackView.contentMode = .center
+        }
         
         if superview is UIStackView {
             (superview as! UIStackView).addArrangedSubview(switchStackView)
         } else {
             superview.addSubview(switchStackView)
         }
-        self.uiControls.append(`switch`)
-        
-        // Constraints
-        switchStackView.translatesAutoresizingMaskIntoConstraints = false
-        
-        switchStackView.snp.makeConstraints { (make) in
-            make.height.equalTo(`switch`.frame.height)
-            
-            var superviewOrientation = FrameType.none
-            
-            if let superviewElement = superviewElement as? Frame {
-                superviewOrientation = superviewElement.orientation
-            }
-            FaseConstraintsMaker.makeConstraints(make: make, elementType: ElementType.switchElement, view: switchStackView, in: superview, superviewOrientation: superviewOrientation)
-            
-            if let align = element.align {
-                switch align {
-                case .left:
-                    make.leading.equalToSuperview().offset(5)
-                    break
-                    
-                case .right:
-                    make.trailing.equalToSuperview().offset(-5)
-                    break
-                    
-                case .center:
-                    make.centerX.equalToSuperview()
-                    break
-                }
-            }
-            
-        }
-        
-        if let text = element.text {
-            let x = `switch`.frame.maxX
-            let y = `switch`.frame.minY
-            let width = UIElementsWidth.textField.rawValue
-            let height = UIElementsHeight.textField.rawValue
-            
-            let label = UILabel(frame: CGRect(x: x, y: y, width: width, height: height))
-            
-            label.text = text
-            
-            switchStackView.addArrangedSubview(label)
-            //            superview.addSubview(label)
-            //
-            //            // Constraints
-            //            label.translatesAutoresizingMaskIntoConstraints = false
-            //
-            //            label.snp.makeConstraints({ (make) in
-            //                make.leading.equalTo(`switch`.snp.trailing).offset(10)
-            //                make.height.equalTo(`switch`.snp.height)
-            //                make.centerY.equalTo(`switch`.snp.centerY)
-            //            })
-        }
+        self.uiControls.append(switch_)
     }
     
     // MARK: - Utils
-    
-    private func drawSubstrateView(id: String, superview: UIScrollView?, height: Int) {
-        if let scrollView = superview {
-            let x = 0
-            let y = 0
-            let width = Int(scrollView.frame.width)
-            
-            let frame = UIView(frame: CGRect(x: x, y: y, width: width, height: height))
-            frame.faseElementId = id
-            frame.isUserInteractionEnabled = true
-            frame.tag = -2
-            
-            superview?.addSubview(frame)
-            self.uiControls.append(frame)
-            
-            // Constraints
-            frame.translatesAutoresizingMaskIntoConstraints = false
-            
-            frame.snp.makeConstraints { (make) in
-                frame.snp.remakeConstraints({ newMake in
-                    make.top.equalToSuperview()
-                    make.bottom.equalToSuperview()
-                    make.leading.equalToSuperview()
-                    make.trailing.equalToSuperview()
-                    
-                    make.width.equalToSuperview()
-                    make.height.equalTo(frame.frame.height)
-                })
-            }
-            
-        }
-    }
-    
-    private func drawStackViewSubstrateView(id: String, superview: UIView, height: CGFloat) {
-        let x = 0
-        let y = 0
-        let width = Int(superview.frame.width)
-        
-        let stackView = UIStackView(frame: CGRect(x: x, y: y, width: width, height: Int(height)))
-        stackView.axis = .vertical
-        stackView.distribution = .fill
-        stackView.faseElementId = id
-        stackView.isUserInteractionEnabled = true
-        stackView.tag = -2
-        
-        stackView.spacing = 5.0
-        stackView.layoutMargins = UIEdgeInsetsMake(5, 5, 5, 5)
-        stackView.isLayoutMarginsRelativeArrangement = true
-        
-        superview.addSubview(stackView)
-        self.uiControls.append(stackView)
-        
-        // Constraints
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        
-        stackView.snp.makeConstraints { (make) in
-            stackView.snp.remakeConstraints({ newMake in
-                
-                if superview.tag == 100 {
-                    make.top.equalToSuperview().offset(64)
-                    
-                    //                    if element.hasMaxElements() == true && element.size == .max {
-                    //                        make.bottom.equalToSuperview()
-                    //                    }
-                } else {
-                    make.top.equalToSuperview()
-                }
-                
-                // Also
-                if self.viewModel?.screen.hasElementWithMaxSize() == true {
-                    make.bottom.equalToSuperview()
-                } else {
-                    make.height.equalTo(height)
-                }
-                make.leading.equalToSuperview()
-                make.trailing.equalToSuperview()
-                
-                make.width.equalToSuperview()
-            })
-        }
-        
-    }
-    
-    private func scrollableContentHeight(elements: [ElementTuple]) -> Int {
-        var height: CGFloat = 0
-        
-        for tuple in elements {
-            if tuple.count == 1 {
-                break
-            }
-            
-            let element = tuple[1] as! Element
-            let elementTypeString = element.`class`
-            let elementType = ElementType(with: elementTypeString)
-            
-            if elementType == ElementType.frame {
-                height += (element as! Frame).frameTotalHeight()
-            }
-        }
-        return Int(height)
-    }
-    
+
     func view(with faseElementId: String) -> UIView? {
         for control in self.uiControls {
             if control.faseElementId == faseElementId {
