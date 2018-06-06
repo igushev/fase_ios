@@ -104,5 +104,10 @@ class APIClientService {
     static func saveNewSessionInfo(sessionInfo: SessionInfo) {
         APIClient.shared.sessionInfo = sessionInfo
     }
+    
+    static func saveNewVersionInfo(versionInfo: VersionInfo) {
+        APIClient.shared.versionInfo = versionInfo
+    }
+    
 }
 

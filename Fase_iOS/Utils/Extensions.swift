@@ -318,6 +318,34 @@ extension Frame {
         return nil
     }
     
+    func selectElements() -> [Select]? {
+        var elements: [Select] = []
+        
+        for tuple in self.idElementList {
+            if tuple.count == 1 {
+                break
+            }
+            let elementId = tuple[0] as! String
+            let element = tuple[1] as! ElementContainer
+            
+            if element is VisualElement {
+                let elementTypeString = element.`class`
+                let elementType = ElementType(with: elementTypeString)
+                
+                if elementType == ElementType.select {
+                    (element as? Select)?.faseElementId = elementId
+                    elements.append(element as! Select)
+                }
+                if elementType == ElementType.frame {
+                    if let selects = (element as! Frame).selectElements() {
+                        elements = elements + selects
+                    }
+                }
+            }
+        }
+        return elements
+    }
+    
     func placePickerElement() -> PlacePicker? {
         for tuple in self.idElementList {
             if tuple.count == 1 {
@@ -463,6 +491,34 @@ extension Button {
 }
 
 extension ElementContainer {
+    
+    func hasElementWithMaxSize() -> Bool {
+        var has = false
+        for tuple in self.idElementList {
+            if tuple.count == 1 {
+                break
+            }
+            let element = tuple[1] as! Element
+            
+            if element is ElementContainer {
+                let elementTypeString = element.`class`
+                let elementType = ElementType(with: elementTypeString)
+                
+                if elementType == ElementType.frame {
+                    if (element as! Frame).size == .max {
+                        has = true
+                    }
+                }
+                if elementType == ElementType.text {
+                    if (element as! Text).size == .max {
+                        has = true
+                    }
+                }
+            }
+        }
+        return has
+    }
+    
     // This var stores navigation element id for convenience.
     var navigationElementId: String? {
         get {
@@ -529,33 +585,6 @@ extension Screen {
         }
         
         return height
-    }
-    
-    func hasElementWithMaxSize() -> Bool {
-        var has = false
-        for tuple in self.idElementList {
-            if tuple.count == 1 {
-                break
-            }
-            let element = tuple[1] as! Element
-            
-            if element is ElementContainer {
-                let elementTypeString = element.`class`
-                let elementType = ElementType(with: elementTypeString)
-                
-                if elementType == ElementType.frame {
-                    if (element as! Frame).size == .max {
-                        has = true
-                    }
-                }
-                if elementType == ElementType.text {
-                    if (element as! Text).size == .max {
-                        has = true
-                    }
-                }
-            }
-        }
-        return has
     }
     
     func hasNavigationElement() -> Bool {
@@ -671,6 +700,34 @@ extension Screen {
             }
         }
         return nil
+    }
+    
+    func selectElements() -> [Select]? {
+        var elements: [Select] = []
+        
+        for tuple in self.idElementList {
+            if tuple.count == 1 {
+                break
+            }
+            let elementId = tuple[0] as! String
+            let element = tuple[1] as! ElementContainer
+            
+            if element is VisualElement {
+                let elementTypeString = element.`class`
+                let elementType = ElementType(with: elementTypeString)
+                
+                if elementType == ElementType.select {
+                    (element as? Select)?.faseElementId = elementId
+                    elements.append(element as! Select)
+                }
+                if elementType == ElementType.frame {
+                    if let selects = (element as! Frame).selectElements() {
+                        elements = elements + selects
+                    }
+                }
+            }
+        }
+        return elements
     }
     
     func contactPickerElement() -> ContactPicker? {

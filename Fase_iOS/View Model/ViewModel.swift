@@ -125,6 +125,9 @@ class FaseViewModel: NSObject, Fase {
             } else if let elementId = view.faseElementId, let image = self.element(with: elementId) as? Image, let _ = image.onClick {
                 let nestedElementsIds = view.nestedElementsIds()
                 self.sendCallbackRequest(for: nestedElementsIds)
+            } else if let elementId = view.faseElementId, let label = self.element(with: elementId) as? Label, let _ = label.onClick {
+                let nestedElementsIds = view.nestedElementsIds()
+                self.sendCallbackRequest(for: nestedElementsIds)
             }
         }
         

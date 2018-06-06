@@ -57,17 +57,25 @@ struct ScreenInfo: Mappable {
     }
 }
 
-struct VersionInfo: Mappable {
+class VersionInfo: NSObject, Mappable, NSCoding {
     var version: String?
     
     init(version: String) {
         self.version = version
     }
     
-    init?(map: Map) { }
+    required init?(map: Map) { }
     
-    mutating func mapping(map: Map) {
+    func mapping(map: Map) {
         version <- map["version"]
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        self.version = aDecoder.decodeObject(forKey: "version") as? String
+    }
+    
+    func encode(with aCoder: NSCoder) {
+        aCoder.encode(version, forKey: "version")
     }
 }
 

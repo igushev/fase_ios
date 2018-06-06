@@ -190,6 +190,24 @@ class FaseViewController: UIViewController {
             self.viewModel.pickersToolbars![selectElement.faseElementId!] = pickerToolBar
             self.viewModel.pickers![selectElement.faseElementId!] = picker
         }
+        if let selectElements = self.viewModel.screen.selectElements(), selectElements.isEmpty == false {
+            for selectElement in selectElements {
+                let pickerToolBar = UIToolbar(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44))
+                let cancelItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onCancelPickerItem(_:)))
+                let flexibleSpaceItem = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+                let okItem = UIBarButtonItem(title: "Ok", style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onOkPickerItem(_:)))
+                okItem.faseElementId = selectElement.faseElementId
+                
+                pickerToolBar.items = [cancelItem, flexibleSpaceItem, okItem]
+                
+                let picker = UIPickerView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 216))
+                picker.dataSource = self.viewModel
+                picker.delegate = self.viewModel
+                
+                self.viewModel.pickersToolbars![selectElement.faseElementId!] = pickerToolBar
+                self.viewModel.pickers![selectElement.faseElementId!] = picker
+            }
+        }
     }
     
     // MARK: - Actions

@@ -47,6 +47,18 @@ class APIClient {
             UserDefaults.standard.setValue(data, forKey: "sessionInfo")
         }
     }
+    var versionInfo: VersionInfo? {
+        get {
+            if let data = UserDefaults.standard.value(forKey: "versionInfo") as? Data {
+                return NSKeyedUnarchiver.unarchiveObject(with: data) as? VersionInfo
+            }
+            return nil
+        }
+        set {
+            let data = NSKeyedArchiver.archivedData(withRootObject: newValue as Any)
+            UserDefaults.standard.setValue(data, forKey: "versionInfo")
+        }
+    }
     
     // MARK: - API methods
     
@@ -63,10 +75,11 @@ class APIClient {
     }
     
     func getScreen(paramsData: Data, handler: @escaping ResponseHandler) {
-        if let sessionId = self.sessionInfo?.sessionId {
+        if let sessionId = self.sessionInfo?.sessionId, let version = self.versionInfo?.version {
             let headers: HTTPHeaders = [
                 "Content-Type": "application/json",
-                "session-id": sessionId
+                "session-id": sessionId,
+                "version": version
             ]
             self.post(headers: headers, path: .getScreen, parametersData: paramsData, handler: handler)
         }
@@ -78,22 +91,24 @@ class APIClient {
     }
     
     func screenUpdate(screenId: String, paramsData: Data, handler: @escaping ResponseHandler) {
-        if let sessionId = self.sessionInfo?.sessionId {
+        if let sessionId = self.sessionInfo?.sessionId, let version = self.versionInfo?.version {
             let headers: HTTPHeaders = [
                 "Content-Type": "application/json",
                 "session-id": sessionId,
-                "screen-id": screenId
+                "screen-id": screenId,
+                "version": version
             ]
             self.post(headers: headers, path: .screenUpdate, parametersData: paramsData, handler: handler)
         }
     }
     
     func elementCallback(screenId: String, paramsData: Data, handler: @escaping ResponseHandler) {
-        if let sessionId = self.sessionInfo?.sessionId {
+        if let sessionId = self.sessionInfo?.sessionId, let version = self.versionInfo?.version {
             let headers: HTTPHeaders = [
                 "Content-Type": "application/json",
                 "session-id": sessionId,
-                "screen-id": screenId
+                "screen-id": screenId,
+                "version": version
             ]
             self.post(headers: headers, path: .elementCallback, parametersData: paramsData, handler: handler)
         }

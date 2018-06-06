@@ -97,6 +97,9 @@ class Router {
                 }
                 ResourcesService.saveResources(resources)
             }
+            if let versionInfo = response.versionInfo {
+                APIClientService.saveNewVersionInfo(versionInfo: versionInfo)
+            }
         }
     }
     
