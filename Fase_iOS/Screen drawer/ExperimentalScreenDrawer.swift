@@ -45,7 +45,10 @@ class ExperimentalScreenDrawer {
 
             scrollView.snp.makeConstraints({ make in
                 make.top.equalToSuperview().offset(64)
-                make.bottom.equalToSuperview().offset(-50) // Hack to avoid
+                make.bottom.equalToSuperview()
+                if viewModel.screen.hasNavigationElement() {
+                    make.bottom.equalToSuperview().offset(-UIElementsHeight.navigation.rawValue)
+                }
                 make.leading.equalToSuperview()
                 make.trailing.equalToSuperview()
             })
@@ -78,6 +81,9 @@ class ExperimentalScreenDrawer {
             if let viewModel = self.viewModel, viewModel.screen.hasElementWithMaxSize() == true {
                 stackView.snp.makeConstraints { (make) in
                     make.bottom.equalToSuperview()
+                    if viewModel.screen.hasNavigationElement() {
+                        make.bottom.equalToSuperview().offset(-UIElementsHeight.navigation.rawValue)
+                    }
                     make.trailing.equalToSuperview()
                 }
             }
