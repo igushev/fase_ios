@@ -42,7 +42,7 @@ class ExperimentalScreenDrawer {
             scrollView.isUserInteractionEnabled = true
             
             self.view.addSubview(scrollView)
-            
+
             scrollView.snp.makeConstraints({ make in
                 make.top.equalToSuperview().offset(64)
                 make.bottom.equalToSuperview()
@@ -341,7 +341,7 @@ class ExperimentalScreenDrawer {
         textView.faseElementId = id
         textView.layer.borderWidth = 1.0
         textView.layer.borderColor = UIColor.FaseColors.borderColor.cgColor
-        
+
         if let parentId = parentElementId {
             textView.navigationElementId = parentId
         }
@@ -374,7 +374,6 @@ class ExperimentalScreenDrawer {
         self.uiControls.append(textView)
         
         textView.enableUserInteractionForSuperviews()
-        
     }
     
     private func drawButton(for element: Button, with id: String, parentElementId: String?) {
@@ -421,7 +420,6 @@ class ExperimentalScreenDrawer {
         }
         self.uiControls.append(button)
         button.enableUserInteractionForSuperviews()
-        
     }
     
     private func drawLabel(for element: Label, with id: String, parentElementId: String?) {
@@ -469,7 +467,6 @@ class ExperimentalScreenDrawer {
                 label.textAlignment = .center
             }
         }
-        
         
         let contentSize = label.intrinsicContentSize
         label.heightAnchor.constraint(equalToConstant: contentSize.height).isActive = true
@@ -545,7 +542,6 @@ class ExperimentalScreenDrawer {
             }
         }
         
-        
         if superview is UIStackView {
             (superview as! UIStackView).addArrangedSubview(imageView)
         } else {
@@ -597,7 +593,6 @@ class ExperimentalScreenDrawer {
             superview.addSubview(textField)
         }
         self.uiControls.append(textField)
-        
     }
     
     private func drawPlacePicker(for element: PlacePicker, with id: String, parentElementId: String?) {
@@ -650,10 +645,11 @@ class ExperimentalScreenDrawer {
         }
         let textField = UITextField()
         textField.faseElementId = id
-                
-        if let setupBlock = self.pickerSetupBlock {
+        
+        // TODO: Fails when emtpy.
+        /*if let setupBlock = self.pickerSetupBlock {
             setupBlock(textField)
-        }
+        }*/
         
         textField.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
         textField.textColor = UIColor.FaseColors.textColor
@@ -740,7 +736,6 @@ class ExperimentalScreenDrawer {
         textField.heightAnchor.constraint(equalToConstant: contentSize.height).isActive = true
         textField.setContentCompressionResistancePriority(UILayoutPriority.defaultLow, for: .horizontal)
         textField.setContentHuggingPriority(UILayoutPriority.defaultLow, for: .horizontal)
-        
     }
     
     private func drawSwitch(for element: Switch, with id: String, parentElementId: String?) {
@@ -777,8 +772,8 @@ class ExperimentalScreenDrawer {
             height = max(height, contentSize.height)
             width += contentSize.width
             switchStackView.addArrangedSubview(label)
-            
         }
+        
         switchStackView.heightAnchor.constraint(equalToConstant: height).isActive = true
         switchStackView.widthAnchor.constraint(equalToConstant: width).isActive = true
         
@@ -810,7 +805,7 @@ class ExperimentalScreenDrawer {
     }
     
     // MARK: - Utils
-    
+        
     func view(with faseElementId: String) -> UIView? {
         for control in self.uiControls {
             if control.faseElementId == faseElementId {
