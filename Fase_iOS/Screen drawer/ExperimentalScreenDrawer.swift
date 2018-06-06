@@ -236,9 +236,9 @@ class ExperimentalScreenDrawer {
         stackView.axis = (element.orientation == FrameType.horizontal) ? .horizontal : .vertical
         stackView.distribution = .fill
         
-        /*stackView.spacing = 5.0
-        stackView.layoutMargins = UIEdgeInsetsMake(5, 5, 5, 5)
-        stackView.isLayoutMarginsRelativeArrangement = true*/
+        stackView.spacing = 2.0
+        stackView.layoutMargins = UIEdgeInsetsMake(2, 2, 2, 2)
+        stackView.isLayoutMarginsRelativeArrangement = true
 
         stackView.faseElementId = id
         element.faseElementId = id
