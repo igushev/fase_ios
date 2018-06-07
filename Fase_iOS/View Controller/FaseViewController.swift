@@ -42,9 +42,10 @@ class FaseViewController: UIViewController {
         self.viewModel.drawElements()
         self.decorateView()
         
-        //        self.gestureRecognizer = UITapGestureRecognizer(target: self.viewModel, action: #selector(FaseViewModel.onClickGestureRecognizer(_:)))
         self.view.isUserInteractionEnabled = true
-        //        self.view.addGestureRecognizer(self.gestureRecognizer!)
+        
+        self.gestureRecognizer = UITapGestureRecognizer(target: self.viewModel, action: #selector(FaseViewModel.onClickGestureRecognizer(_:)))
+        self.view.addGestureRecognizer(self.gestureRecognizer!)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -159,37 +160,25 @@ class FaseViewController: UIViewController {
     }
     
     func setupPickersIfNedded() {
-        if let datePickerElement = self.viewModel.screen.datePickerElement() {
-            let pickerToolBar = UIToolbar(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44))
-            let cancelItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onCancelPickerItem(_:)))
-            let flexibleSpaceItem = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-            let okItem = UIBarButtonItem(title: "Ok", style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onOkPickerItem(_:)))
-            okItem.faseElementId = datePickerElement.faseElementId
-            
-            pickerToolBar.items = [cancelItem, flexibleSpaceItem, okItem]
-            
-            let datePicker = UIDatePicker(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 216))
-            datePicker.datePickerMode = .date
-            
-            self.viewModel.pickersToolbars![datePickerElement.faseElementId!] = pickerToolBar
-            self.viewModel.pickers![datePickerElement.faseElementId!] = datePicker
+        if let datePickerElements = self.viewModel.screen.datePickerElements(), datePickerElements.isEmpty == false {
+            for datePickerElement in datePickerElements {
+                let pickerToolBar = UIToolbar(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44))
+                let cancelItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onCancelPickerItem(_:)))
+                let flexibleSpaceItem = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+                let okItem = UIBarButtonItem(title: "Ok", style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onOkPickerItem(_:)))
+                okItem.faseElementId = datePickerElement.faseElementId
+                
+                pickerToolBar.items = [cancelItem, flexibleSpaceItem, okItem]
+                
+                let datePicker = UIDatePicker(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 216))
+                datePicker.datePickerMode = .date
+                datePicker.faseElementId = datePickerElement.faseElementId
+                
+                self.viewModel.pickersToolbars![datePickerElement.faseElementId!] = pickerToolBar
+                self.viewModel.pickers![datePickerElement.faseElementId!] = datePicker
+            }
         }
-        if let selectElement = self.viewModel.screen.selectElement() {
-            let pickerToolBar = UIToolbar(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44))
-            let cancelItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onCancelPickerItem(_:)))
-            let flexibleSpaceItem = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-            let okItem = UIBarButtonItem(title: "Ok", style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onOkPickerItem(_:)))
-            okItem.faseElementId = selectElement.faseElementId
-            
-            pickerToolBar.items = [cancelItem, flexibleSpaceItem, okItem]
-            
-            let picker = UIPickerView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 216))
-            picker.dataSource = self.viewModel
-            picker.delegate = self.viewModel
-            
-            self.viewModel.pickersToolbars![selectElement.faseElementId!] = pickerToolBar
-            self.viewModel.pickers![selectElement.faseElementId!] = picker
-        }
+        
         if let selectElements = self.viewModel.screen.selectElements(), selectElements.isEmpty == false {
             for selectElement in selectElements {
                 let pickerToolBar = UIToolbar(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 44))
@@ -203,6 +192,7 @@ class FaseViewController: UIViewController {
                 let picker = UIPickerView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 216))
                 picker.dataSource = self.viewModel
                 picker.delegate = self.viewModel
+                picker.faseElementId = selectElement.faseElementId
                 
                 self.viewModel.pickersToolbars![selectElement.faseElementId!] = pickerToolBar
                 self.viewModel.pickers![selectElement.faseElementId!] = picker

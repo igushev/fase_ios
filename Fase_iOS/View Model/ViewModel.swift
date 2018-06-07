@@ -115,6 +115,8 @@ class FaseViewModel: NSObject, Fase {
     
     // On frame tap
     @objc func onClickGestureRecognizer(_ sender: UITapGestureRecognizer) {
+        self.screenDrawer.view.endEditing(true)
+        
         if let view = sender.view {
             
             //if let tappedView = view.hitTest(point, with: nil),
@@ -146,14 +148,14 @@ class FaseViewModel: NSObject, Fase {
                 switch elementType {
                     
                 case .dateTimePicker:
-                    if let datePickerElement = self.screen.datePickerElement(), let datePicker = self.pickers![senderId] as? UIDatePicker  {
+                    if let datePickerElement = self.screen.datePickerElement(elementId: element.faseElementId!), let datePicker = self.pickers![senderId] as? UIDatePicker  {
                         datePickerElement.datetime = datePicker.date
                         textField.text = self.printDateFormatter.string(from: datePicker.date)
                     }
                     break
                     
                 case .select:
-                    if let selectElement = self.screen.selectElement(), let value = selectElement.value {
+                    if let selectElement = self.screen.selectElement(elementId: element.faseElementId!), let value = selectElement.value {
                         selectElement.value = value
                         textField.text = value
                     }
@@ -300,7 +302,7 @@ class FaseViewModel: NSObject, Fase {
                         
                     case .dateTimePicker:
                         var dateString = ""
-                        if let datePickerElement = self.screen.datePickerElement(), let date = datePickerElement.datetime {
+                        if let datePickerElement = self.screen.datePickerElement(elementId: element.faseElementId!), let date = datePickerElement.datetime {
                             dateString = self.serverDateFormatter.string(from: date)
                         }
                         elementsUpdate.valueArray?.append(dateString)
@@ -316,7 +318,7 @@ class FaseViewModel: NSObject, Fase {
                         
                     case .select:
                         var value = ""
-                        if let selectElement = self.screen.selectElement(), let val = selectElement.value {
+                        if let selectElement = self.screen.selectElement(elementId: element.faseElementId!), let val = selectElement.value {
                             value = val
                         }
                         elementsUpdate.valueArray?.append(value)
@@ -523,14 +525,14 @@ extension FaseViewModel: UIPickerViewDataSource, UIPickerViewDelegate {
     }
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        if let selectElement = self.screen.selectElement(), let items = selectElement.items {
+        if let elementId = pickerView.faseElementId, let selectElement = self.screen.selectElement(elementId: elementId), let items = selectElement.items {
             return items.count
         }
         return 0
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        if let selectElement = self.screen.selectElement(), let items = selectElement.items {
+        if let elementId = pickerView.faseElementId, let selectElement = self.screen.selectElement(elementId: elementId), let items = selectElement.items {
             return items[row]
         }
         return nil
@@ -538,7 +540,7 @@ extension FaseViewModel: UIPickerViewDataSource, UIPickerViewDelegate {
     
     // ?
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        if let selectedElement = self.screen.selectElement(), let items = selectedElement.items {
+        if let elementId = pickerView.faseElementId, let selectedElement = self.screen.selectElement(elementId: elementId), let items = selectedElement.items {
             selectedElement.value = items[row]
         }
     }

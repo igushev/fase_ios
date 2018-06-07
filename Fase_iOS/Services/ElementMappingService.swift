@@ -57,6 +57,9 @@ class ElementMappingService {
         case .contactPicker:
             return ContactPicker.init(map: map)
             
+        case .slider:
+            return Slider.init(map: map)
+            
         default:
             return nil
         }

@@ -297,7 +297,9 @@ extension Frame {
         return nil
     }
     
-    func selectElement() -> Select? {
+    func dateTimePickerElements() -> [DateTimePicker]? {
+        var elements: [DateTimePicker] = []
+        
         for tuple in self.idElementList {
             if tuple.count == 1 {
                 break
@@ -309,13 +311,18 @@ extension Frame {
                 let elementTypeString = element.`class`
                 let elementType = ElementType(with: elementTypeString)
                 
-                if elementType == ElementType.select {
-                    (element as? Select)?.faseElementId = elementId
-                    return element as? Select
+                if elementType == ElementType.dateTimePicker {
+                    (element as? DateTimePicker)?.faseElementId = elementId
+                    elements.append(element as! DateTimePicker)
+                }
+                if elementType == ElementType.frame {
+                    if let datePickers = (element as! Frame).dateTimePickerElements() {
+                        elements = elements + datePickers
+                    }
                 }
             }
         }
-        return nil
+        return elements
     }
     
     func selectElements() -> [Select]? {
@@ -630,8 +637,14 @@ extension Screen {
         return hasElements
     }
     
-    func datePickerElement() -> DateTimePicker? {
+    func datePickerElements() -> [DateTimePicker]? {
+        var elements: [DateTimePicker] = []
+        
+        var i = 0
+        
         for tuple in self.idElementList {
+            i += 1
+            
             if tuple.count == 1 {
                 break
             }
@@ -642,12 +655,29 @@ extension Screen {
                 let elementTypeString = element.`class`
                 let elementType = ElementType(with: elementTypeString)
                 
+                if i > 50 {
+                    print("")
+                }
+                
                 if elementType == ElementType.dateTimePicker {
                     (element as? DateTimePicker)?.faseElementId = elementId
-                    return element as? DateTimePicker
+                    elements.append(element as! DateTimePicker)
                 }
                 if elementType == ElementType.frame {
-                    return (element as! Frame).datePickerElement()
+                    if let dateTimePickers = (element as! Frame).dateTimePickerElements() {
+                        elements = elements + dateTimePickers
+                    }
+                }
+            }
+        }
+        return elements
+    }
+    
+    func datePickerElement(elementId: String) -> DateTimePicker? {
+        if let datePickerElements = self.datePickerElements() {
+            for datePickerElement in datePickerElements {
+                if datePickerElement.faseElementId == elementId {
+                    return datePickerElement
                 }
             }
         }
@@ -672,30 +702,6 @@ extension Screen {
                 }
                 if elementType == ElementType.frame {
                     return (element as! Frame).placePickerElement()
-                }
-            }
-        }
-        return nil
-    }
-    
-    func selectElement() -> Select? {
-        for tuple in self.idElementList {
-            if tuple.count == 1 {
-                break
-            }
-            let elementId = tuple[0] as! String
-            let element = tuple[1] as! ElementContainer
-            
-            if element is VisualElement {
-                let elementTypeString = element.`class`
-                let elementType = ElementType(with: elementTypeString)
-                
-                if elementType == ElementType.select {
-                    (element as? Select)?.faseElementId = elementId
-                    return element as? Select
-                }
-                if elementType == ElementType.frame {
-                    return (element as! Frame).selectElement()
                 }
             }
         }
@@ -728,6 +734,17 @@ extension Screen {
             }
         }
         return elements
+    }
+    
+    func selectElement(elementId: String) -> Select? {
+        if let selectElements = self.selectElements() {
+            for selectElement in selectElements {
+                if selectElement.faseElementId == elementId {
+                    return selectElement
+                }
+            }
+        }
+        return nil
     }
     
     func contactPickerElement() -> ContactPicker? {

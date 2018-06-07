@@ -42,7 +42,7 @@ class ExperimentalScreenDrawer {
             scrollView.isUserInteractionEnabled = true
             
             self.view.addSubview(scrollView)
-
+            
             scrollView.snp.makeConstraints({ make in
                 make.top.equalToSuperview().offset(64)
                 make.bottom.equalToSuperview()
@@ -295,6 +295,7 @@ class ExperimentalScreenDrawer {
         textField.textColor = UIColor.FaseColors.textColor
         textField.borderStyle = .roundedRect
         textField.faseElementId = id
+        
         if let parentId = parentElementId {
             textField.navigationElementId = parentId
         }
@@ -341,7 +342,7 @@ class ExperimentalScreenDrawer {
         textView.faseElementId = id
         textView.layer.borderWidth = 1.0
         textView.layer.borderColor = UIColor.FaseColors.borderColor.cgColor
-
+        
         if let parentId = parentElementId {
             textView.navigationElementId = parentId
         }
@@ -450,22 +451,7 @@ class ExperimentalScreenDrawer {
         }
         
         if let align = element.align {
-            switch align {
-            case .left:
-                label.textAlignment = .left
-                break
-                
-            case .right:
-                label.textAlignment = .right
-                break
-                
-            case .center:
-                label.textAlignment = .center
-                break
-                
-            default:
-                label.textAlignment = .center
-            }
+            label.textAlignment = self.textAlignmentDependOn(elementTextAlignment: align)
         }
         
         let contentSize = label.intrinsicContentSize
@@ -562,14 +548,14 @@ class ExperimentalScreenDrawer {
         let textField = UITextField()
         textField.faseElementId = id
         
-        // TODO: Fails when emtpy.
-        /*if let setupBlock = self.datePickerSetupBlock {
-         setupBlock(textField)
-         }*/
+        if let setupBlock = self.datePickerSetupBlock {
+            setupBlock(textField)
+        }
         
         textField.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
         textField.textColor = UIColor.FaseColors.textColor
         textField.borderStyle = .roundedRect
+        
         if let parentId = parentElementId {
             textField.navigationElementId = parentId
         }
@@ -646,33 +632,16 @@ class ExperimentalScreenDrawer {
         let textField = UITextField()
         textField.faseElementId = id
         
-        // TODO: Fails when emtpy.
-        /*if let setupBlock = self.pickerSetupBlock {
+        
+        if let setupBlock = self.pickerSetupBlock {
             setupBlock(textField)
-        }*/
+        }
         
         textField.backgroundColor = UIColor.FaseColors.textFieldBackgroundColor
         textField.textColor = UIColor.FaseColors.textColor
         textField.borderStyle = .roundedRect
         textField.delegate = self.viewModel
-        
-        switch element.align {
-        case .left:
-            textField.textAlignment = .left
-            break
-            
-        case .right:
-            textField.textAlignment = .right
-            break
-            
-        case .center:
-            textField.textAlignment = .center
-            break
-            
-        default:
-            textField.textAlignment = .left
-            break
-        }
+        textField.textAlignment = self.textAlignmentDependOn(elementTextAlignment: element.align)
         
         if let parentId = parentElementId {
             textField.navigationElementId = parentId
@@ -805,7 +774,7 @@ class ExperimentalScreenDrawer {
     }
     
     // MARK: - Utils
-        
+    
     func view(with faseElementId: String) -> UIView? {
         for control in self.uiControls {
             if control.faseElementId == faseElementId {
@@ -839,6 +808,22 @@ class ExperimentalScreenDrawer {
             return textField
         }
         return nil
+    }
+    
+    private func textAlignmentDependOn(elementTextAlignment: Align) -> NSTextAlignment {
+        switch elementTextAlignment {
+        case .left:
+            return .left
+            
+        case .right:
+            return .right
+            
+        case .center:
+            return .center
+            
+        default:
+            return .left
+        }
     }
     
     // MARK: - Used for drawing duplicated frames with same id

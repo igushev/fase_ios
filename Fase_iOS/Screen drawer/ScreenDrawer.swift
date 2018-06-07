@@ -173,6 +173,11 @@ class ScreenDrawer {
             
         case .switchElement:
             self.drawSwitch(for: element as! Switch, with: id, parentElementId: parentElementId)
+            break
+            
+        case .slider:
+            self.drawSlider(for: element as! Slider, with: id, parentElementId: parentElementId)
+            break
             
         default:
             break
@@ -837,6 +842,21 @@ class ScreenDrawer {
                 make.centerY.equalTo(`switch`.snp.centerY)
             })
         }
+    }
+    
+    private func drawSlider(for element: Slider, with id: String, parentElementId: String?) {
+        element.faseElementId = id
+        
+        var superview: UIView! = self.view
+        if let parentId = parentElementId, let parentView = self.view(with: parentId) {
+            superview = parentView
+        }
+        
+        let x = self.getXForElement(with: self.maxWidth)
+        let y = self.y
+        let width = UIElementsWidth.switch.rawValue
+        let height = UIElementsHeight.switch.rawValue
+        let frame = CGRect(x: x, y: y, width: width, height: height)
     }
     
     // MARK: - Help methods
