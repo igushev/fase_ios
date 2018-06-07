@@ -276,27 +276,6 @@ extension Frame {
         return height
     }
     
-    func datePickerElement() -> DateTimePicker? {
-        for tuple in self.idElementList {
-            if tuple.count == 1 {
-                break
-            }
-            let elementId = tuple[0] as! String
-            let element = tuple[1] as! ElementContainer
-            
-            if element is VisualElement {
-                let elementTypeString = element.`class`
-                let elementType = ElementType(with: elementTypeString)
-                
-                if elementType == ElementType.dateTimePicker {
-                    (element as? DateTimePicker)?.faseElementId = elementId
-                    return element as? DateTimePicker
-                }
-            }
-        }
-        return nil
-    }
-    
     func dateTimePickerElements() -> [DateTimePicker]? {
         var elements: [DateTimePicker] = []
         
@@ -317,6 +296,34 @@ extension Frame {
                 }
                 if elementType == ElementType.frame {
                     if let datePickers = (element as! Frame).dateTimePickerElements() {
+                        elements = elements + datePickers
+                    }
+                }
+            }
+        }
+        return elements
+    }
+    
+    func placePickerElements() -> [PlacePicker]? {
+        var elements: [PlacePicker] = []
+        
+        for tuple in self.idElementList {
+            if tuple.count == 1 {
+                break
+            }
+            let elementId = tuple[0] as! String
+            let element = tuple[1] as! ElementContainer
+            
+            if element is VisualElement {
+                let elementTypeString = element.`class`
+                let elementType = ElementType(with: elementTypeString)
+                
+                if elementType == ElementType.placePicker {
+                    (element as? PlacePicker)?.faseElementId = elementId
+                    elements.append(element as! PlacePicker)
+                }
+                if elementType == ElementType.frame {
+                    if let datePickers = (element as! Frame).placePickerElements() {
                         elements = elements + datePickers
                     }
                 }
@@ -353,7 +360,9 @@ extension Frame {
         return elements
     }
     
-    func placePickerElement() -> PlacePicker? {
+    func contactPickerElements() -> [ContactPicker]? {
+        var elements: [ContactPicker] = []
+        
         for tuple in self.idElementList {
             if tuple.count == 1 {
                 break
@@ -365,13 +374,18 @@ extension Frame {
                 let elementTypeString = element.`class`
                 let elementType = ElementType(with: elementTypeString)
                 
-                if elementType == ElementType.placePicker {
-                    (element as? PlacePicker)?.faseElementId = elementId
-                    return element as? PlacePicker
+                if elementType == ElementType.contactPicker {
+                    (element as? ContactPicker)?.faseElementId = elementId
+                    elements.append(element as! ContactPicker)
+                }
+                if elementType == ElementType.frame {
+                    if let selects = (element as! Frame).contactPickerElements() {
+                        elements = elements + selects
+                    }
                 }
             }
         }
-        return nil
+        return elements
     }
     
     func hasMaxElements() -> Bool {
@@ -640,10 +654,7 @@ extension Screen {
     func datePickerElements() -> [DateTimePicker]? {
         var elements: [DateTimePicker] = []
         
-        var i = 0
-        
         for tuple in self.idElementList {
-            i += 1
             
             if tuple.count == 1 {
                 break
@@ -654,10 +665,6 @@ extension Screen {
             if element is VisualElement {
                 let elementTypeString = element.`class`
                 let elementType = ElementType(with: elementTypeString)
-                
-                if i > 50 {
-                    print("")
-                }
                 
                 if elementType == ElementType.dateTimePicker {
                     (element as? DateTimePicker)?.faseElementId = elementId
@@ -684,8 +691,11 @@ extension Screen {
         return nil
     }
     
-    func placePickerElement() -> PlacePicker? {
+    func placePickerElements() -> [PlacePicker]? {
+        var elements: [PlacePicker] = []
+        
         for tuple in self.idElementList {
+            
             if tuple.count == 1 {
                 break
             }
@@ -698,10 +708,23 @@ extension Screen {
                 
                 if elementType == ElementType.placePicker {
                     (element as? PlacePicker)?.faseElementId = elementId
-                    return element as? PlacePicker
+                    elements.append(element as! PlacePicker)
                 }
                 if elementType == ElementType.frame {
-                    return (element as! Frame).placePickerElement()
+                    if let placePickers = (element as! Frame).placePickerElements() {
+                        elements = elements + placePickers
+                    }
+                }
+            }
+        }
+        return elements
+    }
+    
+    func placePickerElement(elementId: String) -> PlacePicker? {
+        if let placePickerElements = self.placePickerElements() {
+            for placePickerElement in placePickerElements {
+                if placePickerElement.faseElementId == elementId {
+                    return placePickerElement
                 }
             }
         }
@@ -747,11 +770,14 @@ extension Screen {
         return nil
     }
     
-    func contactPickerElement() -> ContactPicker? {
+    func contactPickerElements() -> [ContactPicker]? {
+        var elements: [ContactPicker] = []
+        
         for tuple in self.idElementList {
             if tuple.count == 1 {
                 break
             }
+            let elementId = tuple[0] as! String
             let element = tuple[1] as! ElementContainer
             
             if element is VisualElement {
@@ -759,7 +785,24 @@ extension Screen {
                 let elementType = ElementType(with: elementTypeString)
                 
                 if elementType == ElementType.contactPicker {
-                    return element as? ContactPicker
+                    (element as? ContactPicker)?.faseElementId = elementId
+                    elements.append(element as! ContactPicker)
+                }
+                if elementType == ElementType.frame {
+                    if let contactPickers = (element as! Frame).contactPickerElements() {
+                        elements = elements + contactPickers
+                    }
+                }
+            }
+        }
+        return elements
+    }
+    
+    func contactPickerElement(elementId: String) -> ContactPicker? {
+        if let contactPickersElements = self.contactPickerElements() {
+            for contactPickersElement in contactPickersElements {
+                if contactPickersElement.faseElementId == elementId {
+                    return contactPickersElement
                 }
             }
         }
@@ -994,4 +1037,36 @@ extension ElementsUpdate: Equatable {
         return (newElementsUpdate.valueArray!.count > 0) ? newElementsUpdate : nil
     }
 }
+
+
+import GooglePlaces
+import ContactsUI
+
+// MARK: - Other extensions
+
+extension CNContactPickerViewController {
+    // This var stores fase element id for convenience. Element id is in the same array that element
+    var faseElementId: String? {
+        get {
+            return objc_getAssociatedObject(self, &faseElementIdAssociationKey) as? String
+        }
+        set(newValue) {
+            objc_setAssociatedObject(self, &faseElementIdAssociationKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN)
+        }
+    }
+}
+
+extension GMSAutocompleteViewController {
+    // This var stores fase element id for convenience. Element id is in the same array that element
+    var faseElementId: String? {
+        get {
+            return objc_getAssociatedObject(self, &faseElementIdAssociationKey) as? String
+        }
+        set(newValue) {
+            objc_setAssociatedObject(self, &faseElementIdAssociationKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN)
+        }
+    }
+}
+
+
 
