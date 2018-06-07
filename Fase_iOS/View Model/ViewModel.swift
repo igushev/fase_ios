@@ -175,6 +175,7 @@ class FaseViewModel: NSObject, Fase {
     
     @objc func onSelectPlace(_ sender: UITextField) {
         let placePickerController = GMSAutocompleteViewController()
+        placePickerController.faseElementId = sender.faseElementId
         placePickerController.delegate = self
         self.router?.presentViewController(viewController: placePickerController)
     }
@@ -302,7 +303,7 @@ class FaseViewModel: NSObject, Fase {
                         
                     case .contactPicker:
                         var name = ""
-                        if let contactPickerElement = self.screen.contactPickerElement(), let contact = contactPickerElement.contact, let contactJsonString = contact.toJSONString() {
+                        if let elementId = textField.faseElementId, let contactPickerElement = self.screen.contactPickerElement(elementId: elementId), let contact = contactPickerElement.contact, let contactJsonString = contact.toJSONString() {
                             name = contactJsonString
                         }
                         elementsUpdate.valueArray?.append(name)
@@ -310,7 +311,7 @@ class FaseViewModel: NSObject, Fase {
                         
                     case .dateTimePicker:
                         var dateString = ""
-                        if let datePickerElement = self.screen.datePickerElement(elementId: element.faseElementId!), let date = datePickerElement.datetime {
+                        if let elementId = textField.faseElementId, let datePickerElement = self.screen.datePickerElement(elementId: elementId), let date = datePickerElement.datetime {
                             dateString = self.serverDateFormatter.string(from: date)
                         }
                         elementsUpdate.valueArray?.append(dateString)
@@ -318,7 +319,7 @@ class FaseViewModel: NSObject, Fase {
                         
                     case .placePicker:
                         var placeString = ""
-                        if let placePickerElement = self.screen.placePickerElement(), let place = placePickerElement.place, let placeJsonString = place.toJSONString() {
+                        if let elementId = textField.faseElementId, let placePickerElement = self.screen.placePickerElement(elementId: elementId), let place = placePickerElement.place, let placeJsonString = place.toJSONString() {
                             placeString = placeJsonString
                         }
                         elementsUpdate.valueArray?.append(placeString)
@@ -326,7 +327,7 @@ class FaseViewModel: NSObject, Fase {
                         
                     case .select:
                         var value = ""
-                        if let selectElement = self.screen.selectElement(elementId: element.faseElementId!), let val = selectElement.value {
+                        if let elementId = textField.faseElementId, let selectElement = self.screen.selectElement(elementId: elementId), let val = selectElement.value {
                             value = val
                         }
                         elementsUpdate.valueArray?.append(value)
@@ -475,22 +476,20 @@ extension FaseViewModel: UITextFieldDelegate {
     // MARK: - UITextFieldDelegate
     
     func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
-        if let placePickerTextField = self.screenDrawer.viewThatIdContains(id: "place_picker") {
-            if placePickerTextField == textField {
-                self.onSelectPlace(textField)
-                return false
-            }
+        if let elementId = textField.faseElementId, let _ = self.screen.placePickerElement(elementId: elementId) {
+            self.onSelectPlace(textField)
+            return false
         }
-        if let contactPickerTextField = self.screenDrawer.viewThatIdContains(id: "contact_picker") {
-            if contactPickerTextField == textField {
-                let picker = CNContactPickerViewController()
-                picker.delegate = self
-                picker.predicateForEnablingContact = NSPredicate(format: "phoneNumbers.@count > 0")
-                picker.predicateForSelectionOfContact = NSPredicate(format: "phoneNumbers.@count == 1")
-                picker.predicateForSelectionOfProperty = NSPredicate(format: "key == 'phoneNumbers'")
-                self.router?.presentViewController(viewController: picker)
-                return false
-            }
+        if let elementId = textField.faseElementId, let _ = self.screen.contactPickerElement(elementId: elementId) {
+            let picker = CNContactPickerViewController()
+            picker.faseElementId = textField.faseElementId
+            picker.delegate = self
+            picker.predicateForEnablingContact = NSPredicate(format: "phoneNumbers.@count > 0")
+            picker.predicateForSelectionOfContact = NSPredicate(format: "phoneNumbers.@count == 1")
+            picker.predicateForSelectionOfProperty = NSPredicate(format: "key == 'phoneNumbers'")
+            self.router?.presentViewController(viewController: picker)
+            return false
+            
         }
         return true
     }
@@ -501,12 +500,10 @@ extension FaseViewModel: GMSAutocompleteViewControllerDelegate {
     // MARK: - GMSAutocompleteViewControllerDelegate
     
     func viewController(_ viewController: GMSAutocompleteViewController, didAutocompleteWith place: GMSPlace) {
-        if let textField = self.screenDrawer.viewThatIdContains(id: "place_picker") as? UITextField {
+        if let elementId = viewController.faseElementId, let placePickerElement = self.screen.placePickerElement(elementId: elementId), let textField = self.screenDrawer.view(with: elementId) as? UITextField {
             let fasePlace = Place.place(with: place)
             
-            if let placePickerElement = self.screen.placePickerElement() {
-                placePickerElement.place = fasePlace
-            }
+            placePickerElement.place = fasePlace
             
             textField.text = place.formattedAddress
             viewController.dismiss(animated: true, completion: nil)
@@ -559,9 +556,10 @@ extension FaseViewModel: CNContactPickerDelegate {
     // MARK: - CNContactPickerDelegate
     
     func contactPicker(_ picker: CNContactPickerViewController, didSelect contact: CNContact) {
-        if let textField = self.screenDrawer.viewThatIdContains(id: "contact_picker") as? UITextField {
+        if let elementId = picker.faseElementId, let textField = self.screenDrawer.view(with: elementId) as? UITextField, let contactPicker = self.screen.contactPickerElement(elementId: elementId) {
             if let phone = contact.phoneNumbers.first?.value.stringValue {
                 let faseContact = Contact(name: contact.givenName + " " + contact.familyName, phone: phone)
+                contactPicker.contact = faseContact
                 
                 self.fill(textField: textField, with: faseContact)
             }
@@ -574,9 +572,10 @@ extension FaseViewModel: CNContactPickerDelegate {
     }
     
     func contactPicker(_ picker: CNContactPickerViewController, didSelect contactProperty: CNContactProperty) {
-        if let textField = self.screenDrawer.viewThatIdContains(id: "contact_picker") as? UITextField {
+        if let elementId = picker.faseElementId, let textField = self.screenDrawer.view(with: elementId) as? UITextField, let contactPicker = self.screen.contactPickerElement(elementId: elementId) {
             if let phoneNumber = contactProperty.value as? CNPhoneNumber {
                 let faseContact = Contact(name: contactProperty.contact.givenName + " " + contactProperty.contact.familyName, phone: phoneNumber.stringValue)
+                contactPicker.contact = faseContact
                 
                 self.fill(textField: textField, with: faseContact)
             }
@@ -592,9 +591,6 @@ extension FaseViewModel: CNContactPickerDelegate {
     }
     
     private func fill(textField: UITextField, with contact: Contact) {
-        if let contactPickerElement = self.screen.contactPickerElement() {
-            contactPickerElement.contact = contact
-        }
         textField.text = contact.displayName
     }
 }
