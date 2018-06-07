@@ -236,25 +236,33 @@ class FaseViewModel: NSObject, Fase {
             
             switch elementType {
             case .button:
-                method = (element as! Button).onClick.method
+                if let elementMethod = (element as! Button).onClick {
+                    method = elementMethod.method
+                }
                 break
                 
             case .label:
-                method = (element as! Label).onClick.method
+                if let elementMethod = (element as! Button).onClick {
+                    method = elementMethod.method
+                }                
                 break
                 
             case .frame:
-                if let methodObj = (element as! Frame).onClick {
-                    method = methodObj.method
+                if let elementMethod = (element as! Frame).onClick {
+                    method = elementMethod.method
                 }
                 break
                 
             case .menuItem:
-                method = (element as! MenuItem).onClick.method
+                if let elementMethod = (element as! MenuItem).onClick {
+                    method = elementMethod.method
+                }
                 break
                 
             case .contactPicker:
-                method = (element as! ContactPicker).onPick.method
+                if let elementMethod = (element as! ContactPicker).onPick {
+                    method = elementMethod.method
+                }                
                 break
                 
             default:
