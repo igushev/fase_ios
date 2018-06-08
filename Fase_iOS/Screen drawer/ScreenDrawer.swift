@@ -26,6 +26,7 @@ enum UIElementsHeight: CGFloat {
     case navigation = 49.0
     case verticalSpace = 5.0
     case `switch` = 31.0
+    case web = 200.0
 }
 
 enum FaseElementsId: String {

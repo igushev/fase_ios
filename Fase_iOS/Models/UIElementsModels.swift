@@ -492,11 +492,41 @@ class PlacePicker: VisualElement {
 }
 
 class Separator: VisualElement {
+    var size: Size!
     
+    required init?(map: Map) {
+        super.init(map: map)
+        
+        size = try? map.value("size")
+    }
+    
+    override func mapping(map: Map) {
+        super.mapping(map: map)
+        
+        size <- map["size"]
+    }
 }
 
 class Web: VisualElement {
     var size: Size!
+    var url: String?
+    var scrollable: Bool!
+    
+    required init?(map: Map) {
+        super.init(map: map)
+        
+        size = try? map.value("size")
+        url = try? map.value("url")
+        scrollable = try? map.value("scrollable")
+    }
+    
+    override func mapping(map: Map) {
+        super.mapping(map: map)
+        
+        size <- map["size"]
+        url <- map["url"]
+        scrollable <- map["scrollable"]
+    }
 }
 
 enum FrameType: Int {

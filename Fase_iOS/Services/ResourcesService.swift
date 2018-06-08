@@ -12,14 +12,13 @@ class ResourcesService {
     
     static func resetResources() {
         let fileManager = FileManager.default
-        let tempFolderPath = NSTemporaryDirectory()
-        do {
-            let filePaths = try fileManager.contentsOfDirectory(atPath: tempFolderPath)
-            for filePath in filePaths {
-                try fileManager.removeItem(atPath: tempFolderPath + filePath)
+        if let folderPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first {
+            guard let items = try? fileManager.contentsOfDirectory(atPath: folderPath) else { return }
+            
+            for item in items {
+                let completePath = folderPath.appending("/").appending(item)
+                try? FileManager.default.removeItem(atPath: completePath)
             }
-        } catch {
-            print("Could not clear temp folder: \(error)")
         }
     }
     

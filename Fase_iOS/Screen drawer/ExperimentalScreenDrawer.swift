@@ -166,6 +166,19 @@ class ExperimentalScreenDrawer {
             
         case .switchElement:
             self.drawSwitch(for: element as! Switch, with: id, parentElementId: parentElementId)
+            break
+            
+        case .separator:
+            self.drawSeparator(for: element as! Separator, with: id, parentElementId: parentElementId)
+            break
+            
+        case .slider:
+            self.drawSlider(for: element as! Slider, with: id, parentElementId: parentElementId)
+            break
+            
+        case .web:
+            self.drawWeb(for: element as! Web, with: id, parentElementId: parentElementId)
+            break
             
         default:
             break
@@ -771,6 +784,79 @@ class ExperimentalScreenDrawer {
             superview.addSubview(switchStackView)
         }
         self.uiControls.append(switch_)
+    }
+    
+    private func drawSlider(for element: Slider, with id: String, parentElementId: String?) {
+        element.faseElementId = id
+        
+        var superview: UIView! = self.view
+        
+        if let parentId = parentElementId, let parentView = self.view(with: parentId) {
+            superview = parentView
+        }
+        
+        let slider = UISlider(frame: CGRect(x: 0, y: 0, width: superview.frame.width, height: UIElementsHeight.button.rawValue))
+        slider.minimumValue = element.minValue
+        slider.maximumValue = element.maxValue
+        slider.value = element.value /// element.maxValue
+        slider.addTarget(self.viewModel, action: #selector(FaseViewModel.onSliderValueChanged(_:)), for: .valueChanged)
+        slider.faseElementId = id
+        
+        if superview is UIStackView {
+            (superview as! UIStackView).addArrangedSubview(slider)
+        } else {
+            superview.addSubview(slider)
+        }
+        self.uiControls.append(slider)
+    }
+    
+    private func drawSeparator(for element: Separator, with id: String, parentElementId: String?) {
+        element.faseElementId = id
+        
+        var superview: UIView! = self.view
+        
+        if let parentId = parentElementId, let parentView = self.view(with: parentId) {
+            superview = parentView
+        }
+        
+        let separator = UIView(frame: CGRect.zero)
+        separator.backgroundColor = UIColor.gray
+        separator.faseElementId = id
+        
+        if superview is UIStackView {
+            (superview as! UIStackView).addArrangedSubview(separator)
+        } else {
+            superview.addSubview(separator)
+        }
+        self.uiControls.append(separator)
+    }
+    
+    private func drawWeb(for element: Web, with id: String, parentElementId: String?) {
+        element.faseElementId = id
+        
+        var superview: UIView! = self.view
+        
+        if let parentId = parentElementId, let parentView = self.view(with: parentId) {
+            superview = parentView
+        }
+        
+        let webView = UIWebView(frame: CGRect(x: 0, y: 0, width: superview.frame.width, height: UIElementsHeight.web.rawValue))
+        let contentSize = webView.intrinsicContentSize
+        webView.heightAnchor.constraint(equalToConstant: UIElementsHeight.web.rawValue).isActive = true
+        webView.widthAnchor.constraint(equalToConstant: contentSize.width).isActive = true
+        webView.faseElementId = id
+        webView.scrollView?.isScrollEnabled = element.scrollable
+        
+        if let urlString = element.url, let url = URL(string: urlString) {
+            webView.loadRequest(URLRequest(url: url))
+        }
+        
+        if superview is UIStackView {
+            (superview as! UIStackView).addArrangedSubview(webView)
+        } else {
+            superview.addSubview(webView)
+        }
+        self.uiControls.append(webView)
     }
     
     // MARK: - Utils

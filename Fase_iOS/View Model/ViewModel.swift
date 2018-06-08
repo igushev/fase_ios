@@ -180,6 +180,12 @@ class FaseViewModel: NSObject, Fase {
         self.router?.presentViewController(viewController: placePickerController)
     }
     
+    @objc func onSliderValueChanged(_ sender: UISlider) {
+        if let elementId = sender.faseElementId, let slider = self.element(with: elementId) as? Slider {
+            sender.value = round(sender.value / slider.step) * slider.step
+        }
+    }
+    
     // MARK: - Screen update request
     
     @objc func sendScreenUpdateRequest() {
@@ -245,7 +251,7 @@ class FaseViewModel: NSObject, Fase {
             case .label:
                 if let elementMethod = (element as! Button).onClick {
                     method = elementMethod.method
-                }                
+                }
                 break
                 
             case .frame:
@@ -263,7 +269,7 @@ class FaseViewModel: NSObject, Fase {
             case .contactPicker:
                 if let elementMethod = (element as! ContactPicker).onPick {
                     method = elementMethod.method
-                }                
+                }
                 break
                 
             default:

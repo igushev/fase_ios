@@ -60,6 +60,12 @@ class ElementMappingService {
         case .slider:
             return Slider.init(map: map)
             
+        case .web:
+            return Web.init(map: map)
+            
+        case .separator:
+            return Separator.init(map: map)
+            
         default:
             return nil
         }

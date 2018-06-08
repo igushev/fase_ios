@@ -170,7 +170,7 @@ class FaseViewController: UIViewController {
                 
                 pickerToolBar.items = [cancelItem, flexibleSpaceItem, okItem]
                 
-                let datePicker = UIDatePicker(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 216))                
+                let datePicker = UIDatePicker(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 216))
                 datePicker.datePickerMode = .date
                 datePicker.faseElementId = datePickerElement.faseElementId
                 
@@ -183,7 +183,7 @@ class FaseViewController: UIViewController {
                     
                 case .datetime:
                     datePicker.datePickerMode = .dateAndTime
-                
+                    
                 default:
                     break
                 }
