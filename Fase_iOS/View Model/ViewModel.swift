@@ -17,7 +17,8 @@ typealias ContextMenuCallback = (_ sender: UIView, _ button: Button) -> Void
 
 enum FaseDateFormat: String {
     case server = "yyyy-MM-dd'T'HH:mm:ss"
-    case print = "yyyy-MM-dd"
+    case printDate = "yyyy-MM-dd"
+    case printTime = "h:mm a"
 }
 
 class FaseViewModel: NSObject, Fase {
@@ -39,7 +40,10 @@ class FaseViewModel: NSObject, Fase {
         return DateFormatter(withFormat: FaseDateFormat.server.rawValue, locale: "US")
     }
     var printDateFormatter: DateFormatter {
-        return DateFormatter(withFormat: FaseDateFormat.print.rawValue, locale: "US")
+        return DateFormatter(withFormat: FaseDateFormat.printDate.rawValue, locale: "US")
+    }
+    var printTimeFormatter: DateFormatter {
+        return DateFormatter(withFormat: FaseDateFormat.printTime.rawValue, locale: "US")
     }
     
     // Array that stores different pickers
@@ -150,7 +154,12 @@ class FaseViewModel: NSObject, Fase {
                 case .dateTimePicker:
                     if let datePickerElement = self.screen.datePickerElement(elementId: element.faseElementId!), let datePicker = self.pickers![senderId] as? UIDatePicker  {
                         datePickerElement.datetime = datePicker.date
-                        textField.text = self.printDateFormatter.string(from: datePicker.date)
+                        if datePickerElement.type == DateTimePickerType.time {
+                            textField.text = self.printTimeFormatter.string(from: datePicker.date)
+                        } else {
+                            textField.text = self.printDateFormatter.string(from: datePicker.date)
+                        }
+                        
                     }
                     break
                     
