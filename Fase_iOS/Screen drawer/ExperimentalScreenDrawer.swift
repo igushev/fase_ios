@@ -795,10 +795,10 @@ class ExperimentalScreenDrawer {
             superview = parentView
         }
         
-        let slider = UISlider(frame: CGRect(x: 0, y: 0, width: superview.frame.width, height: UIElementsHeight.button.rawValue))
+        let slider = UISlider()
         slider.minimumValue = element.minValue
         slider.maximumValue = element.maxValue
-        slider.value = element.value /// element.maxValue
+        slider.value = element.value
         slider.addTarget(self.viewModel, action: #selector(FaseViewModel.onSliderValueChanged(_:)), for: .valueChanged)
         slider.faseElementId = id
         
@@ -840,7 +840,7 @@ class ExperimentalScreenDrawer {
             superview = parentView
         }
         
-        let webView = UIWebView(frame: CGRect(x: 0, y: 0, width: superview.frame.width, height: UIElementsHeight.web.rawValue))
+        let webView = UIWebView()
         let contentSize = webView.intrinsicContentSize
         webView.heightAnchor.constraint(equalToConstant: UIElementsHeight.web.rawValue).isActive = true
         webView.widthAnchor.constraint(equalToConstant: contentSize.width).isActive = true
