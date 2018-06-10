@@ -4,20 +4,10 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>Fase_iOS_karma.xcscheme</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>4</integer>
-		</dict>
-		<key>Fase_iOS_notes.xcscheme</key>
+		<key>Fase_iOS.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>5</integer>
-		</dict>
-		<key>Fase_iOS_test.xcscheme</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>6</integer>
 		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>

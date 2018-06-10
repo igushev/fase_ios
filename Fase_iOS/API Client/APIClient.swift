@@ -117,18 +117,6 @@ class APIClient {
     
     // MARK: - Private
     
-//    init() {
-//        #if NOTES
-//            self.baseURL = URL(string: BaseURL.notes.rawValue)!
-//        #elseif KARMA
-//            self.baseURL = URL(string: BaseURL.karmaCounter.rawValue)!
-//        #elseif TEST
-//            self.baseURL = URL(string: BaseURL.test.rawValue)!
-//        #else
-//            self.baseURL = URL(string: BaseURL.helloWorld.rawValue)
-//        #endif
-//    }
-    
     init(with url: URL) {
         self.baseURL = url
     }

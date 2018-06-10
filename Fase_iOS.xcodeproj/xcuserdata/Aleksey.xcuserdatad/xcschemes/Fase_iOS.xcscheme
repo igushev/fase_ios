@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "5B0AA7FC209860FD007B64C7"
-               BuildableName = "Fase_iOS_test.app"
-               BlueprintName = "Fase_iOS_test"
+               BlueprintIdentifier = "5BFCBD51204F379E0063A171"
+               BuildableName = "Fase_iOS.app"
+               BlueprintName = "Fase_iOS"
                ReferencedContainer = "container:Fase_iOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -29,13 +29,33 @@
       language = ""
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "5BFCBD65204F379F0063A171"
+               BuildableName = "Fase_iOSTests.xctest"
+               BlueprintName = "Fase_iOSTests"
+               ReferencedContainer = "container:Fase_iOS.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "5BFCBD70204F379F0063A171"
+               BuildableName = "Fase_iOSUITests.xctest"
+               BlueprintName = "Fase_iOSUITests"
+               ReferencedContainer = "container:Fase_iOS.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "5B0AA7FC209860FD007B64C7"
-            BuildableName = "Fase_iOS_test.app"
-            BlueprintName = "Fase_iOS_test"
+            BlueprintIdentifier = "5BFCBD51204F379E0063A171"
+            BuildableName = "Fase_iOS.app"
+            BlueprintName = "Fase_iOS"
             ReferencedContainer = "container:Fase_iOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -57,9 +77,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "5B0AA7FC209860FD007B64C7"
-            BuildableName = "Fase_iOS_test.app"
-            BlueprintName = "Fase_iOS_test"
+            BlueprintIdentifier = "5BFCBD51204F379E0063A171"
+            BuildableName = "Fase_iOS.app"
+            BlueprintName = "Fase_iOS"
             ReferencedContainer = "container:Fase_iOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -76,9 +96,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "5B0AA7FC209860FD007B64C7"
-            BuildableName = "Fase_iOS_test.app"
-            BlueprintName = "Fase_iOS_test"
+            BlueprintIdentifier = "5BFCBD51204F379E0063A171"
+            BuildableName = "Fase_iOS.app"
+            BlueprintName = "Fase_iOS"
             ReferencedContainer = "container:Fase_iOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
