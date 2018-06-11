@@ -258,7 +258,7 @@ class FaseViewModel: NSObject, Fase {
                 break
                 
             case .label:
-                if let elementMethod = (element as! Button).onClick {
+                if let elementMethod = (element as! Label).onClick {
                     method = elementMethod.method
                 }
                 break
