@@ -377,7 +377,9 @@ class ExperimentalScreenDrawer {
             textView.setContentHuggingPriority(UILayoutPriority.defaultLow, for: .vertical)
         }
         else {
-            textView.widthAnchor.constraint(equalToConstant: contentSize.height).isActive = true
+            if let font = textView.font {
+                textView.heightAnchor.constraint(equalToConstant: font.lineHeight * 3).isActive = true
+            }
         }
         
         if superview is UIStackView {
