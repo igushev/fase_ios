@@ -40,7 +40,7 @@ class Router {
             if let currentUUID = UIDevice.current.identifierForVendor?.uuidString {
                 uuid = currentUUID
             }
-            let type = UIDevice.current.systemName + " " + UIDevice.current.systemVersion
+            let type = UIDevice.current.systemName
             let device = Device(type: type, token: uuid)
             
             APIClientService.getServices(for: device, completion: { [weak self] (response, error) in

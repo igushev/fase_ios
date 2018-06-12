@@ -557,7 +557,7 @@ extension Device {
         if let currentUUID = UIDevice.current.identifierForVendor?.uuidString {
             uuid = currentUUID
         }
-        let type = UIDevice.current.systemName// + " " + UIDevice.current.systemVersion
+        let type = UIDevice.current.systemName
         
         return Device(type: type, token: uuid)
     }
