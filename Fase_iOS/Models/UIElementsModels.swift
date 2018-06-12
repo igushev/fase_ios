@@ -212,13 +212,13 @@ class Label: VisualElement {
 }
 
 enum TextType: Int {
-    case digits = 1
+    case digits = 2
     case phone
     case email
 }
 
 class Text: VisualElement {
-    var type: TextType!
+    var type: TextType?
     var size: Size!
     var hint: String!
     var text: String!
@@ -382,7 +382,7 @@ class Menu: VisualElement {
 
 class Button: VisualElement {
     var text: String!
-    var onClick: Method!
+    var onClick: Method?
     var align: Align!
     
     required init?(map: Map) {
@@ -410,7 +410,7 @@ class ContactPicker: VisualElement {
     var contact: Contact?
     var hint: String!
     var size: Size!
-    var onPick: Method!
+    var onPick: Method?
     
     required init?(map: Map) {
         super.init(map: map)

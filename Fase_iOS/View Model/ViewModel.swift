@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import WebKit
 import GooglePlaces
 import ContactsUI
 
@@ -112,8 +113,11 @@ class FaseViewModel: NSObject, Fase {
                 contextMenuCallback(sender, button)
                 return
             }
-            let ids = sender.nestedElementsIds()
-            self.sendCallbackRequest(for: ids)
+            if let button = self.element(with: elementId) as? Button, let _ = button.onClick {
+                let ids = sender.nestedElementsIds()
+                self.sendCallbackRequest(for: ids)
+                return
+            }
         }
     }
     
@@ -258,7 +262,7 @@ class FaseViewModel: NSObject, Fase {
                 break
                 
             case .label:
-                if let elementMethod = (element as! Button).onClick {
+                if let elementMethod = (element as! Label).onClick {
                     method = elementMethod.method
                 }
                 break
@@ -377,6 +381,15 @@ class FaseViewModel: NSObject, Fase {
                 elementsUpdate.valueArray?.append(isOn == true ? "1" : "0")
                 elementsUpdate.arrayArrayIds?.append(idsArray)
             }
+            
+            if control is UISlider {
+                let slider = control as! UISlider
+                let value = slider.value
+                let idsArray = slider.nestedElementsIds()
+                
+                elementsUpdate.valueArray?.append("\(value)")
+                elementsUpdate.arrayArrayIds?.append(idsArray)
+            }
         }
         
         if elementsUpdate.valueArray?.count == 0 && elementsUpdate.arrayArrayIds?.count == 0 {
@@ -421,6 +434,37 @@ class FaseViewModel: NSObject, Fase {
                 } else {
                     (uiElement as! UITextField).text = newValue
                 }
+                break
+                
+            case .switchElement:
+                if let value = newValue, let isOn = Bool(value)  {
+                    (uiElement as! UISwitch).isOn = isOn
+                }
+                break
+                
+            case .select:
+                (uiElement as! UITextView).text = newValue
+                break
+                
+            case .dateTimePicker:
+                if let dateString = newValue, let newDate = self.serverDateFormatter.date(from: dateString) {
+                    if (element as! DateTimePicker).type == DateTimePickerType.time {
+                        (uiElement as! UITextField).text = self.printTimeFormatter.string(from: newDate)
+                    } else {
+                        (uiElement as! UITextField).text = self.printDateFormatter.string(from: newDate)
+                    }
+                }
+                break
+                
+            case .placePicker, .contactPicker:
+                (uiElement as! UITextField).text = newValue
+                break
+                
+            case .slider:
+                if let value = (newValue as NSString?)?.floatValue {
+                    (uiElement as! UISlider).value = value
+                }
+                break
                 
             default:
                 break
@@ -581,8 +625,10 @@ extension FaseViewModel: CNContactPickerDelegate {
             
             picker.dismiss(animated: true, completion: nil)
             
-            let ids = textField.nestedElementsIds()
-            self.sendCallbackRequest(for: ids)
+            if let _ = contactPicker.onPick {
+                let ids = textField.nestedElementsIds()
+                self.sendCallbackRequest(for: ids)
+            }
         }
     }
     
@@ -596,8 +642,10 @@ extension FaseViewModel: CNContactPickerDelegate {
             }
             picker.dismiss(animated: true, completion: nil)
             
-            let ids = textField.nestedElementsIds()
-            self.sendCallbackRequest(for: ids)
+            if let _ = contactPicker.onPick {
+                let ids = textField.nestedElementsIds()
+                self.sendCallbackRequest(for: ids)
+            }
         }
     }
     
@@ -608,5 +656,41 @@ extension FaseViewModel: CNContactPickerDelegate {
     private func fill(textField: UITextField, with contact: Contact) {
         textField.text = contact.displayName
     }
+}
+
+extension FaseViewModel: WKUIDelegate, WKNavigationDelegate {
+    
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        webView.evaluateJavaScript("document.readyState", completionHandler: { (complete, error) in
+            if complete != nil {
+                webView.evaluateJavaScript("document.body.offsetHeight", completionHandler: { (height, error) in
+                    let height = height as! CGFloat
+                    
+                    webView.snp.makeConstraints({ (make) in
+                        make.height.equalTo(100)
+                    })
+                })
+            }
+            
+        })
+    }
+    
+    //    func webViewDidFinishLoad(_ webView: UIWebView) {
+    //        var frame = webView.frame
+    //        frame.size.height = 1
+    //        webView.frame = frame
+    //
+    //        let fittingSize = webView.sizeThatFits(CGSize.zero)
+    //        frame.size = fittingSize
+    ////        webView.frame = frame
+    //
+    //        webView.heightAnchor.constraint(equalToConstant: fittingSize.height).isActive = true
+    //        webView.widthAnchor.constraint(equalToConstant: fittingSize.width).isActive = true
+    //
+    //        if let superview = webView.superview as? UIScrollView {
+    //            superview.contentSize = fittingSize
+    //        }
+    //
+    //    }
 }
 
