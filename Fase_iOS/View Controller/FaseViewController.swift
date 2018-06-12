@@ -38,7 +38,7 @@ class FaseViewController: UIViewController {
         self.setupNavBar()
         self.setupPickersIfNedded()
         
-        self.viewModel.screenDrawer = ExperimentalScreenDrawer(with: self.view)
+        self.viewModel.screenDrawer = ScreenDrawer(with: self.view)
         self.viewModel.drawElements()
         self.decorateView()
         

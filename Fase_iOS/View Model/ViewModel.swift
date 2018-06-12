@@ -25,7 +25,7 @@ class FaseViewModel: NSObject, Fase {
     
     var screen: Screen!
     weak var router: Router?
-    var screenDrawer: ExperimentalScreenDrawer!
+    var screenDrawer: ScreenDrawer!
     
     var contextMenuCallback: ContextMenuCallback?
     

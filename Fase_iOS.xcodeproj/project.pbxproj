@@ -15,9 +15,7 @@
 		5B4A2D64205574A100578E83 /* APIClientService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4A2D5F205574A100578E83 /* APIClientService.swift */; };
 		5B4A2D65205574A100578E83 /* ElementMappingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4A2D60205574A100578E83 /* ElementMappingService.swift */; };
 		5B4A2D66205574A100578E83 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4A2D62205574A100578E83 /* Extensions.swift */; };
-		5B644A47209DD5B5003BEA7E /* FaseConstraintsMaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B644A46209DD5B4003BEA7E /* FaseConstraintsMaker.swift */; };
-		5BCBD6782055A9AD0008315B /* ScreenDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BCBD6772055A9AD0008315B /* ScreenDrawer.swift */; };
-		5BECC2B520B07B1F0033CB1E /* ExperimentalScreenDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BECC2B420B07B1F0033CB1E /* ExperimentalScreenDrawer.swift */; };
+		5BECC2B520B07B1F0033CB1E /* ScreenDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BECC2B420B07B1F0033CB1E /* ScreenDrawer.swift */; };
 		5BFCBD56204F379E0063A171 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BFCBD55204F379E0063A171 /* AppDelegate.swift */; };
 		5BFCBD58204F379E0063A171 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BFCBD57204F379E0063A171 /* ViewController.swift */; };
 		5BFCBD5B204F379E0063A171 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5BFCBD59204F379E0063A171 /* Main.storyboard */; };
@@ -59,9 +57,7 @@
 		5B4A2D5F205574A100578E83 /* APIClientService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIClientService.swift; sourceTree = "<group>"; };
 		5B4A2D60205574A100578E83 /* ElementMappingService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElementMappingService.swift; sourceTree = "<group>"; };
 		5B4A2D62205574A100578E83 /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
-		5B644A46209DD5B4003BEA7E /* FaseConstraintsMaker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FaseConstraintsMaker.swift; sourceTree = "<group>"; };
-		5BCBD6772055A9AD0008315B /* ScreenDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenDrawer.swift; sourceTree = "<group>"; };
-		5BECC2B420B07B1F0033CB1E /* ExperimentalScreenDrawer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExperimentalScreenDrawer.swift; sourceTree = "<group>"; };
+		5BECC2B420B07B1F0033CB1E /* ScreenDrawer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScreenDrawer.swift; sourceTree = "<group>"; };
 		5BFCBD52204F379E0063A171 /* Fase_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Fase_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5BFCBD55204F379E0063A171 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5BFCBD57204F379E0063A171 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -167,9 +163,7 @@
 		5BCBD6762055A9750008315B /* Screen drawer */ = {
 			isa = PBXGroup;
 			children = (
-				5B644A46209DD5B4003BEA7E /* FaseConstraintsMaker.swift */,
-				5BCBD6772055A9AD0008315B /* ScreenDrawer.swift */,
-				5BECC2B420B07B1F0033CB1E /* ExperimentalScreenDrawer.swift */,
+				5BECC2B420B07B1F0033CB1E /* ScreenDrawer.swift */,
 			);
 			path = "Screen drawer";
 			sourceTree = "<group>";
@@ -459,16 +453,14 @@
 				5B4A2D63205574A100578E83 /* FaseViewController.swift in Sources */,
 				5B4A2D65205574A100578E83 /* ElementMappingService.swift in Sources */,
 				5B2127FE205D39BB003A0997 /* ResourcesService.swift in Sources */,
-				5BECC2B520B07B1F0033CB1E /* ExperimentalScreenDrawer.swift in Sources */,
+				5BECC2B520B07B1F0033CB1E /* ScreenDrawer.swift in Sources */,
 				5BFCBD58204F379E0063A171 /* ViewController.swift in Sources */,
 				5B212801205D3A2D003A0997 /* ViewModel.swift in Sources */,
 				5BFCBD89204F37EB0063A171 /* UIElementsModels.swift in Sources */,
 				5B4A2D5B2055749900578E83 /* Router.swift in Sources */,
-				5B644A47209DD5B5003BEA7E /* FaseConstraintsMaker.swift in Sources */,
 				5BFCBD56204F379E0063A171 /* AppDelegate.swift in Sources */,
 				5BFCBD88204F37EB0063A171 /* ServiceModels.swift in Sources */,
 				5B4A2D66205574A100578E83 /* Extensions.swift in Sources */,
-				5BCBD6782055A9AD0008315B /* ScreenDrawer.swift in Sources */,
 				5B4A2D582055748F00578E83 /* APIClient.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
