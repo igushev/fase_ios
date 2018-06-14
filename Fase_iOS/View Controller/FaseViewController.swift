@@ -17,7 +17,8 @@ class FaseViewController: UIViewController {
     var datePicker: UIDatePicker?
     var picker: UIPickerView?
     
-    var gestureRecognizer: UITapGestureRecognizer?
+    var spinner: UIActivityIndicatorView!
+    var panGRTranslationStartPoint: CGPoint?
     
     
     init(with viewModel: FaseViewModel) {
@@ -44,8 +45,27 @@ class FaseViewController: UIViewController {
         
         self.view.isUserInteractionEnabled = true
         
-        self.gestureRecognizer = UITapGestureRecognizer(target: self.viewModel, action: #selector(FaseViewModel.onClickGestureRecognizer(_:)))
-        self.view.addGestureRecognizer(self.gestureRecognizer!)
+        let gestureRecognizer = UITapGestureRecognizer(target: self.viewModel, action: #selector(FaseViewModel.onClickGestureRecognizer(_:)))
+        self.view.addGestureRecognizer(gestureRecognizer)
+        
+        if let _ = self.viewModel.screen.onRefresh {
+            let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(onDragPanGesture(_:)))
+            self.view.addGestureRecognizer(panGestureRecognizer)
+            
+            spinner = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
+            spinner.color = UIColor.lightGray
+            spinner.translatesAutoresizingMaskIntoConstraints = false
+            spinner.startAnimating()
+            self.view.addSubview(spinner)
+            spinner.alpha = 0
+            
+            spinner.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+            spinner.topAnchor.constraint(equalTo: self.topLayoutGuide.bottomAnchor, constant: 8).isActive = true
+        }
+        
+        if let _ = self.viewModel.screen.onMore {
+            
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -265,6 +285,30 @@ class FaseViewController: UIViewController {
         if let alert = self.alertController {
             self.present(alert, animated: true, completion: nil)
         }
+    }
+    
+    @objc func onDragPanGesture(_ gr: UIPanGestureRecognizer?) {
+        if let panGR = gr {
+            if panGR.state == .began {
+                self.panGRTranslationStartPoint = panGR.translation(in: self.view)
+            }
+            if panGR.state == .changed {
+                
+            }
+            if panGR.state == .ended {
+                let translationPoint = panGR.translation(in: self.view)
+                
+                if let startY = self.panGRTranslationStartPoint?.y, (translationPoint.y - startY) >= self.view.frame.height / 3 {
+                    self.spinner.alpha = 1
+                    self.viewModel.onRefresh("", completion: {
+                        self.spinner.alpha = 0
+                    })
+                }
+                
+                self.panGRTranslationStartPoint = nil
+            }
+        }
+        
     }
     
     // MARK: - deinit

@@ -101,7 +101,7 @@ class FaseViewModel: NSObject, Fase {
                 contextMenuCallback(sender, button)
                 return
             }
-            self.sendCallbackRequest(for: elementId)
+            self.sendCallbackRequest(for: elementId, completion: nil)
         }
     }
     
@@ -119,6 +119,17 @@ class FaseViewModel: NSObject, Fase {
                 return
             }
         }
+    }
+    
+    @objc func onRefresh(_ screenId: String?, completion: @escaping () -> Void) {
+        if let screenId = screenId {
+            self.sendCallbackRequest(for: screenId, method: "on_refresh", completion: completion)
+        }
+    }
+    
+    @objc func onMore(_ sender: UIView) {
+        print("Catch sender \(sender.faseElementId)")
+        
     }
     
     // On frame tap
@@ -216,25 +227,32 @@ class FaseViewModel: NSObject, Fase {
                 return
             }
             
-            strongSelf.router?.processResponse(response: response, error: error, for: strongSelf)
+            if let error = error, error.code == -1009 {
+                strongSelf.router?.processResponse(response: response, error: nil, for: strongSelf)
+            } else {
+                strongSelf.router?.processResponse(response: response, error: error, for: strongSelf)
+            }
+            
             strongSelf.oldElementsUpdate = elementsUpdate
         }
     }
     
     // MARK: - Element callback request
     
-    // for bar button item
-    func sendCallbackRequest(for elementId: String) {
+    // for for bar button item, on_refresh, on_more
+    func sendCallbackRequest(for elementId: String, method: String = "on_click", completion: (() -> Void)?) {
         self.isElementCallbackProcessing = true
         
-        var elementIds = [elementId]
-        var method = "on_click"
+        let elementIds: Array<String> = (elementId.isEmpty == true) ? [] : [elementId]
         
         let elementCallback = ElementCallback(elementsUpdate: self.elementsUpdate(), elementIds: elementIds, method: method, locale: nil, device: Device.currentDevice())
         
         APIClientService.elementCallback(for: elementCallback!, screenId: self.screen.screenId!) { [weak self] (response, error) in
             guard let strongSelf = self else {
                 return
+            }
+            if let completion = completion {
+                completion()
             }
             strongSelf.isElementCallbackProcessing = false
             strongSelf.router?.processResponse(response: response, error: error, for: strongSelf)
@@ -564,7 +582,8 @@ extension FaseViewModel: GMSAutocompleteViewControllerDelegate {
             
             placePickerElement.place = fasePlace
             
-            textField.text = place.formattedAddress
+            textField.text = fasePlace.placeString(for: placePickerElement.type)
+            
             viewController.dismiss(animated: true, completion: nil)
         }
         
