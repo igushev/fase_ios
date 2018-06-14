@@ -16,6 +16,15 @@ class Router {
         self.window = window
     }
     
+    func displayEmptyViewController() {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let viewController = storyboard.instantiateInitialViewController()
+        
+        DispatchQueue.main.async {
+            self.window.rootViewController = viewController
+        }
+    }
+    
     func displayViewController(with viewModel: FaseViewModel) {
         let viewController = FaseViewController(with: viewModel)
         
@@ -28,8 +37,8 @@ class Router {
         self.rootViewController()?.present(viewController, animated: true, completion: nil)
     }
     
-    func showServerErrorAlert() {
-        let alertController = UIAlertController(title: "Server error", message: "Sorry, server error occured", preferredStyle: .alert)
+    func showErrorAlert(title: String, message: String) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
         let skipAction = UIAlertAction(title: "Skip", style: .default) { (action) in
             alertController.dismiss(animated: true, completion: nil)
         }
@@ -67,15 +76,15 @@ class Router {
         alertController.addAction(restartAction)
         
         self.presentViewController(viewController: alertController)
-        
-        //
     }
     
     func processResponse(response: Response?, error: Error?, for viewModel: FaseViewModel?) {
         if let error = error {
             print(error.localizedDescription)
             if error.code == 500 {
-                self.showServerErrorAlert()
+                self.showErrorAlert(title: "Server error", message: "Sorry, server error occured")
+            } else if error.code == -1009 {
+                self.showErrorAlert(title: "Error", message: "No internet connection")
             }
         } else if let response = response {
             if let elementsUpdate = response.elementsUpdate, let viewModel = viewModel {
@@ -105,13 +114,13 @@ class Router {
     
     // MARK: - Private
     
-    func rootViewController() -> FaseViewController? {
+    func rootViewController() -> UIViewController? {
         let rootViewController = self.window.rootViewController
         
         if let navController = rootViewController as? UINavigationController {
             return navController.topViewController as? FaseViewController
         } else {
-            return rootViewController as? FaseViewController
+            return rootViewController
         }
     }
     

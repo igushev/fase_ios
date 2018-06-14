@@ -39,6 +39,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let type = UIDevice.current.systemName
         let device = Device(type: type, token: uuid)
         
+//        self.router?.displayEmptyViewController()
+        
         if APIClientService.isSessionInfoExist == true {
             APIClientService.getScreen(for: device, completion: { [weak self] (response, error) in
                 guard let strongSelf = self else {
