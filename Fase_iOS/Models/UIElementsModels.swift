@@ -606,8 +606,8 @@ class Screen: BaseElementsContainer {
     var screenId: String?
     var scrollable: Bool?
     var title: String?
-    var onRefresh: Bool!
-    var onMore: Bool!
+    var onRefresh: Method?
+    var onMore: Method?
     
     required init?(map: Map) {
         super.init(map: map)
