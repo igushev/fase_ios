@@ -690,7 +690,7 @@ class ScreenDrawer {
             textField.placeholder = placeholder
         }
         
-        if let place = element.place, let text = place.placeString() {
+        if let place = element.place, let text = place.placeString(for: element.type) {
             textField.text = text
         }
         

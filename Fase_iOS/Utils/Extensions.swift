@@ -967,9 +967,13 @@ extension MenuItem {
 }
 
 extension Place {
-    func placeString() -> String? {
+    func placeString(for type: PlacePickerType) -> String? {
         if let placeId = self.googlePlaceId, let city = self.city, let state = self.state, let country = self.country {
-            return placeId + "|" + city + "|" + state + "|" + country
+            //            return placeId + "|" + city + "|" + state + "|" + country
+            switch type {
+            case .city:
+                return city
+            }
         }
         return nil
     }
@@ -1067,6 +1071,4 @@ extension GMSAutocompleteViewController {
         }
     }
 }
-
-
 
