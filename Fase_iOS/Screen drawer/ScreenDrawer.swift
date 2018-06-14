@@ -514,7 +514,16 @@ class ScreenDrawer {
         }
         
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: element.font.appFontSize)
+        if let font = element.font {
+            label.font = UIFont.systemFont(ofSize: font.size.appFontSize)
+            if font.bold {
+                label.font = UIFont.boldSystemFont(ofSize: label.font.pointSize)
+            }
+            if font.italic {
+                label.font = UIFont.italicSystemFont(ofSize: label.font.pointSize)
+            }
+        }
+        
         label.textColor = UIColor.FaseColors.textColor
         label.faseElementId = id
         label.isUserInteractionEnabled = true

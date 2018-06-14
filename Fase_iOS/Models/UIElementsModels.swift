@@ -163,7 +163,7 @@ enum Size: Int {
     case max = 2
 }
 
-enum FaseFontSize: CGFloat {
+enum FontSize: CGFloat {
     case extraLarge = 1.5
     case large = 1.25
     case medium = 1
@@ -183,9 +183,33 @@ enum FaseFontSize: CGFloat {
     }
 }
 
+struct Font: Mappable {
+    var size: FontSize!
+    var bold: Bool!
+    var italic: Bool!
+    
+    init(size: FontSize, bold: Bool, italic: Bool) {
+        self.size = size
+        self.bold = bold
+        self.italic = italic
+    }
+    
+    init?(map: Map) {
+        size = try? map.value("size")
+        bold = try? map.value("bold")
+        italic = try? map.value("italic")
+    }
+    
+    mutating func mapping(map: Map) {
+        size <- map["size"]
+        bold <- map["bold"]
+        italic <- map["italic"]
+    }
+}
+
 class Label: VisualElement {
     var text: String!
-    var font: FaseFontSize!
+    var font: Font!
     var size: Size!
     var align: Align!
     var onClick: Method!
