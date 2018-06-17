@@ -37,12 +37,15 @@ class Router {
         self.rootViewController()?.present(viewController, animated: true, completion: nil)
     }
     
-    func showErrorAlert(title: String, message: String) {
+    func showErrorAlert(title: String, message: String, retryApiCall: ApiCall?) {
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
         let skipAction = UIAlertAction(title: "Skip", style: .default) { (action) in
             alertController.dismiss(animated: true, completion: nil)
         }
-        let restartAction = UIAlertAction(title: "Restart", style: .default) { (action) in
+        
+        let restartButtonTitle = (retryApiCall == nil) ? "Restart" : "Retry"
+        
+        let restartAction = UIAlertAction(title: restartButtonTitle, style: .default) { (action) in
             alertController.dismiss(animated: true, completion: nil)
             
             var uuid = ""
@@ -52,24 +55,28 @@ class Router {
             let type = UIDevice.current.systemName
             let device = Device(type: type, token: uuid)
             
-            APIClientService.getServices(for: device, completion: { [weak self] (response, error) in
-                guard let strongSelf = self else {
-                    return
-                }
-                
-                if let error = error {
-                    print(error.localizedDescription)
-                } else {
-                    if let screen = response?.screen {
-                        let viewModel = FaseViewModel(with: screen)
-                        viewModel.router = strongSelf
-                        strongSelf.displayViewController(with: viewModel)
+            if let retryApiCall = retryApiCall {
+                APIClientService.performRetryApiCall(apiCall: retryApiCall)
+            } else {
+                APIClientService.getServices(for: device, completion: { [weak self] (response, error) in
+                    guard let strongSelf = self else {
+                        return
                     }
-                    if let resources = response?.resources {
-                        ResourcesService.saveResources(resources)
+                    
+                    if let error = error {
+                        print(error.localizedDescription)
+                    } else {
+                        if let screen = response?.screen {
+                            let viewModel = FaseViewModel(with: screen)
+                            viewModel.router = strongSelf
+                            strongSelf.displayViewController(with: viewModel)
+                        }
+                        if let resources = response?.resources {
+                            ResourcesService.saveResources(resources)
+                        }
                     }
-                }
-            })
+                })
+            }
             
         }
         alertController.addAction(skipAction)
@@ -78,13 +85,13 @@ class Router {
         self.presentViewController(viewController: alertController)
     }
     
-    func processResponse(response: Response?, error: Error?, for viewModel: FaseViewModel?) {
+    func processResponse(response: Response?, error: Error?, for viewModel: FaseViewModel?, retryApiCall: ApiCall?) {
         if let error = error {
             print(error.localizedDescription)
             if error.code == 500 {
-                self.showErrorAlert(title: "Server error", message: "Sorry, server error occured")
+                self.showErrorAlert(title: "Server error", message: "Sorry, server error occured", retryApiCall: retryApiCall)
             } else if error.code == -1009 {
-                self.showErrorAlert(title: "Error", message: "No internet connection")
+                self.showErrorAlert(title: "Error", message: "No internet connection", retryApiCall: retryApiCall)
             }
         } else if let response = response {
             if let elementsUpdate = response.elementsUpdate, let viewModel = viewModel {

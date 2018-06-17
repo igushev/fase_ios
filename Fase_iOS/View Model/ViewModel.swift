@@ -232,9 +232,9 @@ class FaseViewModel: NSObject, Fase {
             }
             
             if let error = error, error.code == -1009 {
-                strongSelf.router?.processResponse(response: response, error: nil, for: strongSelf)
+                strongSelf.router?.processResponse(response: response, error: nil, for: strongSelf, retryApiCall: APIClient.shared.lastCalledApiFunc)
             } else {
-                strongSelf.router?.processResponse(response: response, error: error, for: strongSelf)
+                strongSelf.router?.processResponse(response: response, error: error, for: strongSelf, retryApiCall: APIClient.shared.lastCalledApiFunc)
             }
             
             strongSelf.oldElementsUpdate = elementsUpdate
@@ -259,7 +259,7 @@ class FaseViewModel: NSObject, Fase {
                 completion()
             }
             strongSelf.isElementCallbackProcessing = false
-            strongSelf.router?.processResponse(response: response, error: error, for: strongSelf)
+            strongSelf.router?.processResponse(response: response, error: error, for: strongSelf, retryApiCall: APIClient.shared.lastCalledApiFunc)
         }
     }
     
@@ -319,7 +319,7 @@ class FaseViewModel: NSObject, Fase {
                 return
             }
             strongSelf.isElementCallbackProcessing = false
-            strongSelf.router?.processResponse(response: response, error: error, for: strongSelf)
+            strongSelf.router?.processResponse(response: response, error: error, for: strongSelf, retryApiCall: APIClient.shared.lastCalledApiFunc)
         }
     }
     
