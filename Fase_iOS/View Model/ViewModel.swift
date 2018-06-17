@@ -210,6 +210,10 @@ class FaseViewModel: NSObject, Fase {
         }
     }
     
+    @objc func onDismissKeyboard() {
+        self.screenDrawer.view.endEditing(true)
+    }
+    
     // MARK: - Screen update request
     
     @objc func sendScreenUpdateRequest() {
