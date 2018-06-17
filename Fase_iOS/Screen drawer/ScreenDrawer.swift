@@ -364,16 +364,13 @@ class ScreenDrawer {
         }
         
         if let textType = element.type {
-            switch textType {
-            case .digits:
-                textField.keyboardType = .numbersAndPunctuation
-                break
+            switch textType {            
                 
             case .email:
                 textField.keyboardType = .emailAddress
                 break
                 
-            case .phone:
+            case .phone, .digits:
                 textField.keyboardType = .phonePad
                 break
                 
