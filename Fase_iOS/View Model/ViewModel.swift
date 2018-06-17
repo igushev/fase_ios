@@ -459,13 +459,14 @@ class FaseViewModel: NSObject, Fase {
                 break
                 
             case .switchElement:
-                if let value = newValue, let isOn = Bool(value)  {
+                if let value = newValue {
+                    let isOn = NSString(string: value).boolValue
                     (uiElement as! UISwitch).isOn = isOn
                 }
                 break
                 
             case .select:
-                (uiElement as! UITextView).text = newValue
+                (uiElement as! UITextField).text = newValue
                 break
                 
             case .dateTimePicker:
