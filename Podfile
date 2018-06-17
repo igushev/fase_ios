@@ -11,15 +11,7 @@ def pods
     pod 'GoogleMaps'
 end
 
-target 'Fase_iOS_notes' do
-    pods
-end
-
-target 'Fase_iOS_karma' do
-    pods
-end
-
-target 'Fase_iOS_test' do
+target 'Fase_iOS' do
     pods
 end
 

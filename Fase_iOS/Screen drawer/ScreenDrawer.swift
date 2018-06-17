@@ -295,7 +295,6 @@ class ScreenDrawer {
         
         stackView.isUserInteractionEnabled = true
         if element.onClick != nil {
-            // TODO: - Add gesture recognizer
             stackView.enableUserInteractionForSuperviews()
             
             let tapGR = UITapGestureRecognizer(target: self.viewModel, action: #selector(FaseViewModel.onClickGestureRecognizer(_:)))

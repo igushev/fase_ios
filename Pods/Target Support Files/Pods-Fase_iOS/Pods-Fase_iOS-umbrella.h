@@ -11,6 +11,6 @@
 #endif
 
 
-FOUNDATION_EXPORT double Pods_Fase_iOS_karmaVersionNumber;
-FOUNDATION_EXPORT const unsigned char Pods_Fase_iOS_karmaVersionString[];
+FOUNDATION_EXPORT double Pods_Fase_iOSVersionNumber;
+FOUNDATION_EXPORT const unsigned char Pods_Fase_iOSVersionString[];
 
