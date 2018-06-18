@@ -109,5 +109,34 @@ class APIClientService {
         APIClient.shared.versionInfo = versionInfo
     }
     
+    // MARK: -
+    
+    static func performRetryApiCall(apiCall: ApiCall) {
+        let apiClient = APIClient.shared
+        
+        switch apiCall.path {
+        case .getService:
+            if let paramsData = apiCall.parametersData {
+                apiClient.getService(paramsData: paramsData, handler: apiCall.handler)
+            }
+            break
+            
+        case .getScreen:
+            if let paramsData = apiCall.parametersData {
+                apiClient.getScreen(paramsData: paramsData, handler: apiCall.handler)
+            }
+            break
+            
+        case .elementCallback:
+            if let screenId = apiCall.headers["screen-id"], let paramsData = apiCall.parametersData {
+                apiClient.elementCallback(screenId: screenId, paramsData: paramsData, handler: apiCall.handler)
+            }
+            break
+            
+        default:
+            break
+        }
+    }
+    
 }
 

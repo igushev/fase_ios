@@ -295,7 +295,6 @@ class ScreenDrawer {
         
         stackView.isUserInteractionEnabled = true
         if element.onClick != nil {
-            // TODO: - Add gesture recognizer
             stackView.enableUserInteractionForSuperviews()
             
             let tapGR = UITapGestureRecognizer(target: self.viewModel, action: #selector(FaseViewModel.onClickGestureRecognizer(_:)))
@@ -342,6 +341,16 @@ class ScreenDrawer {
         textField.faseElementId = id
         textField.isHidden = !element.isDisplayed
         
+        let toolbar = UIToolbar()
+        let doneButton = UIBarButtonItem(title: "Done", style: .done, target: self.viewModel, action: #selector(FaseViewModel.onDismissKeyboard))
+        let flexibleItem = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        toolbar.items = [flexibleItem, doneButton]
+        toolbar.barStyle = .default
+        toolbar.isUserInteractionEnabled = true
+        toolbar.sizeToFit()
+        
+        textField.inputAccessoryView = toolbar
+        
         if let parentId = parentElementId {
             textField.navigationElementId = parentId
         }
@@ -355,16 +364,13 @@ class ScreenDrawer {
         }
         
         if let textType = element.type {
-            switch textType {
-            case .digits:
-                textField.keyboardType = .numbersAndPunctuation
-                break
+            switch textType {            
                 
             case .email:
                 textField.keyboardType = .emailAddress
                 break
                 
-            case .phone:
+            case .phone, .digits:
                 textField.keyboardType = .phonePad
                 break
                 
@@ -409,6 +415,16 @@ class ScreenDrawer {
         textView.layer.borderWidth = 1.0
         textView.layer.borderColor = UIColor.FaseColors.borderColor.cgColor
         textView.isHidden = !element.isDisplayed
+        
+        let toolbar = UIToolbar()
+        let doneButton = UIBarButtonItem(title: "Done", style: .done, target: self.viewModel, action: #selector(FaseViewModel.onDismissKeyboard))
+        let flexibleItem = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        toolbar.items = [flexibleItem, doneButton]
+        toolbar.barStyle = .default
+        toolbar.isUserInteractionEnabled = true
+        toolbar.sizeToFit()
+        
+        textView.inputAccessoryView = toolbar  
         
         if let parentId = parentElementId {
             textView.navigationElementId = parentId
@@ -955,23 +971,14 @@ class ScreenDrawer {
             webView.load(URLRequest(url: url))
         }
         
-        // Add web view as subview to scroll view to fit size
-        //        let scrollView = UIScrollView()
-        //        scrollView.addSubview(webView)
-        //
-        //        webView.snp.makeConstraints { make in
-        //            make.top.equalToSuperview()
-        //            make.bottom.equalToSuperview()
-        //            make.leading.equalToSuperview()
-        //            make.trailing.equalToSuperview()
-        //        }
-        
         if superview is UIStackView {
             (superview as! UIStackView).addArrangedSubview(webView)
         } else {
             superview.addSubview(webView)
         }
         self.uiControls.append(webView)
+        
+        webView.heightAnchor.constraint(equalToConstant: 300)
     }
     
     // MARK: - Utils

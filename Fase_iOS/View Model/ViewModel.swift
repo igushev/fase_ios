@@ -210,6 +210,10 @@ class FaseViewModel: NSObject, Fase {
         }
     }
     
+    @objc func onDismissKeyboard() {
+        self.screenDrawer.view.endEditing(true)
+    }
+    
     // MARK: - Screen update request
     
     @objc func sendScreenUpdateRequest() {
@@ -228,9 +232,9 @@ class FaseViewModel: NSObject, Fase {
             }
             
             if let error = error, error.code == -1009 {
-                strongSelf.router?.processResponse(response: response, error: nil, for: strongSelf)
+                strongSelf.router?.processResponse(response: response, error: nil, for: strongSelf, retryApiCall: APIClient.shared.lastCalledApiFunc)
             } else {
-                strongSelf.router?.processResponse(response: response, error: error, for: strongSelf)
+                strongSelf.router?.processResponse(response: response, error: error, for: strongSelf, retryApiCall: APIClient.shared.lastCalledApiFunc)
             }
             
             strongSelf.oldElementsUpdate = elementsUpdate
@@ -255,7 +259,7 @@ class FaseViewModel: NSObject, Fase {
                 completion()
             }
             strongSelf.isElementCallbackProcessing = false
-            strongSelf.router?.processResponse(response: response, error: error, for: strongSelf)
+            strongSelf.router?.processResponse(response: response, error: error, for: strongSelf, retryApiCall: APIClient.shared.lastCalledApiFunc)
         }
     }
     
@@ -315,7 +319,7 @@ class FaseViewModel: NSObject, Fase {
                 return
             }
             strongSelf.isElementCallbackProcessing = false
-            strongSelf.router?.processResponse(response: response, error: error, for: strongSelf)
+            strongSelf.router?.processResponse(response: response, error: error, for: strongSelf, retryApiCall: APIClient.shared.lastCalledApiFunc)
         }
     }
     
@@ -455,13 +459,14 @@ class FaseViewModel: NSObject, Fase {
                 break
                 
             case .switchElement:
-                if let value = newValue, let isOn = Bool(value)  {
+                if let value = newValue {
+                    let isOn = NSString(string: value).boolValue
                     (uiElement as! UISwitch).isOn = isOn
                 }
                 break
                 
             case .select:
-                (uiElement as! UITextView).text = newValue
+                (uiElement as! UITextField).text = newValue
                 break
                 
             case .dateTimePicker:

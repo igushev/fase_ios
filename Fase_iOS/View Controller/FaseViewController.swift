@@ -116,11 +116,16 @@ class FaseViewController: UIViewController {
             if mainButton.idElementList.count > 0 {
                 if let imageElement = mainButton.imageElement() {
                     if let data = ResourcesService.getResource(by: imageElement.fileName), let image = UIImage(data: data), let resizedImage = image.resizedImage(with: CGSize(width: FaseImageWidth.navigationItem.rawValue, height: FaseImageWidth.navigationItem.rawValue)) {
-                        mainButtonBar = UIBarButtonItem(image: resizedImage, style: .plain, target: self.viewModel, action: #selector(FaseViewModel.onClickBarButtonItem(_:)))
+                        
+                        let button = UIButton()
+                        button.addTarget(self.viewModel, action: #selector(FaseViewModel.onClickBarButtonItem(_:)), for: .touchUpInside)
+                        button.setImage(resizedImage, for: .normal)
+                        button.faseElementId = mainButton.faseElementId
+                        
+                        mainButtonBar = UIBarButtonItem(customView: button)
                     }
                 }
-            }
-            mainButtonBar.faseElementId = mainButton.faseElementId
+            }            
             
             self.addBarButtonItem(button: mainButtonBar, leftItem: false)
             self.navigationController?.isNavigationBarHidden = false

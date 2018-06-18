@@ -59,6 +59,8 @@ class APIClient {
             UserDefaults.standard.setValue(data, forKey: "versionInfo")
         }
     }
+    var lastCalledApiFunc: ApiCall?
+    
     
     // MARK: - API methods
     
@@ -155,6 +157,10 @@ class APIClient {
     private func post(headers: Dictionary<String, String> = ["Content-Type": "application/json"], path: URLPath, parametersData: Data?, handler: @escaping ResponseHandler) {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         
+        if path == .getService || path == .getScreen || path == .elementCallback {
+            self.lastCalledApiFunc = ApiCall(headers: headers, path: path, parametersData: parametersData, handler: handler)
+        }
+        
         var request = URLRequest(url: URL(string: self.baseURL.absoluteString + path.rawValue)!)
         request.httpMethod = HTTPMethod.post.rawValue
         headers.forEach { (key, value) in
@@ -195,5 +201,20 @@ class APIClient {
         }
     }
     
+}
+
+struct ApiCall {
+    var screenId: String?
+    var headers: Dictionary<String, String>
+    var path: URLPath
+    var parametersData: Data?
+    var handler: ResponseHandler
+    
+    init(headers: Dictionary<String, String>, path: URLPath, parametersData: Data?, handler: @escaping ResponseHandler) {
+        self.headers = headers
+        self.path = path
+        self.parametersData = parametersData
+        self.handler = handler
+    }
 }
 

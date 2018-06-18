@@ -47,7 +47,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     return
                 }
                 
-                strongSelf.router?.processResponse(response: response, error: error, for: nil)
+                strongSelf.router?.processResponse(response: response, error: error, for: nil, retryApiCall: APIClient.shared.lastCalledApiFunc)
             })
         } else {
             APIClientService.getServices(for: device, completion: { [weak self] (response, error) in
@@ -55,7 +55,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     return
                 }
                 
-                strongSelf.router?.processResponse(response: response, error: error, for: nil)
+                strongSelf.router?.processResponse(response: response, error: error, for: nil, retryApiCall: APIClient.shared.lastCalledApiFunc)
             })
         }
     }
