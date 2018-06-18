@@ -370,10 +370,14 @@ class ScreenDrawer {
                 textField.keyboardType = .emailAddress
                 break
                 
-            case .phone, .digits:
+            case .phone:
                 textField.keyboardType = .phonePad
                 break
                 
+            case .digits:
+                textField.keyboardType = .numberPad
+                break
+
             default:
                 textField.keyboardType = .asciiCapable
                 break
