@@ -370,10 +370,14 @@ class ScreenDrawer {
                 textField.keyboardType = .emailAddress
                 break
                 
-            case .phone, .digits:
+            case .phone:
                 textField.keyboardType = .phonePad
                 break
                 
+            case .digits:
+                textField.keyboardType = .numberPad
+                break
+
             default:
                 textField.keyboardType = .asciiCapable
                 break
@@ -478,7 +482,7 @@ class ScreenDrawer {
         
         let button = UIButton()
         button.setTitleColor(UIColor.FaseColors.buttonTextColor, for: .normal)
-        button.backgroundColor = .clear
+        button.backgroundColor = UIColor.lightGray
         button.layer.cornerRadius = 5.0
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor.FaseColors.borderColor.cgColor
@@ -509,7 +513,7 @@ class ScreenDrawer {
         
         let contentSize = button.intrinsicContentSize
         button.heightAnchor.constraint(equalToConstant: contentSize.height).isActive = true
-        button.widthAnchor.constraint(equalToConstant: contentSize.width).isActive = true
+        button.widthAnchor.constraint(equalToConstant: contentSize.width + 12).isActive = true
         
         if superview is UIStackView {
             (superview as! UIStackView).addArrangedSubview(button)
