@@ -1,0 +1,26 @@
+Rename here:
+<user visible appname>
+<upper case appname with no spaces>
+<lower case appname with underscore>
+<lower case appname one word>
+
+1.1 Go to Xcode
+1.2 Change Name to <upper case appname with no spaces>
+1.3 Change Display Name to <user visible appname>
+1.4 Change Bundle Identifier to <lower case appname with underscore>
+
+2.1 Create Icon 1024x1024
+2.2 Add icons to App Icons Source
+2.3 Add Launch Image
+
+3. Add Identifiers->App IDs
+3.1 Name to <upper case appname with no spaces>
+3.2 Bundle ID to <lower case appname with underscore>
+
+4. Add Provisioning Profiles->Distribution
+
+5. Add App in iTunesConnect
+
+6. Upload using Xcode
+
+For creating icons: Prepo
