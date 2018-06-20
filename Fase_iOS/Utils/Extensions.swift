@@ -3,7 +3,7 @@
 //  TestJsonIOS
 //
 //  Created by Alexey Bidnyk on 3/8/18.
-//  Copyright © 2018 Alexey Bidnyk. All rights reserved.
+//  Copyright © 2018 Fase. All rights reserved.
 //
 
 import Foundation
@@ -969,11 +969,19 @@ extension MenuItem {
 extension Place {
     func placeString(for type: PlacePickerType) -> String? {
         if let placeId = self.googlePlaceId, let city = self.city, let state = self.state, let country = self.country {
-            //            return placeId + "|" + city + "|" + state + "|" + country
-            switch type {
-            case .city:
-                return city
+            var retValue = ""
+            
+            if city.isEmpty == false {
+                retValue += city + ","
             }
+            if state.isEmpty == false {
+                retValue += " " + state + ","
+            }
+            if country.isEmpty == false {
+                retValue += " " + country
+            }
+            
+            return retValue
         }
         return nil
     }

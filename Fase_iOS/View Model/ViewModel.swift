@@ -201,6 +201,23 @@ class FaseViewModel: NSObject, Fase {
         let placePickerController = GMSAutocompleteViewController()
         placePickerController.faseElementId = sender.faseElementId
         placePickerController.delegate = self
+        
+        if let elementId = sender.faseElementId, let placePicker = self.screen.placePickerElement(elementId: elementId) {
+            let filter = GMSAutocompleteFilter()
+            
+            switch placePicker.type {
+                
+            case .city:
+                filter.type = .city
+                break
+                
+            default:
+                filter.type = .noFilter
+                break
+            }
+            placePickerController.autocompleteFilter = filter
+        }
+        
         self.router?.presentViewController(viewController: placePickerController)
     }
     
@@ -447,6 +464,9 @@ class FaseViewModel: NSObject, Fase {
                 
             case .text:
                 if (element as! Text).multiline == true {
+                    if (uiElement as! UITextView).isFirstResponder == true {
+                        break
+                    }
                     (uiElement as! UITextView).text = newValue
                     
                     // change text color
@@ -454,6 +474,9 @@ class FaseViewModel: NSObject, Fase {
                         (uiElement as! UITextView).textColor = UIColor.black
                     }
                 } else {
+                    if (uiElement as! UITextField).isFirstResponder == true {
+                        break
+                    }
                     (uiElement as! UITextField).text = newValue
                 }
                 break
@@ -684,6 +707,8 @@ extension FaseViewModel: CNContactPickerDelegate {
 
 extension FaseViewModel: WKUIDelegate, WKNavigationDelegate {
     
+    // MARK: - WKNavigationDelegate
+    
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         webView.evaluateJavaScript("document.readyState", completionHandler: { (complete, error) in
             if complete != nil {
@@ -691,7 +716,7 @@ extension FaseViewModel: WKUIDelegate, WKNavigationDelegate {
                     let height = height as! CGFloat
                     
                     webView.snp.makeConstraints({ (make) in
-                        make.height.equalTo(100)
+                        make.height.equalTo(self.screenDrawer.view.frame.height / 2)
                     })
                 })
             }

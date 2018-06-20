@@ -364,7 +364,7 @@ class ScreenDrawer {
         }
         
         if let textType = element.type {
-            switch textType {            
+            switch textType {
                 
             case .email:
                 textField.keyboardType = .emailAddress
@@ -377,7 +377,7 @@ class ScreenDrawer {
             case .digits:
                 textField.keyboardType = .numberPad
                 break
-
+                
             default:
                 textField.keyboardType = .asciiCapable
                 break
@@ -428,7 +428,7 @@ class ScreenDrawer {
         toolbar.isUserInteractionEnabled = true
         toolbar.sizeToFit()
         
-        textView.inputAccessoryView = toolbar  
+        textView.inputAccessoryView = toolbar
         
         if let parentId = parentElementId {
             textView.navigationElementId = parentId
@@ -981,8 +981,6 @@ class ScreenDrawer {
             superview.addSubview(webView)
         }
         self.uiControls.append(webView)
-        
-        webView.heightAnchor.constraint(equalToConstant: 300)
     }
     
     // MARK: - Utils

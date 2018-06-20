@@ -3,7 +3,7 @@
 //  TestJsonIOS
 //
 //  Created by Alexey Bidnyk on 3/6/18.
-//  Copyright © 2018 Alexey Bidnyk. All rights reserved.
+//  Copyright © 2018 Fase. All rights reserved.
 //
 
 import UIKit
@@ -125,7 +125,7 @@ class FaseViewController: UIViewController {
                         mainButtonBar = UIBarButtonItem(customView: button)
                     }
                 }
-            }            
+            }
             
             self.addBarButtonItem(button: mainButtonBar, leftItem: false)
             self.navigationController?.isNavigationBarHidden = false

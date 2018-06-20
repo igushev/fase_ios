@@ -3,7 +3,7 @@
 //  TestJsonIOS
 //
 //  Created by Alexey Bidnyk on 3/2/18.
-//  Copyright © 2018 Alexey Bidnyk. All rights reserved.
+//  Copyright © 2018 Fase. All rights reserved.
 //
 
 import UIKit
@@ -89,7 +89,7 @@ class Router {
         if let error = error {
             print(error.localizedDescription)
             if error.code == 500 {
-                self.showErrorAlert(title: "Server error", message: "Sorry, server error occured", retryApiCall: retryApiCall)
+                self.showErrorAlert(title: "Server error", message: "Sorry, server error occured", retryApiCall: nil)
             } else if error.code == -1009 {
                 self.showErrorAlert(title: "Error", message: "No internet connection", retryApiCall: retryApiCall)
             }

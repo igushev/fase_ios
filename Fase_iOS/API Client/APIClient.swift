@@ -3,7 +3,7 @@
 //  TestJsonIOS
 //
 //  Created by Alexey Bidnyk on 3/2/18.
-//  Copyright © 2018 Alexey Bidnyk. All rights reserved.
+//  Copyright © 2018 Fase. All rights reserved.
 //
 
 import Foundation
@@ -31,8 +31,8 @@ typealias ResourceHandler = (Data?, Error?) -> Void
 typealias JSON = AnyObject
 
 class APIClient {
-//    static let shared = APIClient()
-    static let shared = APIClient(with: URL(string: BaseURL.test.rawValue)!)
+    //    static let shared = APIClient()
+    static let shared = APIClient(with: URL(string: BaseURL.karmaCounter.rawValue)!)
     
     var baseURL: URL!
     var sessionInfo: SessionInfo? {

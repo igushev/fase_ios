@@ -3,7 +3,7 @@
 //  TestJsonIOS
 //
 //  Created by Aleksey on 3/10/18.
-//  Copyright © 2018 Alexey Bidnyk. All rights reserved.
+//  Copyright © 2018 Fase. All rights reserved.
 //
 
 import Foundation
