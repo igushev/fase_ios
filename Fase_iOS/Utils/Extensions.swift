@@ -1054,6 +1054,14 @@ extension ElementsUpdate: Equatable {
         
         return (newElementsUpdate.valueArray!.count > 0) ? newElementsUpdate : nil
     }
+    
+    mutating func update(with newElementsUpdate: ElementsUpdate) {
+        for i in 0...(self.valueArray?.count)! - 1 {
+            if self.valueArray![i] != newElementsUpdate.valueArray![i] {
+                self.valueArray![i] = newElementsUpdate.valueArray![i]
+            }
+        }
+    }
 }
 
 

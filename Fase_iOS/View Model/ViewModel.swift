@@ -441,6 +441,9 @@ class FaseViewModel: NSObject, Fase {
     // MARK: - Elements update handling
     
     func updateScreen(with elementsUpdate: ElementsUpdate) {
+        // Update oldElementsUpdate
+        self.oldElementsUpdate?.update(with: elementsUpdate)
+        
         if let elementsToUpdateCount = elementsUpdate.valueArray?.count {
             for i in 0...elementsToUpdateCount - 1 {
                 if let values = elementsUpdate.valueArray, let elementsIds = elementsUpdate.arrayArrayIds {
