@@ -502,8 +502,16 @@ class FaseViewModel: NSObject, Fase {
                 }
                 break
                 
-            case .placePicker, .contactPicker:
-                (uiElement as! UITextField).text = newValue
+            case .contactPicker:
+                if let value = newValue, let contact = Contact(JSONString: value) {
+                    (uiElement as! UITextField).text = contact.displayName
+                }
+                break
+                
+            case .placePicker:
+                if let value = newValue, let place = Place(JSONString: value) {
+                    (uiElement as! UITextField).text = place.placeString(for: (element as! PlacePicker).type)
+                }
                 break
                 
             case .slider:

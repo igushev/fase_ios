@@ -32,7 +32,7 @@ typealias JSON = AnyObject
 
 class APIClient {
     //    static let shared = APIClient()
-    static let shared = APIClient(with: URL(string: BaseURL.karmaCounter.rawValue)!)
+    static let shared = APIClient(with: URL(string: BaseURL.test.rawValue)!)
     
     var baseURL: URL!
     var sessionInfo: SessionInfo? {

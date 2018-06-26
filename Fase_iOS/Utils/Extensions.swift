@@ -968,20 +968,19 @@ extension MenuItem {
 
 extension Place {
     func placeString(for type: PlacePickerType) -> String? {
-        if let placeId = self.googlePlaceId, let city = self.city, let state = self.state, let country = self.country {
-            var retValue = ""
+        if let _ = self.googlePlaceId, let city = self.city, let state = self.state, let country = self.country {
+            var values: [String] = []
             
-            if city.isEmpty == false {
-                retValue += city + ","
+            if city.isEmpty == false, city != "-" {
+                values.append(city)
             }
-            if state.isEmpty == false {
-                retValue += " " + state + ","
+            if state.isEmpty == false, state != "-" {
+                values.append(state)
             }
-            if country.isEmpty == false {
-                retValue += " " + country
+            if country.isEmpty == false, country != "-" {
+                values.append(country)
             }
-            
-            return retValue
+            return values.joined(separator: ", ")
         }
         return nil
     }
@@ -1004,6 +1003,13 @@ extension Place {
         }
         
         return place
+    }
+}
+
+extension Contact {
+    func contactString() -> String? {
+        let values = [self.displayName, self.phoneNumber]
+        return values.joined(separator: ", ")
     }
 }
 
