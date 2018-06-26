@@ -464,9 +464,6 @@ class FaseViewModel: NSObject, Fase {
                 
             case .text:
                 if (element as! Text).multiline == true {
-                    if (uiElement as! UITextView).isFirstResponder == true {
-                        break
-                    }
                     (uiElement as! UITextView).text = newValue
                     
                     // change text color
