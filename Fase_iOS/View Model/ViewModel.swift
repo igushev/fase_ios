@@ -2,7 +2,6 @@
 //  ViewModel.swift
 //  Fase_iOS
 //
-//  Created by Alexey Bidnyk on 3/14/18.
 //  Copyright © 2018 Fase. All rights reserved.
 //
 

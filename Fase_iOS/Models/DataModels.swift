@@ -2,7 +2,6 @@
 //  DataClasses.swift
 //  TestJson
 //
-//  Created by Alexey Bidnyk on 3/1/18.
 //  Copyright © 2018 Fase. All rights reserved.
 //
 

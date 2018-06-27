@@ -2,7 +2,6 @@
 //  ReviewedScreenDrawer.swift
 //  Fase_iOS
 //
-//  Created by Alexey Bidnyk on 5/18/18.
 //  Copyright © 2018 Fase. All rights reserved.
 //
 
