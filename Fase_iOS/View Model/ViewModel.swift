@@ -474,9 +474,6 @@ class FaseViewModel: NSObject, Fase {
                         (uiElement as! UITextView).textColor = UIColor.black
                     }
                 } else {
-                    if (uiElement as! UITextField).isFirstResponder == true {
-                        break
-                    }
                     (uiElement as! UITextField).text = newValue
                 }
                 break
