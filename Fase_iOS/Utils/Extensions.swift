@@ -1008,8 +1008,7 @@ extension Place {
 
 extension Contact {
     func contactString() -> String? {
-        let values = [self.displayName, self.phoneNumber]
-        return values.joined(separator: ", ")
+        return self.displayName
     }
 }
 
