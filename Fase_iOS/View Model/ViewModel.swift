@@ -253,7 +253,6 @@ class FaseViewModel: NSObject, Fase {
                 strongSelf.router?.processResponse(response: response, error: error, for: strongSelf, retryApiCall: APIClient.shared.lastCalledApiFunc)
             }
             
-            strongSelf.oldElementsUpdate = elementsUpdate
         }
     }
     
