@@ -93,8 +93,11 @@ class Router {
                 self.showErrorAlert(title: "Error", message: "No internet connection", retryApiCall: retryApiCall)
             }
         } else if let response = response {
-            if let elementsUpdate = response.elementsUpdate, let viewModel = viewModel {
-                viewModel.updateScreen(with: elementsUpdate)
+            if let resources = response.resources {
+                if resources.resetResources == true {
+                    ResourcesService.resetResources()
+                }
+                ResourcesService.saveResources(resources)
             }
             if let screen = response.screen, let sessionInfo = response.sessionInfo {
                 APIClientService.saveNewSessionInfo(sessionInfo: sessionInfo)
@@ -105,12 +108,8 @@ class Router {
                 let viewModel = FaseViewModel(with: screen)
                 viewModel.router = self
                 self.displayViewController(with: viewModel)
-            }
-            if let resources = response.resources {
-                if resources.resetResources == true {
-                    ResourcesService.resetResources()
-                }
-                ResourcesService.saveResources(resources)
+            } else if let elementsUpdate = response.elementsUpdate, let viewModel = viewModel {
+                viewModel.updateScreen(with: elementsUpdate)
             }
             if let versionInfo = response.versionInfo {
                 APIClientService.saveNewVersionInfo(versionInfo: versionInfo)
