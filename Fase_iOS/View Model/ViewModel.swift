@@ -238,8 +238,9 @@ class FaseViewModel: NSObject, Fase {
         }
         
         let elementsUpdate = self.elementsUpdate()
-        
         let summaryElementsUpdates = elementsUpdate?.differenceFrom(oldElementsUpdate: self.oldElementsUpdate)
+        self.oldElementsUpdate = elementsUpdate
+
         let screenUpdate = ScreenUpdate(elementsUpdate: summaryElementsUpdates, device: Device.currentDevice())
         
         APIClientService.screenUpdate(for: screenUpdate!, screenId: self.screen.screenId!) { [weak self] (response, error) in
