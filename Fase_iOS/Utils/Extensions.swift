@@ -1012,9 +1012,9 @@ extension ElementsUpdate: Equatable {
     
     mutating func update(with newElementsUpdate: ElementsUpdate) {
         for i in 0...(self.valueArray?.count)! - 1 {
-            let idInOldElementsUpdate = self.arrayArrayIds?[i].first
+            let idInOldElementsUpdate = self.arrayArrayIds?[i]
             let idInNewElementsUpdate = newElementsUpdate.arrayArrayIds?.index(where: { (array) -> Bool in
-                return array.first == idInOldElementsUpdate
+                return array == idInOldElementsUpdate
             })
             
             if let index = idInNewElementsUpdate, let oldValue = self.valueArray?[i], let newValue = newElementsUpdate.valueArray?[index], oldValue != newValue {
