@@ -88,7 +88,7 @@ class Router {
         if let error = error {
             print(error.localizedDescription)
             if error.code == 500 {
-                self.showErrorAlert(title: "Server error", message: "Sorry, server error occured", retryApiCall: nil)
+                self.showErrorAlert(title: "Server error", message: "Internal server error", retryApiCall: nil)
             } else if error.code == -1009 {
                 self.showErrorAlert(title: "Error", message: "No internet connection", retryApiCall: retryApiCall)
             }
