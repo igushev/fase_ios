@@ -148,6 +148,13 @@ class ScreenDrawer {
         let elementTypeString = element.`class`
         let elementType = ElementType(with: elementTypeString)
         
+        // We check since some elements might go through this path, but not be visual (navigation).
+        if let visual_element = element as? VisualElement {
+            if !visual_element.isDisplayed {
+                return
+            }
+        }
+        
         switch elementType {
             
         case .navigation:
