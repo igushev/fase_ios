@@ -486,6 +486,9 @@ class FaseViewModel: NSObject, Fase {
                 
             case .select:
                 (uiElement as! UITextField).text = newValue
+                if let selectElement = self.screen.selectElement(elementId: elementId) {
+                    selectElement.value = newValue
+                }
                 break
                 
             case .dateTimePicker:
@@ -495,18 +498,27 @@ class FaseViewModel: NSObject, Fase {
                     } else {
                         (uiElement as! UITextField).text = self.printDateFormatter.string(from: newDate)
                     }
+                    if let datePickerElement = self.screen.datePickerElement(elementId: elementId) {
+                        datePickerElement.datetime = newDate
+                    }
                 }
                 break
                 
             case .contactPicker:
                 if let value = newValue, let contact = Contact(JSONString: value) {
                     (uiElement as! UITextField).text = contact.displayName
+                    if let contactPickerElement = self.screen.contactPickerElement(elementId: elementId) {
+                        contactPickerElement.contact = contact
+                    }
                 }
                 break
                 
             case .placePicker:
                 if let value = newValue, let place = Place(JSONString: value) {
                     (uiElement as! UITextField).text = place.placeString(for: (element as! PlacePicker).type)
+                    if let placePickerElement = self.screen.placePickerElement(elementId: elementId) {
+                        placePickerElement.place = place
+                    }
                 }
                 break
                 
