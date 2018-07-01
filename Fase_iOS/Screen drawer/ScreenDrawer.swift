@@ -684,7 +684,11 @@ class ScreenDrawer {
         }
         
         if let value = element.datetime {
-            textField.text = String(describing: value)
+            if element.type == DateTimePickerType.time {
+                textField.text = DatetimeFormatter.printTimeFormatter.string(from: value)
+            } else {
+                textField.text = DatetimeFormatter.printDateFormatter.string(from: value)
+            }
         }
         
         let contentSize = textField.intrinsicContentSize

@@ -15,12 +15,6 @@ protocol Fase {
 }
 typealias ContextMenuCallback = (_ sender: UIView, _ button: Button) -> Void
 
-enum FaseDateFormat: String {
-    case server = "yyyy-MM-dd'T'HH:mm:ss"
-    case printDate = "yyyy-MM-dd"
-    case printTime = "h:mm a"
-}
-
 class FaseViewModel: NSObject, Fase {
     
     var screen: Screen!
@@ -36,15 +30,6 @@ class FaseViewModel: NSObject, Fase {
     var oldElementsUpdate: ElementsUpdate?
     
     var pickerToollBar: UIToolbar?
-    var serverDateFormatter: DateFormatter {
-        return DateFormatter(withFormat: FaseDateFormat.server.rawValue, locale: "US")
-    }
-    var printDateFormatter: DateFormatter {
-        return DateFormatter(withFormat: FaseDateFormat.printDate.rawValue, locale: "US")
-    }
-    var printTimeFormatter: DateFormatter {
-        return DateFormatter(withFormat: FaseDateFormat.printTime.rawValue, locale: "US")
-    }
     
     // Array that stores different pickers
     var pickers: [String: UIView]?
@@ -169,9 +154,9 @@ class FaseViewModel: NSObject, Fase {
                     if let datePickerElement = self.screen.datePickerElement(elementId: element.faseElementId!), let datePicker = self.pickers![senderId] as? UIDatePicker  {
                         datePickerElement.datetime = datePicker.date
                         if datePickerElement.type == DateTimePickerType.time {
-                            textField.text = self.printTimeFormatter.string(from: datePicker.date)
+                            textField.text = DatetimeFormatter.printTimeFormatter.string(from: datePicker.date)
                         } else {
-                            textField.text = self.printDateFormatter.string(from: datePicker.date)
+                            textField.text = DatetimeFormatter.printDateFormatter.string(from: datePicker.date)
                         }
                         
                     }
@@ -369,7 +354,7 @@ class FaseViewModel: NSObject, Fase {
                     case .dateTimePicker:
                         var dateString = ""
                         if let elementId = textField.faseElementId, let datePickerElement = self.screen.datePickerElement(elementId: elementId), let date = datePickerElement.datetime {
-                            dateString = self.serverDateFormatter.string(from: date)
+                            dateString = DatetimeFormatter.serverDateFormatter.string(from: date)
                         }
                         elementsUpdate.valueArray?.append(dateString)
                         elementsUpdate.arrayArrayIds?.append(idsArray)
@@ -492,11 +477,11 @@ class FaseViewModel: NSObject, Fase {
                 break
                 
             case .dateTimePicker:
-                if let dateString = newValue, let newDate = self.serverDateFormatter.date(from: dateString) {
+                if let dateString = newValue, let newDate = DatetimeFormatter.serverDateFormatter.date(from: dateString) {
                     if (element as! DateTimePicker).type == DateTimePickerType.time {
-                        (uiElement as! UITextField).text = self.printTimeFormatter.string(from: newDate)
+                        (uiElement as! UITextField).text = DatetimeFormatter.printTimeFormatter.string(from: newDate)
                     } else {
-                        (uiElement as! UITextField).text = self.printDateFormatter.string(from: newDate)
+                        (uiElement as! UITextField).text = DatetimeFormatter.printDateFormatter.string(from: newDate)
                     }
                     if let datePickerElement = self.screen.datePickerElement(elementId: elementId) {
                         datePickerElement.datetime = newDate

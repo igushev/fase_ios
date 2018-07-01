@@ -468,7 +468,9 @@ class DateTimePicker: VisualElement {
     required init?(map: Map) {
         super.init(map: map)
         
-        datetime = try? map.value("datetime")
+        if let dateString = map["datetime"].currentValue as? String {
+            datetime = DatetimeFormatter.serverDateFormatter.date(from: dateString)
+        }
         type = try? map.value("type")
         hint = try? map.value("hint")
         size = try? map.value("size")
@@ -477,7 +479,9 @@ class DateTimePicker: VisualElement {
     override func mapping(map: Map) {
         super.mapping(map: map)
         
-        datetime <- map["datetime"]
+        if let dateString = map["datetime"].currentValue as? String {
+            datetime = DatetimeFormatter.serverDateFormatter.date(from: dateString)
+        }
         type <- map["type"]
         hint <- map["hint"]
         size <- map["size"]
