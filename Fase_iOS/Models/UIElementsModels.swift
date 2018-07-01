@@ -21,7 +21,6 @@ enum ElementType: String {
     case select = "select"
     case image = "image"
     case button = "button"
-    case buttonBar = "buttonbar"
     case menu = "menu"
     case menuItem = "menuitem"
     case contactPicker = "contactpicker"
@@ -387,7 +386,7 @@ class MenuItem: VisualElement {
     }
 }
 
-class Menu: VisualElement {
+class Menu: ElementContainer {
     var text: String!
     
     required init?(map: Map) {
@@ -425,7 +424,7 @@ class Button: VisualElement {
     }
 }
 
-class ButtonBar: VisualElement {
+class Navigation: ElementContainer {
     
 }
 
@@ -558,6 +557,8 @@ enum FrameType: Int {
     case horizontal
 }
 
+class BaseElementsContainer: VisualElement { }
+
 class Frame: BaseElementsContainer {
     var orientation: FrameType!
     var size: Size!
@@ -583,7 +584,7 @@ class Frame: BaseElementsContainer {
     }
 }
 
-class Alert: VisualElement {
+class Alert: ElementContainer {
     var text: String!
     
     required init?(map: Map) {
@@ -598,8 +599,6 @@ class Alert: VisualElement {
         text <- map["text"]
     }
 }
-
-class BaseElementsContainer: VisualElement { }
 
 class Screen: BaseElementsContainer {
     var screenId: String?

@@ -34,7 +34,7 @@ class ElementMappingService {
             return Button.init(map: map)
             
         case .navigation:
-            return ElementContainer.init(map: map)
+            return Navigation.init(map: map)
             
         case .frame:
             return Frame.init(map: map)

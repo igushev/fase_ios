@@ -428,18 +428,6 @@ extension Frame {
     }
 }
 
-extension VisualElement {
-    // This extension allow to store element_id for custom tab bar button
-    var faseElementId: String? {
-        get {
-            return objc_getAssociatedObject(self, &faseElementIdAssociationKey) as? String
-        }
-        set(newValue) {
-            objc_setAssociatedObject(self, &faseElementIdAssociationKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN)
-        }
-    }
-}
-
 extension Button {
     func imageElement() -> Image? {
         var image: Image? = nil
@@ -512,6 +500,16 @@ extension Button {
 
 extension ElementContainer {
     
+    // This extension allow to store element_id for custom tab bar, navigation and alert
+    var faseElementId: String? {
+        get {
+            return objc_getAssociatedObject(self, &faseElementIdAssociationKey) as? String
+        }
+        set(newValue) {
+            objc_setAssociatedObject(self, &faseElementIdAssociationKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN)
+        }
+    }
+
     func hasElementWithMaxSize() -> Bool {
         var has = false
         for tuple in self.idElementList {
