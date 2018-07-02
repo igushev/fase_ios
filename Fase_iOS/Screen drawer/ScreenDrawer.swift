@@ -572,7 +572,6 @@ class ScreenDrawer {
         }
         
         let contentSize = label.intrinsicContentSize
-        label.heightAnchor.constraint(equalToConstant: contentSize.height).isActive = true
         if element.size != .min {
             label.setContentCompressionResistancePriority(UILayoutPriority.defaultLow, for: .horizontal)
             label.setContentHuggingPriority(UILayoutPriority.defaultLow, for: .horizontal)
@@ -580,6 +579,8 @@ class ScreenDrawer {
         else {
             label.widthAnchor.constraint(equalToConstant: contentSize.width).isActive = true
         }
+        label.numberOfLines = 0
+        label.sizeToFit()
         
         if superview is UIStackView {
             (superview as! UIStackView).addArrangedSubview(label)
