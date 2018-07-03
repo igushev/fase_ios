@@ -8,6 +8,7 @@ Rename here:
 1.2 Change Name to <upper case appname with no spaces>
 1.3 Change Display Name to <user visible appname>
 1.4 Change Bundle Identifier to <lower case appname with underscore>
+1.5 Update Google API Key
 
 2.1 Create Icon 1024x1024
 2.2 Add icons to App Icons Source
