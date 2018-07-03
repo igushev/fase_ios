@@ -27,6 +27,7 @@
 		5BFCBD88204F37EB0063A171 /* ServiceModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BFCBD85204F37EB0063A171 /* ServiceModels.swift */; };
 		5BFCBD89204F37EB0063A171 /* UIElementsModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BFCBD86204F37EB0063A171 /* UIElementsModels.swift */; };
 		722295DC7B712187E6B4D4C8 /* Pods_Fase_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E8585DDA4914243BEDCB50AB /* Pods_Fase_iOS.framework */; };
+		AC05BFE720EB4F6000C3AB5B /* Datetime.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC05BFE620EB4F6000C3AB5B /* Datetime.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,6 +75,7 @@
 		5BFCBD85204F37EB0063A171 /* ServiceModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServiceModels.swift; sourceTree = "<group>"; };
 		5BFCBD86204F37EB0063A171 /* UIElementsModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIElementsModels.swift; sourceTree = "<group>"; };
 		6206C7F198B1A883D35A568A /* Pods-Fase_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fase_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Fase_iOS/Pods-Fase_iOS.release.xcconfig"; sourceTree = "<group>"; };
+		AC05BFE620EB4F6000C3AB5B /* Datetime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Datetime.swift; sourceTree = "<group>"; };
 		E8585DDA4914243BEDCB50AB /* Pods_Fase_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Fase_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -158,6 +160,7 @@
 			isa = PBXGroup;
 			children = (
 				5B4A2D62205574A100578E83 /* Extensions.swift */,
+				AC05BFE620EB4F6000C3AB5B /* Datetime.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -451,6 +454,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AC05BFE720EB4F6000C3AB5B /* Datetime.swift in Sources */,
 				5BFCBD87204F37EB0063A171 /* DataModels.swift in Sources */,
 				5B4A2D64205574A100578E83 /* APIClientService.swift in Sources */,
 				5B4A2D63205574A100578E83 /* FaseViewController.swift in Sources */,
