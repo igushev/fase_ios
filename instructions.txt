@@ -8,20 +8,23 @@ Rename here:
 1.2 Change Name to <upper case appname with no spaces>
 1.3 Change Display Name to <user visible appname>
 1.4 Change Bundle Identifier to <lower case appname with underscore>
-1.5 Update Google API Key
 
-2.1 Create Icon 1024x1024
-2.2 Add icons to App Icons Source
-2.3 Add Launch Image
+2.1 Update APIClient.swift.shared
+2.1 Update Google API Key
 
-3. Add Identifiers->App IDs
-3.1 Name to <upper case appname with no spaces>
-3.2 Bundle ID to <lower case appname with underscore>
+3.1 Create icon 1024x1024
+3.2 Create icons for icons source
+3.3 In General add icons to App Icons Source
+3.4 In General add Launch Image
 
-4. Add Provisioning Profiles->Distribution
+4. Add Identifiers->App IDs
+4.1 Name to <upper case appname with no spaces>
+4.2 Bundle ID to <lower case appname with underscore>
 
-5. Add App in iTunesConnect
+5. Add Provisioning Profiles->Distribution
 
-6. Upload using Xcode
+6. Add App in iTunesConnect
+
+7. Upload using Xcode
 
 For creating icons: Prepo
