@@ -275,6 +275,13 @@ class FaseViewController: UIViewController {
                     strongSelf.alertController?.dismiss(animated: true, completion: nil)
                 })
                 self.alertController?.addAction(cancelAction)
+
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    self.alertController?.popoverPresentationController?.sourceView = self.view
+                    self.alertController?.popoverPresentationController?.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+                    self.alertController?.popoverPresentationController?.permittedArrowDirections = []
+                    
+                }
             }
         }
         
