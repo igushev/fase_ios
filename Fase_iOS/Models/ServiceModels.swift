@@ -10,19 +10,22 @@ import ObjectMapper
 
 struct Device: Mappable {
     var deviceType: String?
+    var deviceId: String?
     var deviceToken: String?
     var pixelDensity: CGFloat?
     
-    init(type: String, token: String) {
-        self.deviceType = type
-        self.deviceToken = token
-        self.pixelDensity = UIScreen.main.scale
+    init(deviceType: String, deviceId: String, deviceToken: String, pixelDensity: CGFloat) {
+        self.deviceType = deviceType
+        self.deviceId = deviceId
+        self.deviceToken = deviceToken
+        self.pixelDensity = pixelDensity
     }
     
     init?(map: Map) { }
     
     mutating func mapping(map: Map) {
         deviceType <- map["device_type"]
+        deviceId <- map["device_id"]
         deviceToken <- map["device_token"]
         pixelDensity <- map["pixel_density"]
     }

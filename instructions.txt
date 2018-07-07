@@ -11,6 +11,7 @@ Rename here:
 2.1 Update APIClient.swift.shared URL
 2.2 Change URL to prod
 2.3 Update Google API Key
+2.4 Comment/Uncomment Notifications
 
 3.1 Create icon 1024x1024
 3.2 Remove alpha channel using Mac Preview

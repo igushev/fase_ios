@@ -20,6 +20,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // setup google place picker
         GMSPlacesClient.provideAPIKey(googleAPIKey)
+        // setup push notifications
+        // NotificationService.instance.registerForRemoteNotifications()
         
         // setup app
         if let window = self.window {
@@ -31,13 +33,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
     
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        NotificationService.instance.deviceToken = deviceToken.reduce("", {$0 + String(format: "%02X", $1)})
+    }
+
     func setupStartScreen() {
-        var uuid = ""
-        if let currentUUID = UIDevice.current.identifierForVendor?.uuidString {
-            uuid = currentUUID
-        }
-        let type = UIDevice.current.systemName
-        let device = Device(type: type, token: uuid)
+        let device = Device.currentDevice()
         
 //        self.router?.displayEmptyViewController()
         

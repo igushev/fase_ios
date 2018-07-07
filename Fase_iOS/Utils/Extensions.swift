@@ -550,13 +550,14 @@ extension ElementContainer {
 
 extension Device {
     static func currentDevice() -> Device {
-        var uuid = ""
+        let deviceType = UIDevice.current.systemName
+        var deviceId = ""
         if let currentUUID = UIDevice.current.identifierForVendor?.uuidString {
-            uuid = currentUUID
+            deviceId = currentUUID
         }
-        let type = UIDevice.current.systemName
-        
-        return Device(type: type, token: uuid)
+        let deviceToken = NotificationService.instance.deviceToken
+        let pixelDensity = UIScreen.main.scale
+        return Device(deviceType: deviceType, deviceId: deviceId, deviceToken: deviceToken, pixelDensity: pixelDensity)
     }
 }
 

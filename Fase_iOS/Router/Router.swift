@@ -47,12 +47,7 @@ class Router {
         let restartAction = UIAlertAction(title: restartButtonTitle, style: .default) { (action) in
             alertController.dismiss(animated: true, completion: nil)
             
-            var uuid = ""
-            if let currentUUID = UIDevice.current.identifierForVendor?.uuidString {
-                uuid = currentUUID
-            }
-            let type = UIDevice.current.systemName
-            let device = Device(type: type, token: uuid)
+            let device = Device.currentDevice()
             
             if let retryApiCall = retryApiCall {
                 APIClientService.performRetryApiCall(apiCall: retryApiCall)

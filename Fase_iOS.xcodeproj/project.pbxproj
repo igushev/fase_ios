@@ -28,6 +28,7 @@
 		5BFCBD89204F37EB0063A171 /* UIElementsModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BFCBD86204F37EB0063A171 /* UIElementsModels.swift */; };
 		722295DC7B712187E6B4D4C8 /* Pods_Fase_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E8585DDA4914243BEDCB50AB /* Pods_Fase_iOS.framework */; };
 		AC05BFE720EB4F6000C3AB5B /* Datetime.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC05BFE620EB4F6000C3AB5B /* Datetime.swift */; };
+		ACEFD52920F0B61D00EE5B90 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACEFD52820F0B61D00EE5B90 /* NotificationService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -76,6 +77,7 @@
 		5BFCBD86204F37EB0063A171 /* UIElementsModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIElementsModels.swift; sourceTree = "<group>"; };
 		6206C7F198B1A883D35A568A /* Pods-Fase_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fase_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Fase_iOS/Pods-Fase_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		AC05BFE620EB4F6000C3AB5B /* Datetime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Datetime.swift; sourceTree = "<group>"; };
+		ACEFD52820F0B61D00EE5B90 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		E8585DDA4914243BEDCB50AB /* Pods_Fase_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Fase_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -152,6 +154,7 @@
 				5B4A2D5F205574A100578E83 /* APIClientService.swift */,
 				5B4A2D60205574A100578E83 /* ElementMappingService.swift */,
 				5B2127FD205D39BB003A0997 /* ResourcesService.swift */,
+				ACEFD52820F0B61D00EE5B90 /* NotificationService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -466,6 +469,7 @@
 				5BFCBD89204F37EB0063A171 /* UIElementsModels.swift in Sources */,
 				5B4A2D5B2055749900578E83 /* Router.swift in Sources */,
 				5BFCBD56204F379E0063A171 /* AppDelegate.swift in Sources */,
+				ACEFD52920F0B61D00EE5B90 /* NotificationService.swift in Sources */,
 				5BFCBD88204F37EB0063A171 /* ServiceModels.swift in Sources */,
 				5B4A2D66205574A100578E83 /* Extensions.swift in Sources */,
 				5B4A2D582055748F00578E83 /* APIClient.swift in Sources */,
