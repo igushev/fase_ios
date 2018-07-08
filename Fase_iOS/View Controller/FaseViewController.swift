@@ -289,10 +289,6 @@ class FaseViewController: UIViewController {
     }
     
     @objc func onContextMenu(_ sender: UIButton?) {
-        if let button = sender {
-            print("Catch sender \(button.faseElementId)")
-        }
-        
         if let alert = self.alertController {
             self.present(alert, animated: true, completion: nil)
         }

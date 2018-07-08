@@ -78,8 +78,6 @@ class FaseViewModel: NSObject, Fase {
     // MARK: - Actions
     
     @objc func onClickBarButtonItem(_ sender: UIView) {
-        print("Catch sender \(sender.faseElementId)")
-        
         if let elementId = sender.faseElementId {
             if let button = self.element(with: elementId) as? Button, let _ = button.contextMenu(), let contextMenuCallback = self.contextMenuCallback {
                 contextMenuCallback(sender, button)
@@ -90,8 +88,6 @@ class FaseViewModel: NSObject, Fase {
     }
     
     @objc func onClick(_ sender: UIView) {
-        print("Catch sender \(sender.faseElementId)")
-        
         if let elementId = sender.faseElementId {
             if let button = self.element(with: elementId) as? Button, let _ = button.contextMenu(), let contextMenuCallback = self.contextMenuCallback {
                 contextMenuCallback(sender, button)
@@ -112,8 +108,6 @@ class FaseViewModel: NSObject, Fase {
     }
     
     @objc func onMore(_ sender: UIView) {
-        print("Catch sender \(sender.faseElementId)")
-        
     }
     
     // On frame tap

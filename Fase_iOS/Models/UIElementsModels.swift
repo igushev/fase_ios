@@ -85,7 +85,6 @@ class ElementContainer: Element {
             
             return nil
         }, toJSON: { (value: Array<ElementTuple>?) -> Array<Array<AnyObject>>? in
-            print(value)
             return nil
         })
         
@@ -120,7 +119,6 @@ class ElementContainer: Element {
             
             return nil
         }, toJSON: { (value: Array<ElementTuple>?) -> Array<Array<AnyObject>>? in
-            print(value)
             return nil
         })
         

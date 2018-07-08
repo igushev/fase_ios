@@ -138,17 +138,7 @@ class APIClient {
                     completion(nil, error)
                 }
                 if let json = response.result.value {
-                    #if DEBUG
-                        print("JSON: \(json)") // serialized json response
-                    #endif
-                    
                     completion(json as? Data, nil)
-                }
-                
-                if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
-                    #if DEBUG
-                        print("Data: \(utf8Text)") // original server data as UTF8 string
-                    #endif
                 }
         }
     }
@@ -181,10 +171,6 @@ class APIClient {
             }
             
             if let json = response.result.value as JSON? {
-                #if DEBUG
-                    print("JSON: \(json)") // serialized json response
-                #endif
-                
                 let jsonData = Data.jsonToData(json: json)
                 handler(jsonData, nil)
             }

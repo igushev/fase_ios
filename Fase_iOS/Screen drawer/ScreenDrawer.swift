@@ -52,8 +52,6 @@ class ScreenDrawer {
     // MARK: - Init
     
     init(with view: UIView) {
-        print("Screen drawer init")
-        
         self.view = view
         self.elements = []
         self.uiControls = []
@@ -137,9 +135,6 @@ class ScreenDrawer {
             self.elements.append(element)
             self.draw(element: element, with: id, parentElementId: parentElementId)
         }
-        
-        print("Finished drawing")
-        
     }
     
     // MARK: - Private
