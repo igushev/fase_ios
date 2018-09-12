@@ -340,6 +340,7 @@ class ScreenDrawer {
         textField.textColor = UIColor.FaseColors.textColor
         textField.borderStyle = .roundedRect
         textField.faseElementId = id
+        textField.delegate = self.viewModel
         textField.isHidden = !element.isDisplayed
         
         let toolbar = UIToolbar()

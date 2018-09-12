@@ -65,6 +65,8 @@ class FaseViewController: UIViewController {
         if let _ = self.viewModel.screen.onMore {
             
         }
+        NotificationCenter.default.addObserver(self, selector: #selector(FaseViewController.keyboardDidShow), name: NSNotification.Name.UIKeyboardDidShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(FaseViewController.keyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -318,10 +320,45 @@ class FaseViewController: UIViewController {
         
     }
     
+    @objc func keyboardDidShow(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
+            // self.view.frame.origin.y = -keyboardSize.height
+            let contentInsets: UIEdgeInsets = UIEdgeInsetsMake(0.0, 0.0, keyboardSize.height, 0.0)
+            if let scrollView = self.view?.scrollView {
+                scrollView.contentInset = contentInsets
+                scrollView.scrollIndicatorInsets = contentInsets
+                if let view = self.view {
+                    var aRect : CGRect = view.frame
+                    aRect.size.height -= keyboardSize.height
+                    if let activeTextField = self.viewModel.activeTextField {
+                        if (!aRect.contains(activeTextField.frame.origin)) {
+                            scrollView.scrollRectToVisible(activeTextField.frame, animated: true)
+                        }
+                    } else if let activeTextView = self.viewModel.activeTextView {
+                        if (!aRect.contains(activeTextView.frame.origin)) {
+                            scrollView.scrollRectToVisible(activeTextView.frame, animated: true)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    @objc func keyboardWillHide(notification: NSNotification) {
+        // self.view.frame.origin.y = 0
+        let contentInsets: UIEdgeInsets = UIEdgeInsets.zero
+        if let scrollView = self.view?.scrollView {
+            scrollView.contentInset = contentInsets
+            scrollView.scrollIndicatorInsets = contentInsets
+        }
+    }
+
     // MARK: - deinit
     
     deinit {
         self.viewModel.screenUpdateTimer.invalidate()
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardDidShow, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
     }
 }
 

@@ -36,7 +36,9 @@ class FaseViewModel: NSObject, Fase {
     var pickersToolbars: [String: UIToolbar]?
     
     var isElementCallbackProcessing = false
-    
+    var activeTextField: UITextField?
+    var activeTextView: UITextView?
+
     init(with screen: Screen) {
         super.init()
         
@@ -548,7 +550,6 @@ class FaseViewModel: NSObject, Fase {
         }
         return nil
     }
-    
 }
 
 extension FaseViewModel: UITextViewDelegate {
@@ -560,8 +561,14 @@ extension FaseViewModel: UITextViewDelegate {
             textView.text = nil
             textView.textColor = UIColor.black
         }
+        activeTextView = textView
     }
     
+    func textViewDidEndEditing(_ textView: UITextView)
+    {
+        activeTextView = nil
+    }
+
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         if text == "\n" {
             //            textView.bounds = CGRect(x: textView.frame.minX, y: textView.frame.minY, width: textView.bounds.width, height: textView.bounds.height + 30)
@@ -592,6 +599,16 @@ extension FaseViewModel: UITextFieldDelegate {
             
         }
         return true
+    }
+
+    func textFieldDidBeginEditing(_ textField: UITextField)
+    {
+        activeTextField = textField
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField)
+    {
+        activeTextField = nil
     }
 }
 
