@@ -187,7 +187,7 @@ class FaseViewModel: NSObject, Fase {
             
             switch placePicker.type {
                 
-            case .city:
+            case .city?:
                 filter.type = .city
                 break
                 

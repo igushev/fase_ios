@@ -201,13 +201,13 @@ class FaseViewController: UIViewController {
                 datePicker.faseElementId = datePickerElement.faseElementId
                 
                 switch datePickerElement.type {
-                case .time:
+                case .time?:
                     datePicker.datePickerMode = .time
                     
-                case .date:
+                case .date?:
                     datePicker.datePickerMode = .date
                     
-                case .datetime:
+                case .datetime?:
                     datePicker.datePickerMode = .dateAndTime
                     
                 default:
