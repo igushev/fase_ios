@@ -9,10 +9,7 @@ import Foundation
 import Alamofire
 
 enum BaseURL: String {
-    case helloWorld = "http://hello-world-fase-env-test1.us-west-2.elasticbeanstalk.com/"
-    case notes = "http://notes-fase-env-test1.us-west-2.elasticbeanstalk.com/"
-    case karmaCounter = "http://karmacounter-fase-env-test1.us-west-2.elasticbeanstalk.com/"
-    case test = "http://fase-test-fase-env-test1.us-west-2.elasticbeanstalk.com/"
+    case prod = "hello-world-fase-env-prod.us-west-2.elasticbeanstalk.com"
 }
 
 enum URLPath: String {
@@ -31,7 +28,7 @@ typealias JSON = AnyObject
 
 class APIClient {
     //    static let shared = APIClient()
-    static let shared = APIClient(with: URL(string: BaseURL.test.rawValue)!)
+    static let shared = APIClient(with: URL(string: BaseURL.prod.rawValue)!)
     
     var baseURL: URL!
     var sessionInfo: SessionInfo? {
