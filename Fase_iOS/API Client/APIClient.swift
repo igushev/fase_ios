@@ -9,7 +9,7 @@ import Foundation
 import Alamofire
 
 enum BaseURL: String {
-    case prod = "hello-world-fase-env-prod.us-west-2.elasticbeanstalk.com"
+    case prod = "http://hello-world-fase-env-prod.us-west-2.elasticbeanstalk.com/"
 }
 
 enum URLPath: String {

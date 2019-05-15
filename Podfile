@@ -4,7 +4,7 @@ def pods
     use_frameworks!
     
     pod 'Alamofire'
-    pod 'ObjectMapper', '~> 3.1'
+    pod 'ObjectMapper', '~> 3.3.0'
     pod 'SnapKit', '~> 4.0.0'
     pod 'GooglePlaces'
     pod 'GooglePlacePicker'
