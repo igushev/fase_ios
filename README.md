@@ -1,5 +1,5 @@
 # Fase iOS
-Android client for a Fase Service.
+iOS client for a Fase Service.
 
 Read details about Fase [here](http://fase.io).
 
