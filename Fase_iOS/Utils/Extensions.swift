@@ -938,7 +938,11 @@ extension Place {
     }
     
     static func place(with googlePlace: GMSPlace) -> Place {
-        var place = Place(placeId: googlePlace.placeID, city: "-", state: "-", country: "-")
+        var place = Place(placeId: "-", city: "-", state: "-", country: "-")
+        
+        if let googlePlaceId = googlePlace.placeID {
+            place.googlePlaceId = googlePlace.placeID
+        }
         
         if let addressComponents = googlePlace.addressComponents {
             for component in addressComponents {
